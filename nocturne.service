@@ -1,4 +1,6 @@
-# Replace YOUR_USER with your Pi username (for example: pi).
+# Edit this file before installing it.
+# Replace every YOUR_USER value with your Pi username (for example: pi).
+# Add optional Environment= lines below if you want custom location/weather config.
 #
 # Install:
 #   sudo cp nocturne.service /etc/systemd/system/nocturne.service

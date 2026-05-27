@@ -44,6 +44,8 @@ On Windows, you can use the included batch launchers instead of typing commands:
 2. Double-click `Start Nocturne.bat`.
 3. The browser should open to `http://127.0.0.1:8000/`.
 
+On macOS, double-click `Install Nocturne.command`; if Gatekeeper blocks it, right-click the file and choose **Open** the first time.
+
 For access from another device on your trusted LAN, double-click `Start Nocturne LAN.bat` and allow Python through Windows Firewall for **private networks** only. Then open `http://<windows-pc-ip>:8000/` from the other device.
 
 For optional third-party ambience, double-click `Fetch Ambient Media.bat`. The first run creates `media_sources.json` and opens it in Notepad; add the source URLs/creator notes, save it, then run the fetcher again.
@@ -143,7 +145,8 @@ location through environment variables:
 | `NOCTURNE_LOCATION_NAME` | `Oklahoma City`  | What the readout shows as "where"      |
 | `NOCTURNE_WEATHER_TTL`   | `600`            | Seconds the backend caches a result    |
 
-For systemd, add them to `/etc/systemd/system/nocturne.service`:
+For systemd, add optional `Environment=` lines like these if you want custom
+lat/lon/location/weather cache settings:
 
 ```ini
 [Service]
@@ -153,7 +156,8 @@ Environment=NOCTURNE_LOCATION_NAME=Oklahoma City
 ExecStart=/home/<you>/nocturne/.venv/bin/uvicorn main:app --host 0.0.0.0 --port 8000
 ```
 
-then `sudo systemctl daemon-reload && sudo systemctl restart nocturne`.
+then run `sudo systemctl daemon-reload && sudo systemctl restart nocturne`
+after installing the service.
 
 ### Graceful degradation
 
@@ -276,6 +280,10 @@ file was removed.
 ---
 
 ## Make it run on boot
+
+Edit `nocturne.service` first: replace `YOUR_USER` with your Pi username, and
+add optional `Environment=` lines for LAT/LON/timezone/weather config if you
+want local Sky-mode settings.
 
 ```bash
 sudo cp nocturne.service /etc/systemd/system/nocturne.service

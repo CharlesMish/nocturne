@@ -46,7 +46,7 @@ EXPECTED_AMBIENT = {
     "fireplace.mp3",
 }
 
-USER_AGENT = "Nocturne media installer (+https://github.com/your-name/nocturne)"
+USER_AGENT = "Nocturne/0.1 (+https://github.com/CharlesMish/nocturne)"
 
 
 def _sha256(path: Path) -> str:
