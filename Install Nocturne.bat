@@ -1,0 +1,42 @@
+@echo off
+setlocal
+cd /d "%~dp0"
+
+echo.
+echo Nocturne installer
+echo ===================
+echo.
+
+where py >nul 2>nul
+if %errorlevel%==0 (
+  set "PY=py -3"
+) else (
+  where python >nul 2>nul
+  if %errorlevel%==0 (
+    set "PY=python"
+  ) else (
+    echo Python 3 was not found.
+    echo.
+    echo Install Python 3 from https://www.python.org/downloads/windows/
+    echo During installation, enable "Add python.exe to PATH".
+    echo Then double-click this file again.
+    echo.
+    pause
+    exit /b 1
+  )
+)
+
+%PY% install.py %*
+if errorlevel 1 (
+  echo.
+  echo Install failed.
+  echo.
+  pause
+  exit /b %errorlevel%
+)
+
+echo.
+echo Install complete.
+echo Double-click "Start Nocturne.bat" to run Nocturne locally.
+echo.
+pause

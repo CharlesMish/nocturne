@@ -1,0 +1,1171 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>rpi4 // weather</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@200;300;400;500&display=swap" rel="stylesheet">
+
+<style>
+  /* ───────────────────────────────────────────────────────────
+     a black terminal screen, with weather inside it
+     ─────────────────────────────────────────────────────────── */
+  :root {
+    --bg-0:  #02060a;
+    --bg-1:  #04090c;
+    --bg-2:  #061410;          /* a faint warm spot at center */
+    --phos:  86, 240, 144;     /* base phosphor green (rgb triplet) */
+    --phos-bright: 198, 255, 220;
+    --phos-mid:    74, 210, 130;
+    --phos-low:    24, 110, 64;
+    --phos-x:      8,  40,  24;
+
+    /* tunables — written from JS CONFIG on load */
+    --bloom-scale:      1.0;
+    --halo-size:        min(64vmin, 880px);
+    --halo-tint-1:      rgba(74, 210, 130, 0.10);
+    --halo-tint-2:      rgba(74, 210, 130, 0.04);
+    --scanline-opacity: 0.55;
+    --grain-opacity:    0.50;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html, body {
+    margin: 0; padding: 0; height: 100%; width: 100%;
+    background: var(--bg-0);
+    color: rgb(var(--phos));
+    font-family: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+    font-weight: 300;
+    overflow: hidden;
+    cursor: none;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .stage {
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(140% 100% at 50% 55%,
+        var(--bg-2) 0%, var(--bg-1) 28%, var(--bg-0) 68%, #000 100%);
+    overflow: hidden;
+  }
+
+  /* ── the weather field — canvas filling the screen ── */
+  #field {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  /* ── the screen container, breathes slowly ── */
+  .screen {
+    position: absolute; inset: 0;
+    transform: perspective(2600px) rotateX(0.3deg);
+    transform-origin: center 60%;
+    animation: screenBreath 16s ease-in-out infinite;
+    will-change: filter;
+  }
+  @keyframes screenBreath {
+    0%, 100% { filter: brightness(1.00); }
+    50%      { filter: brightness(1.045); }
+  }
+
+  /* ── center clock, larger and more dominant than before ── */
+  .center {
+    position: absolute;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 5;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    pointer-events: none;
+  }
+
+  .clock {
+    font-weight: 200;
+    font-variant-numeric: tabular-nums;
+    font-size: clamp(96px, 22vmin, 320px);
+    letter-spacing: -0.025em;
+    line-height: 0.9;
+    color: rgb(var(--phos-bright));
+    filter: url(#phosphor-bloom);
+    text-shadow:
+      0 0 1px rgba(255, 255, 255, 0.55),
+      0 0 calc(8px   * var(--bloom-scale)) rgba(var(--phos), 0.6),
+      0 0 calc(26px  * var(--bloom-scale)) rgba(var(--phos), 0.42),
+      0 0 calc(70px  * var(--bloom-scale)) rgba(74, 210, 130, 0.28),
+      0 0 calc(140px * var(--bloom-scale)) rgba(74, 210, 130, 0.15);
+    animation: phosFlicker 7.4s ease-in-out infinite;
+  }
+  @keyframes phosFlicker {
+    0%,100% { opacity: 1.000; }
+    47%     { opacity: 0.988; }
+    49%     { opacity: 0.945; }
+    51%     { opacity: 0.997; }
+    73%     { opacity: 0.972; }
+  }
+  .clock .sep {
+    display: inline-block; width: 0.42ch; text-align: center;
+    color: rgba(var(--phos), 0.95);
+    transform: translateY(-0.02em);
+    animation: blink 1s steps(2, end) infinite;
+  }
+  @keyframes blink {
+    0%, 49.999% { opacity: 0.95; }
+    50%, 100%   { opacity: 0.30; }
+  }
+
+  /* a tiny ring of light directly behind the clock — gives it weight */
+  .halo {
+    position: absolute;
+    width:  var(--halo-size);
+    height: var(--halo-size);
+    border-radius: 50%;
+    background: radial-gradient(closest-side,
+      var(--halo-tint-1) 0%,
+      var(--halo-tint-2) 40%,
+      transparent 70%);
+    filter: blur(8px);
+    pointer-events: none;
+    z-index: 3;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    animation: haloBreath 11s ease-in-out infinite;
+  }
+  @keyframes haloBreath {
+    0%,100% { opacity: 0.85; transform: translate(-50%, -50%) scale(1.00); }
+    50%     { opacity: 1.00; transform: translate(-50%, -50%) scale(1.06); }
+  }
+
+  .date {
+    margin-top: clamp(20px, 2.4vmin, 36px);
+    font-size: clamp(11px, 1.05vmin, 15px);
+    letter-spacing: 0.5em;
+    text-transform: uppercase;
+    color: rgb(var(--phos-mid));
+    opacity: 0.78;
+    text-indent: 0.5em; /* compensate visually for tracking */
+    text-shadow:
+      0 0 4px rgba(var(--phos), 0.5),
+      0 0 18px rgba(var(--phos), 0.18);
+  }
+
+  /* ── single quiet bottom line — minimum needed to feel "live" ── */
+  .bottom {
+    position: absolute;
+    left: clamp(28px, 4vmin, 64px);
+    right: clamp(28px, 4vmin, 64px);
+    bottom: clamp(18px, 2.4vmin, 30px);
+    z-index: 6;
+    display: flex; justify-content: space-between; align-items: baseline;
+    font-size: clamp(10px, 0.9vmin, 12px);
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: rgb(var(--phos-low));
+    user-select: none;
+  }
+  .bottom .lhs, .bottom .rhs { display: flex; gap: 1.6ch; align-items: baseline; }
+  .bottom .live { color: rgb(var(--phos-mid)); }
+  .bottom .cursor {
+    display: inline-block;
+    width: 0.55ch; height: 1.05em;
+    background: rgb(var(--phos-mid));
+    margin-left: 0.4ch;
+    transform: translateY(0.18em);
+    box-shadow: 0 0 6px rgb(var(--phos-mid));
+    animation: blink 1.08s steps(2, end) infinite;
+  }
+  .bottom .dot {
+    display: inline-block;
+    width: 3px; height: 3px; border-radius: 50%;
+    background: rgb(var(--phos-x));
+    transform: translateY(-2px);
+  }
+
+  /* ── overlays: scanlines, slow scan roll, vignette, grain ── */
+  .scanlines {
+    position: absolute; inset: 0;
+    pointer-events: none;
+    background-image: repeating-linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.00) 0px,
+      rgba(0, 0, 0, 0.00) 2px,
+      rgba(0, 0, 0, 0.42) 3px,
+      rgba(0, 0, 0, 0.00) 4px);
+    mix-blend-mode: multiply;
+    z-index: 9;
+    opacity: var(--scanline-opacity);
+  }
+  .scanroll {
+    position: absolute; inset: -20% 0 0 0;
+    height: 16%; pointer-events: none;
+    background: linear-gradient(to bottom,
+      transparent 0%,
+      rgba(93, 255, 163, 0.022) 45%,
+      rgba(180, 255, 210, 0.045) 55%,
+      transparent 100%);
+    z-index: 10; mix-blend-mode: screen;
+    animation: scanroll 11s linear infinite;
+  }
+  @keyframes scanroll {
+    from { transform: translateY(0); }
+    to   { transform: translateY(700vh); }
+  }
+  .vignette {
+    position: absolute; inset: 0;
+    pointer-events: none; z-index: 11;
+    background: radial-gradient(130% 95% at 50% 50%,
+      transparent 50%,
+      rgba(0, 0, 0, 0.42) 78%,
+      rgba(0, 0, 0, 0.88) 100%);
+  }
+  #grain {
+    position: absolute; inset: 0;
+    pointer-events: none;
+    z-index: 12;
+    opacity: var(--grain-opacity);
+    mix-blend-mode: overlay;
+  }
+
+  /* rare jitter applied to the whole stage */
+  .jitter-host { position: absolute; inset: 0; transform: translate3d(0,0,0); }
+  .jitter-host.j1 { transform: translate3d(-1px, 0, 0); }
+  .jitter-host.j2 { transform: translate3d(1px, 0.5px, 0); }
+
+  /* ── boot: a brief CRT power-on, ~2.4s, then everything settles ── */
+  /* the body starts with .booting so nothing flashes before JS runs */
+  body.booting .clock,
+  body.booting .date,
+  body.booting .halo,
+  body.booting .scanlines,
+  body.booting .scanroll,
+  body.booting .vignette,
+  body.booting #grain,
+  body.booting .bottom { opacity: 0; }
+
+  /* suppress the breathing/blink animations entirely during boot.
+     pausing isn't enough — even a paused animation overrides static
+     opacity values on the properties it animates. */
+  body.booting .screen,
+  body.booting .halo,
+  body.booting .clock,
+  body.booting .clock .sep,
+  body.booting .scanroll { animation: none !important; }
+
+  /* when .booting is removed, things fade in on a small stagger.
+     order: halo first, clock + date, then overlays, then bottom bar */
+  .halo      { transition: opacity 1200ms ease   100ms; }
+  .clock     { transition: opacity 900ms  ease   350ms; }
+  .date      { transition: opacity 800ms  ease   650ms; }
+  .scanlines { transition: opacity 900ms  ease   500ms; }
+  .scanroll  { transition: opacity 1400ms ease   700ms; }
+  .vignette  { transition: opacity 1000ms ease   400ms; }
+  #grain     { transition: opacity 1200ms ease   600ms; }
+  .bottom    { transition: opacity 700ms  ease   850ms; }
+
+  /* the boot scan — a single bright horizontal line sweeps once,
+     top to bottom, like a CRT picking itself up off the floor */
+  .boot-scan {
+    position: absolute;
+    left: 0; right: 0;
+    height: 3px;
+    top: -3px;
+    background: linear-gradient(to bottom,
+      transparent 0%,
+      rgba(198, 255, 220, 0.0) 18%,
+      rgba(198, 255, 220, 0.95) 50%,
+      rgba(198, 255, 220, 0.0) 82%,
+      transparent 100%);
+    filter: blur(0.6px);
+    box-shadow:
+      0 0 12px 2px rgba(120, 240, 170, 0.55),
+      0 0 36px 8px rgba(74, 210, 130, 0.30);
+    z-index: 15;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .boot-scan.sweep { animation: bootSweep 460ms cubic-bezier(.35,.0,.55,1) forwards; }
+  @keyframes bootSweep {
+    0%   { opacity: 0;    top: -3%; }
+    10%  { opacity: 1;    }
+    90%  { opacity: 0.85; }
+    100% { opacity: 0;    top: 102%; }
+  }
+
+  /* boot console lines — appear where the bottom bar will live,
+     fade out as the bar fades in. each line stacks one row higher. */
+  .boot-lines {
+    position: absolute;
+    left: clamp(28px, 4vmin, 64px);
+    bottom: clamp(18px, 2.4vmin, 30px);
+    z-index: 7;
+    pointer-events: none;
+    font-size: clamp(10px, 0.9vmin, 12px);
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgb(var(--phos-mid));
+    text-shadow:
+      0 0 5px rgba(var(--phos), 0.45),
+      0 0 14px rgba(var(--phos), 0.18);
+  }
+  .boot-line {
+    opacity: 0;
+    transition: opacity 240ms ease;
+    line-height: 1.85;
+    white-space: nowrap;
+  }
+  .boot-line.show { opacity: 0.92; }
+  .boot-line .dots { color: rgb(var(--phos-low)); letter-spacing: 0.05em; margin: 0 0.6ch; }
+  .boot-line .ok   { color: rgb(var(--phos-bright)); letter-spacing: 0.1em; }
+
+  /* preset indicator — flashes briefly below the clock when a preset
+     is switched. quiet, then gone. */
+  .preset-indicator {
+    position: absolute;
+    left: 50%; top: 50%;
+    transform: translate(-50%, calc(-50% + 24vmin));
+    font-size: clamp(11px, 1.15vmin, 15px);
+    letter-spacing: 0.45em;
+    text-indent: 0.45em;
+    color: rgb(var(--phos-mid));
+    z-index: 7;
+    opacity: 0;
+    pointer-events: none;
+    text-transform: uppercase;
+    white-space: nowrap;
+    text-shadow:
+      0 0 6px rgba(var(--phos), 0.55),
+      0 0 18px rgba(var(--phos), 0.22);
+  }
+  .preset-indicator.show { animation: presetShow 1.7s ease forwards; }
+  @keyframes presetShow {
+    0%   { opacity: 0; transform: translate(-50%, calc(-50% + 25vmin)); }
+    18%  { opacity: 1; transform: translate(-50%, calc(-50% + 24vmin)); }
+    78%  { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+  /* dim labels for telemetry tokens — quieter than the values they
+     describe, so the eye reads "27%" not "cpu" */
+  .bottom .dim { color: rgb(var(--phos-x)); margin-right: 0.4ch; }
+
+  /* telemetry wraps the new bottom-bar fields. display:contents lets
+     children participate in the parent flex; the media query then
+     hides the whole group on narrow viewports without breaking layout. */
+  .bottom .telemetry { display: contents; }
+  @media (max-width: 760px) {
+    .bottom .telemetry { display: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .scanroll, .screen, .clock, .halo,
+    .boot-scan, .preset-indicator { animation: none !important; }
+    /* if motion is reduced, skip the fade-in transitions too — the
+       page just appears, no curtain-raising */
+    .halo, .clock, .date, .scanlines, .scanroll,
+    .vignette, #grain, .bottom { transition: none !important; }
+  }
+
+</style>
+</head>
+<body class="booting">
+
+<!-- SVG filter for the clock bloom -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <filter id="phosphor-bloom" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="0.6" result="b0"/>
+      <feGaussianBlur in="SourceGraphic" stdDeviation="3"   result="b1"/>
+      <feGaussianBlur in="SourceGraphic" stdDeviation="11"  result="b2"/>
+      <feMerge>
+        <feMergeNode in="b2"/>
+        <feMergeNode in="b1"/>
+        <feMergeNode in="b0"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+</svg>
+
+<div class="stage">
+  <div class="jitter-host" id="jitterHost">
+    <div class="screen">
+
+      <!-- weather field — characters drift in/out under slow pressure systems -->
+      <canvas id="field"></canvas>
+
+      <!-- soft halo behind the clock -->
+      <div class="halo"></div>
+
+      <!-- the only foreground content -->
+      <div class="center">
+        <div class="clock" aria-label="current time">
+          <span id="hh">00</span><span class="sep">:</span><span id="mm">00</span>
+        </div>
+        <div class="date" id="date">— — —</div>
+      </div>
+
+      <div class="bottom">
+        <div class="lhs">
+          <span>rpi4</span>
+          <span class="dot"></span>
+          <span class="live" id="uptime">— d — h — m</span>
+          <span class="telemetry">
+            <span class="dot"></span>
+            <span><span class="dim">cpu</span><span id="cpu">—</span></span>
+            <span class="dot"></span>
+            <span><span class="dim">mem</span><span id="mem">—</span></span>
+            <span class="dot"></span>
+            <span id="temp">—</span>
+          </span>
+        </div>
+        <div class="rhs">
+          <span>pi@rpi4 :~ $</span>
+          <span class="cursor" aria-hidden="true"></span>
+        </div>
+      </div>
+
+      <!-- overlays -->
+      <div class="scanlines"></div>
+      <div class="scanroll"></div>
+      <div class="vignette"></div>
+      <canvas id="grain"></canvas>
+
+      <!-- boot-time elements: scan sweep and stacked init lines.
+           the preset indicator flashes briefly on preset switches. -->
+      <div class="boot-scan" id="bootScan"></div>
+      <div class="boot-lines" id="bootLines"></div>
+      <div class="preset-indicator" id="presetIndicator"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ───────────────────────────────────────────────────────────
+   the weather
+   a grid of phosphor characters, lit by slow pressure systems
+   ─────────────────────────────────────────────────────────── */
+(() => {
+  "use strict";
+
+  /* ═══════════════════════════════════════════════════════════
+     CONFIG  —  every tunable visual constant lives here
+     ───────────────────────────────────────────────────────────
+     The DEFAULT preset is the tasteful baseline. Three other
+     presets only override values they want to change.
+
+     To try a preset, append a hash to the URL:
+         Dashboard%20v3.html#STORM
+         Dashboard%20v3.html#QUIET
+         Dashboard%20v3.html#DEEP%20PHOSPHOR
+     Or, in the browser console:
+         AMBIENT_CFG.illumThreshold = 0.18;  // (won't redraw — reload)
+     ═══════════════════════════════════════════════════════════ */
+  const PRESETS = {
+    DEFAULT: {
+      // FIELD
+      fontSize:           15,    // logical px (cells scale with this)
+      cellAspect:         0.62,  // monospace advance / em
+      cellLineHeight:     1.45,
+      density:            1.00,  // 0..1  fraction of cells "alive" with characters
+      charChangeRate:     10,    // cells reshuffled per ~80ms tick
+
+      // WEATHER
+      sourceCount:        2,     // 1..4 pressure systems
+      sourceRadius:       0.20,  // base radius, normalized to grid
+      sourceIntensity:    1.00,
+      ambient:            0.000, // baseline brightness everywhere (0 = pure black outside weather)
+      illumThreshold:     0.32,  // brightness level the soft-knee centers on
+      gradientSoftness:   0.13,  // width of the S-curve around threshold
+      bandPeak:           0.28,
+      bandThick:          0.10,
+
+      // PERSISTENCE  (phosphor decay)
+      fadeRate:           0.13,  // alpha of black overlay per frame; smaller = longer trails
+
+      // MOTION
+      motionSpeed:        1.00,
+
+      // CLOCK / HALO / BLOOM
+      clockMaskRadius:    0.20,  // "hole" in the field where the clock sits
+      haloSize:           64,    // vmin
+      haloBrightness:     0.10,
+      bloomScale:         1.00,  // multiplier on text-shadow blur radii
+
+      // OVERLAYS
+      scanlineOpacity:    0.55,
+      grainOpacity:       0.50,
+
+      // EVENTS — rare punctuation in the field. Frequency multiplier
+      // on a baseline of one event every 30..90s. Set to 0 to silence.
+      eventFrequency:     1.00,
+
+      // DIURNAL — couple intensity and motion gently to time-of-day.
+      // 0 = no coupling, 1 = full coupling (±15% range). Set 0 if the
+      // dashboard sits in a windowless rack and you don't want it.
+      diurnalAmount:      0.60,
+    },
+
+    QUIET: {
+      // sparse, dark, minimal, very slow — a screen left on
+      sourceCount:        1,
+      sourceRadius:       0.17,
+      sourceIntensity:    0.80,
+      density:            0.60,
+      ambient:            0.000,
+      illumThreshold:     0.36,
+      gradientSoftness:   0.10,
+      bandPeak:           0.16,
+      bandThick:          0.08,
+      fadeRate:           0.17,
+      motionSpeed:        0.50,
+      haloSize:           58,
+      haloBrightness:     0.07,
+      bloomScale:         0.85,
+      scanlineOpacity:    0.60,
+      grainOpacity:       0.42,
+      charChangeRate:     6,
+      eventFrequency:     0.30,
+      diurnalAmount:      0.80,
+    },
+
+    STORM: {
+      // more visible weather, stronger band, faster
+      sourceCount:        3,
+      sourceRadius:       0.24,
+      sourceIntensity:    1.20,
+      density:            1.00,
+      ambient:            0.010,
+      illumThreshold:     0.26,
+      gradientSoftness:   0.16,
+      bandPeak:           0.50,
+      bandThick:          0.16,
+      fadeRate:           0.08,
+      motionSpeed:        1.75,
+      haloSize:           70,
+      haloBrightness:     0.13,
+      bloomScale:         1.10,
+      scanlineOpacity:    0.50,
+      grainOpacity:       0.55,
+      charChangeRate:     20,
+      eventFrequency:     2.50,
+      diurnalAmount:      0.30,
+    },
+
+    "DEEP PHOSPHOR": {
+      // slower, softer, glowier, very long phosphor persistence
+      sourceCount:        2,
+      sourceRadius:       0.24,
+      sourceIntensity:    1.05,
+      density:            0.80,
+      ambient:            0.005,
+      illumThreshold:     0.28,
+      gradientSoftness:   0.22,    // wide soft falloff at zone edges
+      bandPeak:           0.20,
+      bandThick:          0.12,
+      fadeRate:           0.045,   // very long trails
+      motionSpeed:        0.42,
+      haloSize:           78,
+      haloBrightness:     0.17,
+      bloomScale:         1.30,
+      scanlineOpacity:    0.45,
+      grainOpacity:       0.45,
+      charChangeRate:     5,
+      eventFrequency:     0.60,
+      diurnalAmount:      0.50,
+    },
+  };
+
+  // resolve which preset to use (URL hash, then DEFAULT)
+  const PRESET_NAMES = ["DEFAULT", "QUIET", "STORM", "DEEP PHOSPHOR"];
+  const HASH = decodeURIComponent(location.hash.slice(1)).toUpperCase().trim();
+  const initialPreset = PRESET_NAMES.includes(HASH) ? HASH : "DEFAULT";
+  let   currentPreset = initialPreset;
+  const CFG = Object.assign({}, PRESETS.DEFAULT, PRESETS[initialPreset] || {});
+  window.AMBIENT_CFG     = CFG;
+  window.AMBIENT_PRESETS = PRESETS;
+
+  // push tunable values into CSS variables so styles match the preset.
+  // wrapped in a function so preset switches can rerun it.
+  const _root = document.documentElement;
+  function pushCSSVars() {
+    _root.style.setProperty("--bloom-scale",      CFG.bloomScale);
+    _root.style.setProperty("--halo-size",        `min(${CFG.haloSize}vmin, 880px)`);
+    _root.style.setProperty("--halo-tint-1",      `rgba(74, 210, 130, ${CFG.haloBrightness})`);
+    _root.style.setProperty("--halo-tint-2",      `rgba(74, 210, 130, ${(CFG.haloBrightness * 0.4).toFixed(3)})`);
+    _root.style.setProperty("--scanline-opacity", CFG.scanlineOpacity);
+    _root.style.setProperty("--grain-opacity",    CFG.grainOpacity);
+  }
+  pushCSSVars();
+
+  const pad = (n, w = 2) => String(n).padStart(w, "0");
+
+  // ── clock + date + uptime (the only "data" on the page) ──
+  const hh = document.getElementById("hh");
+  const mm = document.getElementById("mm");
+  const dateEl = document.getElementById("date");
+  const uptimeEl = document.getElementById("uptime");
+  const MON = ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"];
+  const DOW = ["sun","mon","tue","wed","thu","fri","sat"];
+
+  function tickClock() {
+    const d = new Date();
+    hh.textContent = pad(d.getHours());
+    mm.textContent = pad(d.getMinutes());
+    dateEl.textContent =
+      `${DOW[d.getDay()]} · ${MON[d.getMonth()]} ${pad(d.getDate())} ${d.getFullYear()}`;
+  }
+  tickClock();
+  setInterval(tickClock, 1000);
+
+  const boot = Date.now() - (4 * 86400000 + 3 * 3600000 + 17 * 60000);
+  function tickUptime() {
+    const ms = Date.now() - boot;
+    const d = Math.floor(ms / 86400000);
+    const h = Math.floor((ms % 86400000) / 3600000);
+    const m = Math.floor((ms % 3600000) / 60000);
+    uptimeEl.textContent = `${pad(d)}d ${pad(h)}h ${pad(m)}m`;
+  }
+  tickUptime();
+  setInterval(tickUptime, 30000);
+
+  // ── weather field ──
+  const field = document.getElementById("field");
+  const fctx  = field.getContext("2d", { alpha: true });
+
+  // character vocabulary — heavy toward dust, rare data fragments
+  // (weights apply to a 100-bag rolled per cell)
+  const VOCAB = [
+    ...Array(58).fill("·"),
+    ...Array(10).fill("."),
+    ...Array(8 ).fill(":"),
+    ...Array(6 ).fill("'"),
+    ...Array(5 ).fill("-"),
+    ...Array(3 ).fill("°"),
+    ...Array(3 ).fill("+"),
+    ...Array(2 ).fill("*"),
+    ...Array(1 ).fill("0"),
+    ...Array(1 ).fill("1"),
+    ...Array(1 ).fill("/"),
+    ...Array(1 ).fill("\\"),
+    ...Array(1 ).fill(">"),
+  ];
+  const pickChar = () => VOCAB[(Math.random() * VOCAB.length) | 0];
+
+  // grid geometry — recomputed on resize
+  let dpr = 1, W = 0, H = 0;
+  let cellW = 0, cellH = 0, cols = 0, rows = 0;
+  let cellChars = null;      // characters per cell
+  let cellSeed  = null;      // stable per-cell base perturbation
+  let cellAlive = null;      // per-cell on/off (used by CFG.density)
+
+  function resize() {
+    dpr = Math.min(1.5, window.devicePixelRatio || 1);
+    W = Math.floor(window.innerWidth  * dpr);
+    H = Math.floor(window.innerHeight * dpr);
+    field.width  = W;
+    field.height = H;
+    field.style.width  = window.innerWidth  + "px";
+    field.style.height = window.innerHeight + "px";
+
+    // cell metrics in DEVICE pixels
+    cellW = Math.max(2, Math.round(CFG.fontSize * CFG.cellAspect     * dpr));
+    cellH = Math.max(4, Math.round(CFG.fontSize * CFG.cellLineHeight * dpr));
+    cols = Math.ceil(W / cellW) + 1;
+    rows = Math.ceil(H / cellH) + 1;
+
+    cellChars = new Array(cols * rows);
+    cellSeed  = new Float32Array(cols * rows);
+    cellAlive = new Uint8Array(cols * rows);
+    for (let i = 0; i < cellChars.length; i++) {
+      cellChars[i] = pickChar();
+      cellSeed[i]  = Math.random();
+      cellAlive[i] = Math.random() < CFG.density ? 1 : 0;
+    }
+
+    fctx.textBaseline = "alphabetic";
+    fctx.textAlign    = "left";
+    fctx.font = `300 ${Math.round(CFG.fontSize * dpr)}px "IBM Plex Mono", monospace`;
+  }
+  resize();
+  window.addEventListener("resize", resize);
+
+  // ── pressure systems — large slow-moving Gaussian + Lorentzian centers ──
+  // positions stored in CELL units (cols, rows). They drift on a Lissajous
+  // path so the motion never quite repeats. Four blueprints; we use the
+  // first CFG.sourceCount, each scaled by CFG.sourceRadius / sourceIntensity.
+  const SOURCE_BLUEPRINTS = [
+    { ox: 0.30, oy: 0.42, ax: 0.26, ay: 0.22, wx: 0.011,  wy: 0.0073, rF: 1.00, iF: 1.00 },
+    { ox: 0.72, oy: 0.58, ax: 0.22, ay: 0.24, wx: 0.0083, wy: 0.0117, rF: 0.82, iF: 0.77 },
+    { ox: 0.50, oy: 0.18, ax: 0.30, ay: 0.16, wx: 0.014,  wy: 0.010,  rF: 0.70, iF: 0.65 },
+    { ox: 0.18, oy: 0.80, ax: 0.18, ay: 0.10, wx: 0.0095, wy: 0.0142, rF: 0.62, iF: 0.55 },
+  ];
+  const sources = [];
+  function rebuildSources() {
+    // preserve drifting phase across rebuilds so the motion doesn't
+    // visibly snap when a preset is swapped at runtime
+    const oldPhases = sources.map(s => s.phase);
+    sources.length = 0;
+    const blueprints = SOURCE_BLUEPRINTS
+      .slice(0, Math.max(1, Math.min(4, CFG.sourceCount)));
+    blueprints.forEach((bp, i) => {
+      sources.push({
+        ...bp,
+        phase: (oldPhases[i] != null ? oldPhases[i] : Math.random() * Math.PI * 2),
+        cx: 0, cy: 0
+      });
+    });
+  }
+  rebuildSources();
+
+  // a horizontal pressure band that slowly descends (resets above)
+  let bandY = -0.6;
+
+  // ── boot state — drives the field cascade and the page fade-in ──
+  // body starts with .booting; we tear it down after BOOT_DURATION_MS.
+  // reduced-motion users skip the whole sequence.
+  const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const BOOT_DURATION_MS = 2400;
+  const bootStartMs = performance.now();
+  let bootActive = !reducedMotion;
+  if (reducedMotion) document.body.classList.remove("booting");
+
+  // ── rare events — earned punctuation in the field ──
+  // lightning: instant whole-field brightness spike, decays each frame
+  // streak:    a single bright character travels across one row
+  // gust:      brief amplification of the descending band
+  let lightning = 0;          // 0..1, additive boost to v
+  let streak    = null;       // { row, x, vx, life }
+  let gust      = 0;          // 0..1, multiplier on bandPeak
+
+  function triggerLightning() { lightning = 1.0; }
+  function triggerStreak()    {
+    const row = ((Math.random() * 0.7 + 0.15) * rows) | 0;
+    streak = { row, x: -3, vx: 0.32 + Math.random() * 0.36, life: 1.0 };
+  }
+  function triggerGust()      { gust = 1.0; }
+
+  function scheduleEvent() {
+    const freq = Math.max(0, CFG.eventFrequency || 0);
+    if (freq <= 0) return;     // events silenced entirely
+    // baseline 30..90s, scaled by frequency (STORM ~12..36s, QUIET ~100..300s)
+    const wait = (30000 + Math.random() * 60000) / freq;
+    setTimeout(() => {
+      const r = Math.random();
+      if      (r < 0.45) triggerLightning();
+      else if (r < 0.80) triggerStreak();
+      else               triggerGust();
+      scheduleEvent();
+    }, wait);
+  }
+  // first event waits at least a few seconds after boot
+  setTimeout(scheduleEvent, BOOT_DURATION_MS + 3000);
+
+  // ── diurnal coupling — source intensity and motion lean toward
+  // brighter, faster near solar noon; quieter at night. amount is
+  // a per-preset knob; the curve itself is a smooth cosine. ──
+  function diurnal() {
+    const d = new Date();
+    const h = d.getHours() + d.getMinutes() / 60 + d.getSeconds() / 3600;
+    // 0 at midnight, 1 at noon, 0 at midnight — smooth cosine half-cycle
+    return 0.5 - 0.5 * Math.cos((h / 24) * Math.PI * 2);
+  }
+
+  // ── render loop ──
+  let t = 0;
+  let lastChange = 0;
+
+  function step(nowMs) {
+    t += 1;
+
+    // boot cascade — how much of the field is "lit" so far. ramps from
+    // 0 to 1 between t≈200ms and t≈1100ms after page load. when 1, the
+    // whole field is in play; before that, only the top portion draws.
+    let bootCascade = 1.0;
+    if (bootActive) {
+      const elapsed = nowMs - bootStartMs;
+      if      (elapsed < 200)  bootCascade = 0;
+      else if (elapsed < 1100) bootCascade = (elapsed - 200) / 900;
+      else                     bootCascade = 1;
+    }
+
+    // event decays — lightning fades fast (phosphor will carry the rest),
+    // gust decays slower so the band sweep feels deliberate
+    if (lightning > 0) lightning = Math.max(0, lightning - 0.072);
+    if (gust > 0)      gust      = Math.max(0, gust      - 0.0045);
+
+    // diurnal multipliers — gentle, never more than ±15%
+    const diurnAmt   = CFG.diurnalAmount || 0;
+    const dCycle     = diurnal(); // 0 at midnight, 1 at noon
+    const intensityMul = 1 + diurnAmt * (dCycle - 0.5) * 0.30; // 0.85..1.15
+    const motionMul    = 1 + diurnAmt * (dCycle - 0.5) * 0.20; // 0.90..1.10
+
+    // 1. fade the canvas — phosphor persistence (smaller alpha = longer trails)
+    fctx.globalCompositeOperation = "source-over";
+    fctx.fillStyle = `rgba(2, 6, 8, ${CFG.fadeRate})`;
+    fctx.fillRect(0, 0, W, H);
+
+    // 2. update pressure systems + descending band
+    const speed = CFG.motionSpeed * motionMul;
+    for (const s of sources) {
+      s.phase += 0.004 * speed;
+      s.cx = (s.ox + s.ax * Math.sin(s.phase * s.wx * 100)) * cols;
+      s.cy = (s.oy + s.ay * Math.cos(s.phase * s.wy * 100)) * rows;
+    }
+    bandY += 0.00055 * speed;
+    if (bandY > 1.8) bandY = -0.6;
+
+    // 3. occasional character refresh — life in the dust
+    if (nowMs - lastChange > 80) {
+      lastChange = nowMs;
+      for (let k = 0; k < CFG.charChangeRate; k++) {
+        cellChars[(Math.random() * cellChars.length) | 0] = pickChar();
+      }
+    }
+
+    // 4. compute field & draw characters
+    fctx.globalCompositeOperation = "lighter";
+    const cxClock = cols * 0.5;
+    const cyClock = rows * 0.5;
+    const clockR  = CFG.clockMaskRadius * Math.min(cols, rows);
+    const clockR2 = clockR * clockR;
+
+    // illumination response — a soft S-curve centered on illumThreshold,
+    // with width gradientSoftness. No hard cutoff. Followed by a gamma
+    // bend that boosts midtones (the "cinematic" feel the brief asked for).
+    const T        = CFG.illumThreshold;
+    const soft     = Math.max(0.02, CFG.gradientSoftness);
+    const earlyCut = T - soft * 1.6;
+    const bandPeak  = CFG.bandPeak;
+    const bandThick = CFG.bandThick;
+    const ambient   = CFG.ambient;
+
+    // per-source resolved values (radius, intensity) — done once per frame.
+    // intensity also gets the diurnal multiplier folded in here.
+    for (let i = 0; i < sources.length; i++) {
+      sources[i].radius    = CFG.sourceRadius    * sources[i].rF;
+      sources[i].intensity = CFG.sourceIntensity * sources[i].iF * intensityMul;
+    }
+
+    // gust amplifies the band peak briefly — a slow exhale through the field
+    const effectiveBandPeak = bandPeak * (1 + gust * 1.4);
+    // boot cascade — only draw up to this row this frame
+    const lastRow = Math.ceil(rows * bootCascade);
+    // lightning additive — applied to v before the curve so it spreads via
+    // the same gamma/falloff as natural illumination, then decays
+    const lightningAdd = lightning * 0.55;
+
+    for (let r = 0; r < lastRow; r++) {
+      // band contribution depends only on row
+      const yNorm = r / rows;
+      const dBand = Math.abs(yNorm - bandY);
+      const bandV = dBand < bandThick
+        ? Math.cos((dBand / bandThick) * Math.PI * 0.5) * effectiveBandPeak
+        : 0;
+
+      for (let c = 0; c < cols; c++) {
+        const idx = r * cols + c;
+        if (!cellAlive[idx]) continue;
+
+        // sum pressure systems — blended Gaussian (bright core) plus
+        // Lorentzian (long soft tail). Together feels atmospheric.
+        let v = ambient;
+        for (let i = 0; i < sources.length; i++) {
+          const s  = sources[i];
+          const dx = (c - s.cx) / (s.radius * cols);
+          const dy = (r - s.cy) / (s.radius * rows);
+          const d2 = dx * dx + dy * dy;
+          if (d2 < 8) {
+            const core = Math.exp(-d2);
+            const tail = 1 / (1 + d2 * 0.7);
+            v += s.intensity * (0.5 * core + 0.5 * tail);
+          }
+        }
+        v += bandV;
+        // stable per-cell perturbation — modest, keeps zones coherent
+        v *= 0.78 + cellSeed[idx] * 0.42;
+        // lightning — uniform brightness boost across the field that
+        // decays fast and leaves the phosphor to carry the afterimage
+        v += lightningAdd;
+
+        // mask near the clock — cubic falloff for a soft, clean hole
+        const ddx = c - cxClock;
+        const ddy = r - cyClock;
+        const dd2 = ddx * ddx + ddy * ddy;
+        if (dd2 < clockR2 * 4) {
+          const m = Math.min(1, Math.sqrt(dd2) / (clockR * 1.7));
+          v *= m * m * m;
+        }
+
+        // soft S-curve (logistic) — no abrupt clipping
+        if (v < earlyCut) continue;
+        const x = (v - T) / soft;
+        let b = 1 / (1 + Math.exp(-x * 3.0));
+        // gamma bend — richer midtones, gentler shoulders
+        b = Math.pow(b, 0.70);
+        if (b < 0.045) continue;
+
+        // color: deep moss-green at dim, warm green-cream at peak
+        const rC = 30  + 138 * b;
+        const gC = 124 + 122 * b;
+        const bC = 72  + 116 * b;
+        const a  = 0.18 + 0.78 * b;
+
+        fctx.fillStyle = `rgba(${rC|0}, ${gC|0}, ${bC|0}, ${a.toFixed(3)})`;
+        fctx.fillText(
+          cellChars[idx],
+          c * cellW,
+          r * cellH + cellH * 0.78
+        );
+      }
+    }
+
+    // streak — a bright character traveling across one row, with a short
+    // hot trail behind. drawn over the field (source-over, not lighter)
+    // so it reads cleanly against the noise. the trail uses fading
+    // chevron glyphs that suggest direction; the field's phosphor
+    // persistence carries the wake naturally for a few frames after.
+    if (streak) {
+      streak.x    += streak.vx;
+      streak.life -= 0.006;
+      if (streak.x > cols + 5 || streak.life <= 0) {
+        streak = null;
+      } else {
+        const r = streak.row;
+        if (r >= 0 && r < rows) {
+          fctx.globalCompositeOperation = "source-over";
+          const trailGlyphs = [">", ">", "=", "-", "·"];
+          for (let k = 0; k < trailGlyphs.length; k++) {
+            const c = Math.floor(streak.x) - k;
+            if (c < 0 || c >= cols) continue;
+            // strength falls off behind the head; multiplied by remaining life
+            const tail = (1 - k / trailGlyphs.length) * streak.life;
+            if (tail <= 0.02) continue;
+            const rC = 180 + 70 * tail;
+            const gC = 240 + 15 * tail;
+            const bC = 200 + 55 * tail;
+            const a  = 0.45 + 0.50 * tail;
+            fctx.fillStyle = `rgba(${rC|0}, ${gC|0}, ${bC|0}, ${a.toFixed(3)})`;
+            fctx.fillText(
+              trailGlyphs[k],
+              c * cellW,
+              r * cellH + cellH * 0.78
+            );
+          }
+          // restore composite for next frame's field draw
+          fctx.globalCompositeOperation = "lighter";
+        }
+      }
+    }
+
+    requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+
+  // ── grain canvas (over everything) ──
+  const grain = document.getElementById("grain");
+  const gctx  = grain.getContext("2d", { alpha: true });
+  let gW = 0, gH = 0;
+  function resizeGrain() {
+    const gdpr = Math.min(1.25, window.devicePixelRatio || 1);
+    gW = Math.floor(window.innerWidth  * gdpr);
+    gH = Math.floor(window.innerHeight * gdpr);
+    grain.width  = gW; grain.height = gH;
+    grain.style.width  = window.innerWidth  + "px";
+    grain.style.height = window.innerHeight + "px";
+  }
+  resizeGrain();
+  window.addEventListener("resize", resizeGrain);
+
+  function makeNoiseTile(size = 256) {
+    const c = document.createElement("canvas");
+    c.width = c.height = size;
+    const ctx = c.getContext("2d");
+    const img = ctx.createImageData(size, size);
+    for (let i = 0; i < img.data.length; i += 4) {
+      const v = 220 + Math.random() * 35;
+      img.data[i    ] = v * 0.55;
+      img.data[i + 1] = v;
+      img.data[i + 2] = v * 0.7;
+      img.data[i + 3] = 255;
+    }
+    ctx.putImageData(img, 0, 0);
+    return c;
+  }
+  const tiles = [makeNoiseTile(), makeNoiseTile(), makeNoiseTile(), makeNoiseTile()];
+  let frame = 0;
+  function drawGrain() {
+    frame++;
+    gctx.globalAlpha = 0.11;
+    gctx.globalCompositeOperation = "source-over";
+    gctx.clearRect(0, 0, gW, gH);
+    const tile = tiles[frame & 3];
+    const ox = (frame * 37) % tile.width;
+    const oy = (frame * 53) % tile.height;
+    gctx.save();
+    gctx.translate(-ox, -oy);
+    for (let y = 0; y < gH + tile.height; y += tile.height) {
+      for (let x = 0; x < gW + tile.width; x += tile.width) {
+        gctx.drawImage(tile, x, y);
+      }
+    }
+    gctx.restore();
+    requestAnimationFrame(drawGrain);
+  }
+  requestAnimationFrame(drawGrain);
+
+  // ── rare jitter ──
+  const jhost = document.getElementById("jitterHost");
+  function scheduleJitter() {
+    const wait = 9000 + Math.random() * 16000;
+    setTimeout(() => {
+      const cls = Math.random() < 0.5 ? "j1" : "j2";
+      jhost.classList.add(cls);
+      setTimeout(() => jhost.classList.remove(cls), 70 + Math.random() * 60);
+      scheduleJitter();
+    }, wait);
+  }
+  scheduleJitter();
+
+  /* ═══════════════════════════════════════════════════════════
+     BOOT SEQUENCE  —  ~2.4s of CRT power-on
+     ───────────────────────────────────────────────────────────
+       50ms:   the scan line sweeps top-to-bottom
+      200ms:   field cascade begins filling rows downward
+      380ms:   "phosphor warmup" appears at bottom-left
+      620ms:   "pressure systems online"
+      860ms:   "clock sync"
+     1800ms:   boot lines fade out
+     1800ms:   .booting removed → clock/halo/bar fade in (staggered)
+     ═══════════════════════════════════════════════════════════ */
+  function runBoot() {
+    if (reducedMotion) return;
+    const scan  = document.getElementById("bootScan");
+    const lines = document.getElementById("bootLines");
+
+    setTimeout(() => { scan.classList.add("sweep"); }, 50);
+
+    const labels = ["phosphor warmup", "pressure systems online", "clock sync"];
+    labels.forEach((label, i) => {
+      setTimeout(() => {
+        const el = document.createElement("div");
+        el.className = "boot-line";
+        el.innerHTML =
+          `&gt; ${label}<span class="dots"> ............ </span><span class="ok">ok</span>`;
+        lines.appendChild(el);
+        requestAnimationFrame(() => el.classList.add("show"));
+      }, 380 + i * 240);
+    });
+
+    // tear down: boot ends, page fades in, boot lines fade out
+    setTimeout(() => {
+      lines.querySelectorAll(".boot-line").forEach(el => el.classList.remove("show"));
+      document.body.classList.remove("booting");
+      bootActive = false;
+    }, BOOT_DURATION_MS - 600);
+
+    // clean up DOM after fades complete
+    setTimeout(() => { lines.innerHTML = ""; }, BOOT_DURATION_MS + 400);
+  }
+  runBoot();
+
+  /* ═══════════════════════════════════════════════════════════
+     PRESET SWITCHING  —  press 1..4 or P to cycle at runtime
+     ───────────────────────────────────────────────────────────
+     CFG is mutated in place so the render loop's closure picks up
+     new values without restart. sources are rebuilt to match the
+     new sourceCount, density is reshuffled, CSS vars are repushed.
+     A small indicator flashes briefly so you know it took.
+     ═══════════════════════════════════════════════════════════ */
+  const presetIndicator = document.getElementById("presetIndicator");
+  function flashPresetName(name) {
+    presetIndicator.textContent = name.toLowerCase();
+    presetIndicator.classList.remove("show");
+    // force reflow so the animation restarts even on repeat keys
+    void presetIndicator.offsetWidth;
+    presetIndicator.classList.add("show");
+  }
+
+  function applyPreset(name) {
+    if (!PRESETS[name]) return;
+    currentPreset = name;
+    // overlay the named preset onto a fresh DEFAULT baseline. this is
+    // the same logic as initial resolve, just at runtime.
+    const next = Object.assign({}, PRESETS.DEFAULT, PRESETS[name]);
+    Object.assign(CFG, next);
+    pushCSSVars();
+    rebuildSources();
+    // density may have changed — reshuffle cellAlive to match
+    if (cellAlive) {
+      for (let i = 0; i < cellAlive.length; i++) {
+        cellAlive[i] = Math.random() < CFG.density ? 1 : 0;
+      }
+    }
+    flashPresetName(name);
+  }
+
+  window.applyPreset = applyPreset;   // expose for console tinkering
+
+  window.addEventListener("keydown", (e) => {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    const k = e.key.toLowerCase();
+    if      (k === "1") applyPreset("DEFAULT");
+    else if (k === "2") applyPreset("QUIET");
+    else if (k === "3") applyPreset("STORM");
+    else if (k === "4") applyPreset("DEEP PHOSPHOR");
+    else if (k === "p") {
+      const i = PRESET_NAMES.indexOf(currentPreset);
+      applyPreset(PRESET_NAMES[(i + 1) % PRESET_NAMES.length]);
+    }
+    // debug: l/s/g trigger lightning/streak/gust for instant inspection
+    else if (k === "l") triggerLightning();
+    else if (k === "s") triggerStreak();
+    else if (k === "g") triggerGust();
+  });
+
+  /* ═══════════════════════════════════════════════════════════
+     TELEMETRY  —  cpu, mem, temp on the bottom-left
+     ───────────────────────────────────────────────────────────
+     A browser can't read the host's real CPU/temp, so values are
+     simulated with two summed sines per metric (different periods,
+     different phases) for natural-feeling drift. Temperature loosely
+     tracks cpu because that's how real silicon behaves.
+     ═══════════════════════════════════════════════════════════ */
+  const cpuEl  = document.getElementById("cpu");
+  const memEl  = document.getElementById("mem");
+  const tempEl = document.getElementById("temp");
+  const metricSeed = {
+    cpu:  Math.random() * 100,
+    mem:  Math.random() * 100,
+    temp: Math.random() * 100,
+  };
+  function pseudoNoise(t, seed) {
+    return 0.5
+      + 0.30 * Math.sin(t * 0.013 + seed)
+      + 0.18 * Math.sin(t * 0.031 + seed * 1.7);
+  }
+  function tickTelemetry() {
+    const ts = Date.now() / 1000;
+    const cpuRaw  = pseudoNoise(ts, metricSeed.cpu) * 110 - 22 + (Math.random() - 0.5) * 4;
+    const memRaw  = 32 + pseudoNoise(ts * 0.42, metricSeed.mem) * 46;
+    const cpu  = Math.max(3,  Math.min(94, cpuRaw));
+    const mem  = Math.max(22, Math.min(82, memRaw));
+    // temp = base + slow drift + small thermal coupling to cpu load
+    const temp = Math.max(38, Math.min(72,
+      44 + pseudoNoise(ts * 0.5, metricSeed.temp) * 14 + (cpu - 30) * 0.14
+    ));
+    cpuEl.textContent  = `${pad(cpu | 0)}%`;
+    memEl.textContent  = `${pad(mem | 0)}%`;
+    tempEl.textContent = `${temp.toFixed(1)}°c`;
+  }
+  tickTelemetry();
+  setInterval(tickTelemetry, 2800);
+
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+{
+  "notes": [
+    "Copy this file to media_sources.json and fill in direct download URLs.",
+    "Only the filename and url fields are required by scripts/fetch_media.py.",
+    "Keep creator/source/license notes as receipts for MEDIA_LICENSES.md."
+  ],
+  "files": [
+    {
+      "filename": "calming_rain.mp3",
+      "url": "TODO-direct-download-url",
+      "source_page": "TODO-source-page-url",
+      "creator": "TODO-creator-name",
+      "license": "TODO-license-or-permission-text",
+      "permission_note": "Creator states this file may be used for any purpose."
+    },
+    {
+      "filename": "gentle_rain.mp3",
+      "url": "TODO-direct-download-url",
+      "source_page": "TODO-source-page-url",
+      "creator": "TODO-creator-name",
+      "license": "TODO-license-or-permission-text",
+      "permission_note": "Creator states this file may be used for any purpose."
+    },
+    {
+      "filename": "heavy_rain.mp3",
+      "url": "TODO-direct-download-url",
+      "source_page": "TODO-source-page-url",
+      "creator": "TODO-creator-name",
+      "license": "TODO-license-or-permission-text",
+      "permission_note": "Creator states this file may be used for any purpose."
+    },
+    {
+      "filename": "heavy_storm.mp3",
+      "url": "TODO-direct-download-url",
+      "source_page": "TODO-source-page-url",
+      "creator": "TODO-creator-name",
+      "license": "TODO-license-or-permission-text",
+      "permission_note": "Creator states this file may be used for any purpose."
+    },
+    {
+      "filename": "thunder.mp3",
+      "url": "TODO-direct-download-url",
+      "source_page": "TODO-source-page-url",
+      "creator": "TODO-creator-name",
+      "license": "TODO-license-or-permission-text",
+      "permission_note": "Creator states this file may be used for any purpose."
+    },
+    {
+      "filename": "fireplace.mp3",
+      "url": "TODO-direct-download-url",
+      "source_page": "TODO-source-page-url",
+      "creator": "TODO-creator-name",
+      "license": "TODO-license-or-permission-text",
+      "permission_note": "Creator states this file may be used for any purpose."
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+.DS_Store
+
+sounds/*.mp3
+sounds/*.wav
+sounds/*.flac
+sounds/*.ogg
+sounds/*.m4a
+sounds/*.opus
+sounds/*.webm
+sounds/MEDIA_MANIFEST.generated.json
+
+media_sources.json
+config/nocturne.json

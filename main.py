@@ -1,57 +1,406 @@
 """
-Nocturne — sleep sounds web app.
+Nocturne — five-mode sleep app (onsen, sky, radio, utility, dashboard).
 
-This is the entire backend. It does three things:
-  1. Lists the audio files in ./sounds/ via /api/sounds
-  2. Serves those audio files at /sounds/<filename>
-  3. Serves the web UI (static/index.html) at /
+Modes:
+  * Onsen: the original ambient mixer + looping rain video
+  * Sky:   the ambient mixer + a moon-phase / local-weather visual
+  * Radio: a late-night personal broadcast playing tracks from ./sounds/radio/
+  * Utility: a local Strudel code sketchbook stored in ./songs/; opens strudel.cc for playback
+  * Dashboard: static embedded Raspberry Pi terminal/weather screen
 
-Add a new sound by dropping any .mp3/.ogg/.m4a/.wav file into ./sounds/.
-No restart needed — refresh the browser page and the list is read again.
+Endpoints:
+  GET  /              — the web UI
+  GET  /api/sounds    — ambient mixer files in ./sounds/ (one level deep, so
+                        ./sounds/radio/ is automatically excluded)
+  GET  /api/radio     — tracks in ./sounds/radio/
+  GET  /api/weather   — cached current weather from Open-Meteo (graceful fail)
+  GET  /api/config    — non-secret runtime config for the UI (lat/lon, label)
+  GET/PUT /api/settings — server-persisted mode visibility / feature gates
+  GET  /api/songs     — Strudel code sketch metadata list (gated by Utility setting)
+  GET/POST/PUT/DELETE /api/songs/... — local sketchbook CRUD
+  GET  /sounds/...    — static audio (subtree, so /sounds/radio/* works too)
+  GET  /health        — liveness probe
+
+Configuration (env vars, set in nocturne.service):
+  NOCTURNE_LAT             default 35.4676  (Oklahoma City)
+  NOCTURNE_LON             default -97.5164
+  NOCTURNE_LOCATION_NAME   default "Oklahoma City"
+  NOCTURNE_WEATHER_TTL     default 600  (seconds)
 """
+from __future__ import annotations
+
+import os
+import time
+import json
+import re
+import shutil
 from pathlib import Path
 from urllib.parse import quote
+from typing import Any
 
-from fastapi import FastAPI
+import httpx
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.staticfiles import StaticFiles
 
 ROOT = Path(__file__).parent
 STATIC_DIR = ROOT / "static"
 SOUNDS_DIR = ROOT / "sounds"
+RADIO_DIR = SOUNDS_DIR / "radio"
+SONGS_DIR = ROOT / "songs"
+CONFIG_DIR = ROOT / "config"
+SETTINGS_PATH = CONFIG_DIR / "nocturne.json"
 
 AUDIO_EXTS = {".mp3", ".ogg", ".m4a", ".wav", ".opus", ".webm", ".flac"}
+
+# --------------------------------------------------------------------------- #
+#  Config (env-driven, with sane defaults).
+# --------------------------------------------------------------------------- #
+LATITUDE = float(os.getenv("NOCTURNE_LAT", "35.4676"))
+LONGITUDE = float(os.getenv("NOCTURNE_LON", "-97.5164"))
+LOCATION_NAME = os.getenv("NOCTURNE_LOCATION_NAME", "Oklahoma City")
+WEATHER_TTL = int(os.getenv("NOCTURNE_WEATHER_TTL", "600"))
+
+# In-memory weather cache (no DB needed for a single-process bedside service).
+_weather_cache: dict[str, Any] = {"data": None, "fetched_at": 0.0, "error": None}
+
+DEFAULT_SETTINGS: dict[str, Any] = {
+    "modes": {
+        "onsen": True,
+        "sky": True,
+        "radio": True,
+        "utility": False,
+        "dashboard": True,
+    }
+}
+VALID_MODE_KEYS = set(DEFAULT_SETTINGS["modes"].keys())
+MAX_SONG_CODE_BYTES = 256 * 1024
+
+
+def _settings_copy() -> dict[str, Any]:
+    return json.loads(json.dumps(DEFAULT_SETTINGS))
+
+
+def _merge_settings(raw: Any) -> dict[str, Any]:
+    settings = _settings_copy()
+    if not isinstance(raw, dict):
+        return settings
+    modes = raw.get("modes")
+    if isinstance(modes, dict):
+        for key, value in modes.items():
+            if key in VALID_MODE_KEYS and isinstance(value, bool):
+                settings["modes"][key] = value
+    if not any(settings["modes"].values()):
+        settings["modes"]["onsen"] = True
+    return settings
+
+
+def _load_settings() -> dict[str, Any]:
+    try:
+        raw = json.loads(SETTINGS_PATH.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        return _settings_copy()
+    except json.JSONDecodeError:
+        return _settings_copy()
+    return _merge_settings(raw)
+
+
+def _save_settings(settings: dict[str, Any]) -> dict[str, Any]:
+    settings = _merge_settings(settings)
+    CONFIG_DIR.mkdir(parents=True, exist_ok=True)
+    SETTINGS_PATH.write_text(
+        json.dumps(settings, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+    return settings
+
+
+def _mode_enabled(mode: str) -> bool:
+    return bool(_load_settings()["modes"].get(mode, False))
+
+
+def _require_utility_enabled() -> None:
+    # Utility is the only public mode that writes files. When it is disabled,
+    # hide the route surface rather than exposing a write API with 403s.
+    if not _mode_enabled("utility"):
+        raise HTTPException(status_code=404, detail="not found")
+
 
 app = FastAPI(title="Nocturne")
 
 
+# --------------------------------------------------------------------------- #
+#  Health & config
+# --------------------------------------------------------------------------- #
 @app.get("/health")
-def health():
-    """Tiny endpoint for checking whether the service is alive."""
+def health() -> dict[str, bool]:
     return {"ok": True}
 
 
+@app.get("/api/config")
+def config() -> dict[str, Any]:
+    """Non-secret config the UI needs."""
+    return {
+        "latitude": LATITUDE,
+        "longitude": LONGITUDE,
+        "location_name": LOCATION_NAME,
+    }
+
+
+@app.get("/api/settings")
+def get_settings() -> dict[str, Any]:
+    """Server-persisted feature gates used by the simple Settings UI."""
+    return _load_settings()
+
+
+@app.put("/api/settings")
+async def put_settings(request: Request) -> dict[str, Any]:
+    payload = await request.json()
+    if not isinstance(payload, dict):
+        raise HTTPException(status_code=400, detail="settings object required")
+    current = _load_settings()
+    incoming_modes = payload.get("modes")
+    if incoming_modes is not None:
+        if not isinstance(incoming_modes, dict):
+            raise HTTPException(status_code=400, detail="modes must be an object")
+        for key, value in incoming_modes.items():
+            if key not in VALID_MODE_KEYS:
+                raise HTTPException(status_code=400, detail=f"unknown mode: {key}")
+            if not isinstance(value, bool):
+                raise HTTPException(status_code=400, detail=f"mode {key} must be true or false")
+            current["modes"][key] = value
+    if not any(current["modes"].values()):
+        raise HTTPException(status_code=400, detail="at least one mode must remain enabled")
+    return _save_settings(current)
+
+
+# --------------------------------------------------------------------------- #
+#  Audio listings
+# --------------------------------------------------------------------------- #
+def _audio_entry(path: Path, url_prefix: str) -> dict[str, str]:
+    return {
+        "id": path.name,
+        "name": path.stem.replace("-", " ").replace("_", " ").title(),
+        "url": f"{url_prefix}/{quote(path.name, safe='')}",
+    }
+
+
 @app.get("/api/sounds")
-def list_sounds():
-    """Return every audio file in the sounds/ directory."""
+def list_sounds() -> list[dict[str, str]]:
+    """Ambient mixer files. iterdir() is non-recursive, so ./sounds/radio/
+    is automatically excluded — its contents live in /api/radio."""
     if not SOUNDS_DIR.exists():
         return []
+    return [
+        _audio_entry(p, "/sounds")
+        for p in sorted(SOUNDS_DIR.iterdir(), key=lambda p: p.name.lower())
+        if p.is_file() and p.suffix.lower() in AUDIO_EXTS
+    ]
 
-    sounds = []
-    for path in sorted(SOUNDS_DIR.iterdir(), key=lambda p: p.name.lower()):
-        if not path.is_file() or path.suffix.lower() not in AUDIO_EXTS:
+
+@app.get("/api/radio")
+def list_radio() -> list[dict[str, str]]:
+    """Tracks for the radio mode. Drop audio files into ./sounds/radio/."""
+    if not RADIO_DIR.exists():
+        return []
+    return [
+        _audio_entry(p, "/sounds/radio")
+        for p in sorted(RADIO_DIR.iterdir(), key=lambda p: p.name.lower())
+        if p.is_file() and p.suffix.lower() in AUDIO_EXTS
+    ]
+
+
+
+
+# --------------------------------------------------------------------------- #
+#  Utility / Strudel sketchbook
+# --------------------------------------------------------------------------- #
+VALID_SLUG = re.compile(r"^[a-z0-9][a-z0-9-]{0,59}$")
+
+
+def _check_slug(slug: str) -> None:
+    if not VALID_SLUG.fullmatch(slug or ""):
+        raise HTTPException(status_code=400, detail="invalid slug")
+
+
+def _song_dir(slug: str) -> Path:
+    _check_slug(slug)
+    return SONGS_DIR / slug
+
+
+def _read_song(slug: str) -> dict[str, Any]:
+    folder = _song_dir(slug)
+    meta_path = folder / "meta.json"
+    code_path = folder / "code.js"
+    if not folder.exists():
+        raise HTTPException(status_code=404, detail="not found")
+    try:
+        meta = json.loads(meta_path.read_text(encoding="utf-8"))
+        code = code_path.read_text(encoding="utf-8")
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="not found")
+    except json.JSONDecodeError as exc:
+        raise HTTPException(status_code=500, detail=f"bad meta.json for {slug}: {exc}")
+    return {"slug": slug, "meta": meta, "code": code}
+
+
+def _write_song(slug: str, meta: dict[str, Any], code: str) -> None:
+    if len(str(code).encode("utf-8")) > MAX_SONG_CODE_BYTES:
+        raise HTTPException(status_code=413, detail="song code is too large")
+    folder = _song_dir(slug)
+    folder.mkdir(parents=True, exist_ok=True)
+    now = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    meta = dict(meta or {})
+    meta["updatedAt"] = now
+    meta.setdefault("createdAt", now)
+    (folder / "meta.json").write_text(
+        json.dumps(meta, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+    (folder / "code.js").write_text(str(code), encoding="utf-8")
+
+
+@app.get("/api/songs")
+def list_songs() -> list[dict[str, Any]]:
+    """Sketchbook library. Most recently edited first."""
+    _require_utility_enabled()
+    if not SONGS_DIR.exists():
+        return []
+    songs: list[dict[str, Any]] = []
+    for folder in sorted(SONGS_DIR.iterdir(), key=lambda p: p.name.lower()):
+        if not folder.is_dir() or not VALID_SLUG.fullmatch(folder.name):
             continue
-
-        # Use the full filename as the ID so rain.mp3 and rain.wav don't collide.
-        # URL-encode the filename so spaces, #, ?, etc. are safe in the browser.
-        sounds.append({
-            "id": path.name,
-            # Turn "rain-on-tent" or "rain_on_tent" into "Rain On Tent"
-            "name": path.stem.replace("-", " ").replace("_", " ").title(),
-            "url": f"/sounds/{quote(path.name, safe='')}",
-        })
-    return sounds
+        try:
+            meta = json.loads((folder / "meta.json").read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        songs.append({"slug": folder.name, **meta})
+    songs.sort(key=lambda item: item.get("updatedAt", ""), reverse=True)
+    return songs
 
 
-# The order of these mounts matters: more specific paths first.
+@app.get("/api/songs/{slug}")
+def get_song(slug: str) -> dict[str, Any]:
+    _require_utility_enabled()
+    return _read_song(slug)
+
+
+@app.post("/api/songs")
+async def create_song(request: Request) -> dict[str, str]:
+    _require_utility_enabled()
+    payload = await request.json()
+    slug = payload.get("slug", "")
+    _check_slug(slug)
+    folder = SONGS_DIR / slug
+    if folder.exists():
+        raise HTTPException(status_code=409, detail="a song with this slug already exists")
+    meta = payload.get("meta")
+    code = payload.get("code")
+    if not isinstance(meta, dict) or not isinstance(code, str):
+        raise HTTPException(status_code=400, detail="meta and code required")
+    _write_song(slug, meta, code)
+    return {"slug": slug}
+
+
+@app.put("/api/songs/{slug}")
+async def update_song(slug: str, request: Request) -> dict[str, str]:
+    _require_utility_enabled()
+    _check_slug(slug)
+    existing = _read_song(slug)
+    payload = await request.json()
+    meta = payload.get("meta")
+    code = payload.get("code")
+    if not isinstance(meta, dict) or not isinstance(code, str):
+        raise HTTPException(status_code=400, detail="meta and code required")
+    meta = dict(meta)
+    if existing["meta"].get("createdAt"):
+        meta["createdAt"] = existing["meta"]["createdAt"]
+    _write_song(slug, meta, code)
+    return {"slug": slug}
+
+
+@app.post("/api/songs/{slug}/duplicate")
+async def duplicate_song(slug: str, request: Request) -> dict[str, str]:
+    _require_utility_enabled()
+    src = _read_song(slug)
+    payload = await request.json()
+    new_slug = payload.get("newSlug", "")
+    _check_slug(new_slug)
+    if (SONGS_DIR / new_slug).exists():
+        raise HTTPException(status_code=409, detail="newSlug already exists")
+    new_meta = dict(src["meta"])
+    new_meta["title"] = payload.get("title") or f"{new_meta.get('title') or slug} (copy)"
+    new_meta.pop("createdAt", None)
+    _write_song(new_slug, new_meta, src["code"])
+    return {"slug": new_slug}
+
+
+@app.delete("/api/songs/{slug}")
+def delete_song(slug: str) -> dict[str, bool]:
+    _require_utility_enabled()
+    folder = _song_dir(slug)
+    if not folder.exists():
+        raise HTTPException(status_code=404, detail="not found")
+    shutil.rmtree(folder)
+    return {"ok": True}
+
+
+# --------------------------------------------------------------------------- #
+#  Weather (Open-Meteo, no API key)
+# --------------------------------------------------------------------------- #
+OPEN_METEO_URL = "https://api.open-meteo.com/v1/forecast"
+
+
+async def _fetch_weather() -> dict[str, Any]:
+    params = {
+        "latitude": LATITUDE,
+        "longitude": LONGITUDE,
+        "current": "temperature_2m,weather_code,cloud_cover,is_day,wind_speed_10m",
+        "timezone": "auto",
+    }
+    async with httpx.AsyncClient(timeout=8.0) as client:
+        r = await client.get(OPEN_METEO_URL, params=params)
+        r.raise_for_status()
+        payload = r.json()
+    current = payload.get("current", {}) or {}
+    return {
+        "weather_code": current.get("weather_code"),
+        "cloud_cover": current.get("cloud_cover"),
+        "temperature": current.get("temperature_2m"),
+        "wind_speed": current.get("wind_speed_10m"),
+        "is_day": current.get("is_day"),
+        "time": current.get("time"),
+        "timezone": payload.get("timezone"),
+        "location_name": LOCATION_NAME,
+    }
+
+
+@app.get("/api/weather")
+async def get_weather() -> dict[str, Any]:
+    """Cached current weather. Returns stale data on transient failure
+    and {ok: false, ...} only when we have nothing usable at all."""
+    now = time.time()
+    age = now - _weather_cache["fetched_at"]
+    have = _weather_cache["data"] is not None
+
+    if have and age < WEATHER_TTL:
+        return {"ok": True, "cached": True, "age_seconds": int(age),
+                **_weather_cache["data"]}
+
+    try:
+        data = await _fetch_weather()
+        _weather_cache["data"] = data
+        _weather_cache["fetched_at"] = now
+        _weather_cache["error"] = None
+        return {"ok": True, "cached": False, "age_seconds": 0, **data}
+    except Exception as exc:
+        _weather_cache["error"] = str(exc)
+        if have:
+            return {"ok": True, "cached": True, "stale": True,
+                    "age_seconds": int(age), "error": str(exc),
+                    **_weather_cache["data"]}
+        return {"ok": False, "error": str(exc), "location_name": LOCATION_NAME}
+
+
+# Order matters: specific paths first.
 app.mount("/sounds", StaticFiles(directory=SOUNDS_DIR), name="sounds")
 app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="static")

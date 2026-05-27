@@ -3,13 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Nocturne — Onsen, in the rain</title>
-<meta name="description" content="A nightly weather mixer. Dark stone, falling petals, gentle rain.">
+<title>Nocturne — Onsen, Sky, Radio, Utility, Dashboard</title>
+<meta name="description" content="A nightly weather mixer with sky, radio, a local Strudel code sketchbook, and a Raspberry Pi terminal dashboard.">
 <meta name="theme-color" content="#0a0808">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300;1,9..144,400&family=Manrope:wght@200;300;400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+
+<!-- Utility mode is a local Strudel code sketchbook. It does not embed Strudel; it opens saved code on strudel.cc when requested. -->
 
 <style>
 /* ============================================================
@@ -1692,6 +1694,52 @@ input[type="range"]::-moz-range-thumb {
   flex-wrap: wrap;
   justify-content: flex-end;
 }
+.sleep-timer {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.85rem 1rem;
+  align-items: center;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+.sleep-timer .label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.sleep-timer .label .name {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 0.98rem;
+  color: var(--text);
+}
+.sleep-timer .label .meta,
+.timer-status {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.55rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+.timer-controls {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.timer-status {
+  grid-column: 2;
+  text-align: right;
+  min-height: 1em;
+  color: var(--lantern-soft);
+}
+@media (max-width: 720px) {
+  .sleep-timer { grid-template-columns: 1fr; }
+  .timer-controls { justify-content: flex-start; }
+  .timer-status { grid-column: 1; text-align: left; }
+}
 .btn {
   font-family: 'Fraunces', serif;
   font-style: italic;
@@ -1711,6 +1759,13 @@ input[type="range"]::-moz-range-thumb {
   color: var(--text);
   border-color: rgba(255, 255, 255, 0.18);
   background: rgba(255, 255, 255, 0.025);
+}
+.btn.active,
+.btn[aria-pressed="true"] {
+  color: var(--ink);
+  background: var(--lantern-soft);
+  border-color: var(--lantern-soft);
+  box-shadow: 0 0 18px -8px rgba(232, 169, 111, 0.7);
 }
 .btn:active {
   transform: scale(0.98);
@@ -2048,6 +2103,1469 @@ footer {
   padding: 0.85rem 1.15rem !important;
 }
 
+
+/* ============================================================
+   NOCTURNE — five-mode additions (mode switcher, sky, radio, utility, dashboard)
+   Appended onto the existing onsen visual language.
+   Reuses palette variables, fonts, easings, and layer system.
+   ============================================================ */
+
+/* ---------- MODE SWITCHER (replaces .topbar-meta) ---------- */
+
+.topbar { display: flex !important; }
+
+.mode-switcher {
+  display: inline-flex;
+  gap: 1px;
+  padding: 2px;
+  background: linear-gradient(180deg, rgba(20,16,14,0.6), rgba(8,6,5,0.4));
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.04),
+    0 1px 2px rgba(0,0,0,0.5);
+}
+
+.mode-btn {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  color: var(--text-muted);
+  font-family: 'Manrope', sans-serif;
+  font-weight: 300;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: lowercase;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  transition: color 0.4s var(--ease), background 0.5s var(--ease);
+  position: relative;
+}
+
+.mode-btn:hover { color: var(--text); }
+.mode-btn .mode-glyph {
+  font-size: 0.95rem;
+  line-height: 1;
+  color: var(--lantern-soft);
+  opacity: 0.55;
+  transition: opacity 0.4s var(--ease), transform 0.4s var(--ease);
+}
+.mode-btn:hover .mode-glyph { opacity: 0.85; }
+
+.mode-btn[aria-selected="true"] {
+  color: var(--text);
+  background:
+    radial-gradient(120% 80% at 50% 0%,
+      rgba(232, 169, 111, 0.18),
+      rgba(232, 169, 111, 0.04) 60%,
+      transparent 100%),
+    linear-gradient(180deg, rgba(58,50,44,0.55), rgba(34,28,24,0.5));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 220, 180, 0.10),
+    inset 0 -1px 0 rgba(0,0,0,0.4),
+    0 2px 6px rgba(0,0,0,0.35);
+}
+.mode-btn[aria-selected="true"] .mode-glyph {
+  opacity: 1;
+  color: var(--lantern);
+  text-shadow: 0 0 8px rgba(232, 169, 111, 0.55);
+}
+
+.topbar-tools {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.mode-btn[hidden] { display: none !important; }
+.settings-open,
+.settings-close {
+  appearance: none;
+  border: 1px solid var(--hairline);
+  color: var(--text-muted);
+  background:
+    radial-gradient(100% 80% at 50% 0%, rgba(232,169,111,0.10), transparent 70%),
+    rgba(12, 10, 9, 0.54);
+  border-radius: 999px;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 300;
+  letter-spacing: 0.08em;
+  text-transform: lowercase;
+  cursor: pointer;
+  transition: color 0.35s var(--ease), border-color 0.35s var(--ease), background 0.35s var(--ease);
+}
+.settings-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.5rem 0.88rem;
+  font-size: 0.76rem;
+}
+.settings-open:hover,
+.settings-close:hover {
+  color: var(--text);
+  border-color: rgba(232, 169, 111, 0.38);
+}
+.settings-overlay[hidden] { display: none !important; }
+.settings-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: clamp(1rem, 4vw, 3rem);
+  background:
+    radial-gradient(70% 70% at 50% 30%, rgba(232, 169, 111, 0.10), transparent 65%),
+    rgba(2, 2, 3, 0.72);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+.settings-dialog {
+  width: min(560px, 100%);
+  border: 1px solid rgba(232, 169, 111, 0.22);
+  border-radius: 28px;
+  background:
+    linear-gradient(180deg, rgba(28, 22, 18, 0.96), rgba(10, 9, 8, 0.98)),
+    var(--bg);
+  box-shadow:
+    0 28px 110px rgba(0, 0, 0, 0.72),
+    inset 0 1px 0 rgba(255, 235, 200, 0.06);
+  padding: clamp(1.2rem, 3vw, 1.7rem);
+}
+.settings-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.7rem;
+}
+.settings-kicker {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 0.35rem;
+}
+.settings-head h2 {
+  margin: 0;
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(2rem, 6vw, 3rem);
+  color: var(--text);
+}
+.settings-close {
+  width: 36px;
+  height: 36px;
+  font-size: 1.2rem;
+  line-height: 1;
+}
+.settings-copy {
+  margin: 0 0 1rem;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+.settings-copy code,
+.settings-check code {
+  color: var(--lantern-soft);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.86em;
+}
+.settings-form {
+  display: grid;
+  gap: 0.65rem;
+}
+.settings-check {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.8rem;
+  align-items: center;
+  padding: 0.78rem 0.9rem;
+  border: 1px solid rgba(255, 245, 220, 0.08);
+  border-radius: 18px;
+  background: rgba(255, 245, 220, 0.035);
+}
+.settings-check input {
+  width: 1.08rem;
+  height: 1.08rem;
+  accent-color: var(--lantern);
+}
+.settings-check strong {
+  display: block;
+  color: var(--text);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+.settings-check small {
+  display: block;
+  margin-top: 0.18rem;
+  color: var(--text-faint);
+  line-height: 1.45;
+}
+.settings-warning {
+  margin-top: 0.9rem;
+  padding: 0.75rem 0.85rem;
+  border-radius: 16px;
+  border: 1px solid rgba(232, 169, 111, 0.18);
+  background: rgba(232, 169, 111, 0.07);
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+.settings-status {
+  min-height: 1.3em;
+  margin: 0.85rem 0 0;
+  color: var(--text-faint);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.settings-status.success { color: rgba(150, 220, 160, 0.9); }
+.settings-status.error { color: rgba(255, 160, 140, 0.95); }
+@media (max-width: 780px) {
+  .topbar { align-items: flex-start; flex-direction: column; }
+  .topbar-tools { justify-content: flex-start; }
+  .mode-switcher { flex-wrap: wrap; border-radius: 20px; }
+}
+
+/* ---------- HERO CONTAINERS ---------- */
+
+/* Show only the active mode's hero. The original .hero (with no id) is
+   the onsen view. Sky, Radio, Utility, and Dashboard are siblings added after it. */
+body[data-mode="onsen"] .sky-hero,
+body[data-mode="onsen"] .radio-hero,
+body[data-mode="onsen"] .utility-hero,
+body[data-mode="onsen"] .dashboard-hero,
+body[data-mode="sky"]   .hero:not(.sky-hero),
+body[data-mode="radio"] .hero:not(.radio-hero),
+body[data-mode="utility"] .hero:not(.utility-hero),
+body[data-mode="dashboard"] .hero:not(.dashboard-hero) {
+  display: none !important;
+}
+
+/* The mixer is meaningful in onsen and sky modes (ambient sound alongside
+   visual context). It's hidden in radio mode — the radio mode has its
+   own dedicated controls and playlist instead. */
+body[data-mode="radio"] .mixer-section,
+body[data-mode="dashboard"] .mixer-section { display: none !important; }
+
+/* ============================================================
+   SKY MODE — moon-phase + local weather
+   A night-window aesthetic that shares the onsen palette.
+   ============================================================ */
+
+.sky-stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--tile-radius);
+  overflow: hidden;
+  isolation: isolate;
+  transform-style: preserve-3d;
+  perspective: 1200px;
+  transform:
+    rotateX(var(--rx, 0deg))
+    rotateY(var(--ry, 0deg));
+  transition: transform 600ms var(--ease);
+  background:
+    radial-gradient(ellipse 100% 70% at 50% 100%,
+      rgba(20, 26, 40, 0.55), transparent 70%),
+    radial-gradient(ellipse 90% 80% at 50% 10%,
+      rgba(28, 34, 52, 0.45), transparent 65%),
+    linear-gradient(180deg,
+      var(--storm-void)  0%,
+      var(--storm-deep) 38%,
+      #0a0c14 70%,
+      var(--stone-deep) 100%);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.04) inset,
+    0 -1px 0 rgba(0,0,0,0.7) inset,
+    0 30px 60px rgba(0,0,0,0.55),
+    0 80px 140px rgba(0,0,0,0.4);
+}
+
+.sky-scene { position: absolute; inset: 0; pointer-events: none; }
+.sky-scene > .layer {
+  position: absolute;
+  inset: 0;
+  will-change: transform, opacity;
+  transition: opacity 1.2s var(--ease);
+}
+
+/* Base atmosphere — deep night gradient with subtle radial bloom */
+.sky-bg {
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 30%,
+      rgba(80, 90, 130, 0.10),
+      transparent 65%);
+  mix-blend-mode: screen;
+  opacity: 0.7;
+}
+
+/* Stars — many tiny radial-gradient dots, randomized via background-position */
+.sky-stars {
+  opacity: 0;
+  background-image:
+    radial-gradient(1.2px 1.2px at 12% 18%, rgba(245, 240, 220, 0.92), transparent 60%),
+    radial-gradient(1px   1px   at 26% 42%, rgba(220, 222, 240, 0.78), transparent 60%),
+    radial-gradient(1.6px 1.6px at 38%  8%, rgba(255, 248, 220, 0.95), transparent 60%),
+    radial-gradient(0.9px 0.9px at 47% 28%, rgba(200, 210, 240, 0.62), transparent 60%),
+    radial-gradient(1.3px 1.3px at 58% 14%, rgba(255, 240, 210, 0.85), transparent 60%),
+    radial-gradient(1px   1px   at 64% 36%, rgba(220, 230, 245, 0.70), transparent 60%),
+    radial-gradient(1.4px 1.4px at 73% 22%, rgba(250, 244, 220, 0.90), transparent 60%),
+    radial-gradient(0.9px 0.9px at 81% 44%, rgba(210, 220, 240, 0.62), transparent 60%),
+    radial-gradient(1.5px 1.5px at 89%  7%, rgba(255, 250, 225, 0.95), transparent 60%),
+    radial-gradient(1px   1px   at 18% 64%, rgba(220, 220, 240, 0.65), transparent 60%),
+    radial-gradient(1.2px 1.2px at 33% 78%, rgba(245, 240, 220, 0.80), transparent 60%),
+    radial-gradient(0.9px 0.9px at 49% 88%, rgba(210, 220, 240, 0.55), transparent 60%),
+    radial-gradient(1.3px 1.3px at 67% 72%, rgba(250, 244, 220, 0.85), transparent 60%),
+    radial-gradient(1px   1px   at 84% 84%, rgba(220, 230, 245, 0.65), transparent 60%),
+    radial-gradient(1.6px 1.6px at 92% 56%, rgba(255, 248, 220, 0.95), transparent 60%);
+  animation: star-twinkle 8s ease-in-out infinite;
+}
+
+@keyframes star-twinkle {
+  0%, 100% { opacity: var(--star-opacity, 0.8); }
+  50%      { opacity: calc(var(--star-opacity, 0.8) * 0.65); }
+}
+
+/* Cloud layers — broad soft gradients drifting horizontally */
+.sky-clouds-far,
+.sky-clouds-mid,
+.sky-clouds-near {
+  opacity: 0;
+  mix-blend-mode: screen;
+}
+
+.sky-clouds-far {
+  background:
+    radial-gradient(ellipse 50% 28% at  15% 28%, rgba(150,160,180,0.18), transparent 70%),
+    radial-gradient(ellipse 60% 32% at  60% 18%, rgba(140,150,170,0.20), transparent 70%),
+    radial-gradient(ellipse 45% 26% at  92% 32%, rgba(130,140,160,0.16), transparent 70%);
+  background-size: 220% 100%;
+  animation: cloud-drift-slow 220s linear infinite;
+}
+
+.sky-clouds-mid {
+  background:
+    radial-gradient(ellipse 40% 22% at  20% 48%, rgba(70,76,92,0.55),  transparent 65%),
+    radial-gradient(ellipse 55% 25% at  68% 38%, rgba(60,66,80,0.60),  transparent 65%),
+    radial-gradient(ellipse 38% 20% at 100% 52%, rgba(58,64,78,0.50),  transparent 65%);
+  background-size: 200% 100%;
+  animation: cloud-drift-mid 150s linear infinite;
+  filter: blur(8px);
+}
+
+.sky-clouds-near {
+  background:
+    radial-gradient(ellipse 35% 18% at   8% 70%, rgba(20,24,32,0.85),  transparent 60%),
+    radial-gradient(ellipse 50% 22% at  55% 78%, rgba(16,18,26,0.92),  transparent 60%),
+    radial-gradient(ellipse 40% 20% at  95% 72%, rgba(20,22,30,0.85),  transparent 60%);
+  background-size: 180% 100%;
+  animation: cloud-drift-near 110s linear infinite;
+  filter: blur(4px);
+}
+
+@keyframes cloud-drift-slow { from { background-position: 0% 0; }    to { background-position: -120% 0; } }
+@keyframes cloud-drift-mid  { from { background-position: 100% 0; }  to { background-position: -100% 0; } }
+@keyframes cloud-drift-near { from { background-position: -80% 0; }  to { background-position: 120% 0; } }
+
+/* Rain & snow particles — reused vocabulary from the onsen scene */
+.sky-rain-far,
+.sky-rain-near {
+  opacity: 0;
+  background-image:
+    repeating-linear-gradient(
+      170deg,
+      transparent 0px,
+      transparent 6px,
+      rgba(180, 195, 220, 0.16) 6px,
+      rgba(180, 195, 220, 0.16) 7px);
+  background-size: 100% 36px;
+}
+.sky-rain-far  { animation: rain-medium 1.6s linear infinite; opacity: 0; }
+.sky-rain-near { animation: rain-fast 0.9s linear infinite; opacity: 0; }
+
+.sky-snow-far,
+.sky-snow-near {
+  opacity: 0;
+  background-image:
+    radial-gradient(2px 2px at 12% 14%, rgba(248,250,255,0.85), transparent 60%),
+    radial-gradient(1.6px 1.6px at 32% 22%, rgba(240,244,255,0.7), transparent 60%),
+    radial-gradient(2.2px 2.2px at 56% 34%, rgba(250,252,255,0.85), transparent 60%),
+    radial-gradient(1.8px 1.8px at 74% 18%, rgba(240,246,255,0.75), transparent 60%),
+    radial-gradient(2px 2px at 86% 42%, rgba(248,250,255,0.85), transparent 60%),
+    radial-gradient(1.5px 1.5px at 22% 60%, rgba(240,244,255,0.65), transparent 60%),
+    radial-gradient(2.4px 2.4px at 44% 76%, rgba(250,252,255,0.85), transparent 60%),
+    radial-gradient(1.6px 1.6px at 68% 88%, rgba(240,244,255,0.7), transparent 60%);
+  background-size: 200px 200px;
+}
+.sky-snow-far  { animation: snow-fall-slow 18s linear infinite; }
+.sky-snow-near { animation: snow-fall-fast 11s linear infinite; filter: blur(0.5px); }
+
+@keyframes snow-fall-slow {
+  0%   { transform: translate3d(-20px, -40px, 0); }
+  100% { transform: translate3d(  0px, 60px, 0); }
+}
+@keyframes snow-fall-fast {
+  0%   { transform: translate3d(  0px, -60px, 0); }
+  100% { transform: translate3d(-30px, 80px, 0); }
+}
+
+/* Fog/mist — reuse the onsen steam vocabulary, tinted cooler */
+.sky-mist {
+  opacity: 0;
+  background:
+    radial-gradient(ellipse 55% 28% at  20% 78%, rgba(180,185,195,0.22), transparent 70%),
+    radial-gradient(ellipse 65% 30% at  72% 82%, rgba(170,178,190,0.20), transparent 70%),
+    radial-gradient(ellipse 50% 26% at  46% 92%, rgba(190,195,205,0.18), transparent 70%);
+  background-size: 200% 100%;
+  filter: blur(14px);
+  animation: cloud-drift-mid 90s linear infinite reverse;
+  mix-blend-mode: screen;
+}
+
+/* Lightning — a single rare flash for thunder weather codes */
+.sky-stage.w-thunder::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(232, 238, 248, 0.0);
+  pointer-events: none;
+  z-index: 8;
+  animation: sky-lightning 11s infinite;
+  animation-delay: 4s;
+}
+@keyframes sky-lightning {
+  0%, 88%, 100% { background: rgba(232, 238, 248, 0); }
+  89%           { background: rgba(232, 238, 248, 0.22); }
+  90%           { background: rgba(232, 238, 248, 0.05); }
+  91%           { background: rgba(232, 238, 248, 0.18); }
+  93%           { background: rgba(232, 238, 248, 0); }
+}
+
+/* ---------- Weather condition modifiers ---------- */
+
+/* Clear → bright stars, big moon glow */
+.sky-stage.w-clear .sky-stars         { opacity: 1; --star-opacity: 0.95; }
+.sky-stage.w-clear .moon-glow         { opacity: 1; }
+
+/* Mostly clear → most stars, a wisp of high cloud */
+.sky-stage.w-mostly-clear .sky-stars       { opacity: 0.9; --star-opacity: 0.85; }
+.sky-stage.w-mostly-clear .sky-clouds-far  { opacity: 0.45; }
+.sky-stage.w-mostly-clear .moon-glow       { opacity: 0.92; }
+
+/* Partly cloudy → fewer stars, moving mid clouds */
+.sky-stage.w-partly-cloudy .sky-stars       { opacity: 0.55; --star-opacity: 0.55; }
+.sky-stage.w-partly-cloudy .sky-clouds-far  { opacity: 0.6; }
+.sky-stage.w-partly-cloudy .sky-clouds-mid  { opacity: 0.5; }
+.sky-stage.w-partly-cloudy .moon-glow       { opacity: 0.7; }
+.sky-stage.w-partly-cloudy .moon            { filter: drop-shadow(0 0 18px rgba(240, 220, 170, 0.18)); }
+
+/* Overcast → no stars, dense low clouds, moon barely visible */
+.sky-stage.w-overcast .sky-clouds-far  { opacity: 0.85; }
+.sky-stage.w-overcast .sky-clouds-mid  { opacity: 0.85; }
+.sky-stage.w-overcast .sky-clouds-near { opacity: 0.6; }
+.sky-stage.w-overcast .moon-cradle     { opacity: 0.45; }
+.sky-stage.w-overcast .moon-glow       { opacity: 0.2; }
+
+/* Fog → heavy mist, moon very dim, no stars */
+.sky-stage.w-fog .sky-mist        { opacity: 0.95; }
+.sky-stage.w-fog .sky-clouds-mid  { opacity: 0.4; }
+.sky-stage.w-fog .moon-cradle     { opacity: 0.35; filter: blur(2px); }
+.sky-stage.w-fog .moon-glow       { opacity: 0.1; }
+
+/* Drizzle → light rain, soft clouds, moon dimmed */
+.sky-stage.w-drizzle .sky-rain-far     { opacity: 0.55; }
+.sky-stage.w-drizzle .sky-clouds-mid   { opacity: 0.6; }
+.sky-stage.w-drizzle .sky-clouds-near  { opacity: 0.3; }
+.sky-stage.w-drizzle .moon-cradle      { opacity: 0.55; }
+.sky-stage.w-drizzle .moon-glow        { opacity: 0.4; }
+
+/* Rain → heavier rain, dark clouds */
+.sky-stage.w-rain .sky-rain-far    { opacity: 0.85; }
+.sky-stage.w-rain .sky-rain-near   { opacity: 0.65; }
+.sky-stage.w-rain .sky-clouds-mid  { opacity: 0.85; }
+.sky-stage.w-rain .sky-clouds-near { opacity: 0.55; }
+.sky-stage.w-rain .moon-cradle     { opacity: 0.4; }
+.sky-stage.w-rain .moon-glow       { opacity: 0.18; }
+
+/* Snow → snow falling, soft cloud cover */
+.sky-stage.w-snow .sky-snow-far    { opacity: 0.8; }
+.sky-stage.w-snow .sky-snow-near   { opacity: 0.6; }
+.sky-stage.w-snow .sky-clouds-mid  { opacity: 0.55; }
+.sky-stage.w-snow .moon-cradle     { opacity: 0.6; filter: hue-rotate(-8deg); }
+.sky-stage.w-snow .moon-glow       { opacity: 0.35; }
+
+/* Thunder → ominous dark clouds, lightning, rain */
+.sky-stage.w-thunder .sky-rain-far    { opacity: 0.7; }
+.sky-stage.w-thunder .sky-rain-near   { opacity: 0.5; }
+.sky-stage.w-thunder .sky-clouds-mid  { opacity: 0.9; }
+.sky-stage.w-thunder .sky-clouds-near { opacity: 0.85; }
+.sky-stage.w-thunder .moon-cradle     { opacity: 0.25; }
+.sky-stage.w-thunder .moon-glow       { opacity: 0.08; }
+
+/* Stale data → desaturate slightly so it's gently apparent */
+.sky-stage.w-stale { filter: saturate(0.85); }
+
+/* ---------- The moon ---------- */
+
+.moon-cradle {
+  position: absolute;
+  top: 14%;
+  left: 50%;
+  width: 280px;
+  max-width: 38%;
+  aspect-ratio: 1 / 1;
+  transform: translate(-50%, 0);
+  will-change: transform;
+  transition: opacity 1.5s var(--ease), filter 1.5s var(--ease);
+  z-index: 5;
+}
+
+.moon-cradle .moon {
+  display: block;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 0 36px rgba(240, 220, 170, 0.35));
+  transition: filter 1.5s var(--ease);
+}
+
+/* The moon's outer glow is rendered inside the SVG via #moonGlow; this is
+   a hook for the weather-class modifiers to dim it through opacity. */
+.moon-cradle .moon-glow { transition: opacity 1.5s var(--ease); }
+
+/* Floor crest under the moon — small, lantern-warm bloom near the bottom */
+.sky-stage::after {
+  content: "";
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  bottom: -32px;
+  height: 60px;
+  pointer-events: none;
+  z-index: -1;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(232, 169, 111, 0.18) 0%,
+    rgba(184, 106, 58, 0.08) 40%,
+    transparent 78%);
+  filter: blur(22px);
+}
+
+/* ---------- Readout strip (a sliver of context, not a dashboard) ---------- */
+
+.sky-readout {
+  position: absolute;
+  left: 1.4rem;
+  bottom: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.74rem;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  z-index: 6;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85);
+}
+.sky-readout .readout-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+}
+.sky-readout .readout-label {
+  color: var(--text-faint);
+  text-transform: lowercase;
+  letter-spacing: 0.12em;
+  min-width: 4.2em;
+}
+.sky-readout .readout-value {
+  color: var(--text);
+  font-weight: 300;
+}
+
+
+/* ============================================================
+   UTILITY MODE — Strudel sketchbook
+   Wildly different in layout, coordinated with Nocturne's stone,
+   lantern, sakura, and paper palette.
+   ============================================================ */
+.utility-hero {
+  min-height: clamp(720px, calc(100vh - 150px), 980px);
+}
+.utility-stage {
+  position: relative;
+  min-height: clamp(680px, calc(100vh - 168px), 940px);
+  display: grid;
+  grid-template-columns: minmax(230px, 0.72fr) minmax(0, 1.7fr) minmax(240px, 0.78fr);
+  gap: clamp(10px, 1.2vw, 18px);
+  padding: clamp(12px, 1.7vw, 22px);
+  overflow: hidden;
+  border: 1px solid rgba(232, 169, 111, 0.16);
+  border-radius: var(--tile-radius);
+  background:
+    radial-gradient(ellipse 52% 38% at 12% 0%, rgba(217, 154, 168, 0.16), transparent 68%),
+    radial-gradient(ellipse 42% 36% at 90% 10%, rgba(232, 169, 111, 0.16), transparent 64%),
+    linear-gradient(135deg, rgba(6,7,10,0.96), rgba(20,16,18,0.98) 50%, rgba(12,13,18,0.98));
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.04),
+    inset 0 -80px 120px rgba(0,0,0,0.28),
+    0 30px 90px rgba(0,0,0,0.45);
+}
+.utility-stage::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.18;
+  background-image:
+    linear-gradient(rgba(232, 226, 214, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(232, 226, 214, 0.05) 1px, transparent 1px);
+  background-size: 28px 28px;
+  mask-image: radial-gradient(ellipse 80% 65% at 50% 20%, black, transparent 82%);
+}
+.utility-stage::after {
+  content: "";
+  position: absolute;
+  inset: auto 7% -42px 7%;
+  height: 90px;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, rgba(232, 169, 111, 0.18), transparent 70%);
+  filter: blur(24px);
+}
+.utility-panel {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  border: 1px solid rgba(232, 226, 214, 0.08);
+  background:
+    linear-gradient(180deg, rgba(34,28,24,0.74), rgba(10,10,12,0.66)),
+    radial-gradient(ellipse at top, rgba(232, 169, 111, 0.06), transparent 68%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.035);
+}
+.utility-library {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.utility-library-head,
+.utility-meta-head {
+  padding: 16px 16px 12px;
+  border-bottom: 1px solid rgba(232, 226, 214, 0.08);
+}
+.utility-kicker {
+  display: block;
+  margin-bottom: 5px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.63rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: rgba(232, 169, 111, 0.82);
+}
+.utility-title {
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-size: clamp(1.45rem, 2.1vw, 2.1rem);
+  line-height: 1.02;
+  color: var(--paper);
+}
+.utility-subtitle {
+  margin-top: 8px;
+  font-size: 0.82rem;
+  color: rgba(232, 226, 214, 0.54);
+}
+.utility-new {
+  margin: 14px 16px 0;
+  width: calc(100% - 32px);
+  justify-content: center;
+}
+.utility-list {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0 10px 12px;
+  overflow: auto;
+}
+.utility-song-card {
+  width: 100%;
+  display: block;
+  text-align: left;
+  padding: 12px;
+  margin: 0 0 8px;
+  border: 1px solid rgba(232, 226, 214, 0.08);
+  border-radius: 2px;
+  background: rgba(6, 7, 10, 0.34);
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+  transition: border-color 180ms var(--ease-soft), background 180ms var(--ease-soft), transform 180ms var(--ease-soft);
+}
+.utility-song-card:hover,
+.utility-song-card[aria-current="true"] {
+  border-color: rgba(232, 169, 111, 0.32);
+  background: rgba(232, 169, 111, 0.08);
+  transform: translateY(-1px);
+}
+.utility-song-card .title {
+  display: block;
+  font-family: 'Fraunces', serif;
+  font-size: 1.03rem;
+  color: var(--paper);
+}
+.utility-song-card .artist,
+.utility-song-card .meta {
+  display: block;
+  margin-top: 3px;
+  font-size: 0.73rem;
+  color: rgba(232, 226, 214, 0.50);
+}
+.utility-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 8px;
+}
+.utility-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  border-radius: 999px;
+  border: 1px solid rgba(217,154,168,0.20);
+  background: rgba(217,154,168,0.08);
+  color: rgba(247,224,232,0.74);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62rem;
+}
+.utility-empty {
+  padding: 20px 18px;
+  color: rgba(232, 226, 214, 0.48);
+  font-size: 0.86rem;
+}
+.utility-workbench {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  overflow: hidden;
+}
+.utility-workbench-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(232, 226, 214, 0.08);
+  background: linear-gradient(90deg, rgba(217,154,168,0.08), transparent 42%, rgba(232,169,111,0.06));
+}
+.utility-now {
+  min-width: 0;
+}
+.utility-now .utility-kicker { margin-bottom: 2px; }
+.utility-now-title {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-family: 'Fraunces', serif;
+  font-size: clamp(1.2rem, 1.8vw, 1.65rem);
+  color: var(--paper);
+}
+.utility-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.utility-btn-danger {
+  color: #ffb0a0;
+  border-color: rgba(255, 120, 92, 0.28);
+}
+.utility-editor-wrap {
+  position: relative;
+  min-height: 0;
+  padding: 10px;
+}
+.utility-editor-frame {
+  position: relative;
+  height: 100%;
+  min-height: 460px;
+  border: 1px solid rgba(232, 226, 214, 0.08);
+  background: rgba(5, 4, 4, 0.72);
+  overflow: hidden;
+}
+.utility-editor-frame::before {
+  content: "strudel · code only";
+  position: absolute;
+  z-index: 2;
+  top: 10px;
+  right: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(232, 169, 111, 0.46);
+  pointer-events: none;
+}
+.utility-code-editor {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 460px;
+  resize: none;
+  padding: 18px;
+  border: 0;
+  outline: 0;
+  background: #08090c;
+  color: var(--paper);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.84rem;
+  line-height: 1.55;
+}
+.utility-code-editor::selection {
+  background: rgba(232, 169, 111, 0.28);
+}
+.utility-open-strudel {
+  text-decoration: none;
+}
+.utility-status {
+  min-height: 26px;
+  padding: 0 16px 12px;
+  color: rgba(232, 226, 214, 0.52);
+  font-size: 0.82rem;
+}
+.utility-status.success { color: rgba(150, 220, 160, 0.9); }
+.utility-status.error { color: rgba(255, 160, 140, 0.95); }
+.utility-meta {
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+}
+.utility-form {
+  padding: 14px 16px 18px;
+}
+.utility-field {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.utility-field span {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(232, 169, 111, 0.72);
+}
+.utility-field input,
+.utility-field textarea {
+  width: 100%;
+  border: 1px solid rgba(232, 226, 214, 0.10);
+  border-radius: 2px;
+  background: rgba(5, 4, 4, 0.52);
+  color: var(--paper);
+  font: inherit;
+  padding: 9px 10px;
+}
+.utility-field input:focus,
+.utility-field textarea:focus {
+  outline: none;
+  border-color: rgba(232, 169, 111, 0.42);
+  box-shadow: 0 0 0 2px rgba(232, 169, 111, 0.08);
+}
+.utility-field textarea {
+  min-height: 122px;
+  resize: vertical;
+}
+.utility-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.utility-help {
+  margin-top: 18px;
+  padding: 12px;
+  border: 1px solid rgba(217,154,168,0.14);
+  background: rgba(217,154,168,0.06);
+  color: rgba(232, 226, 214, 0.56);
+  font-size: 0.78rem;
+}
+.utility-help code {
+  color: var(--sakura-soft);
+  font-family: 'JetBrains Mono', monospace;
+}
+body[data-mode="utility"] .mixer-section,
+body[data-mode="utility"] .master,
+body[data-mode="utility"] footer {
+  display: none !important;
+}
+body[data-mode="utility"] .shell {
+  max-width: min(1540px, calc(100vw - 28px));
+}
+@media (max-width: 1120px) {
+  .utility-stage {
+    grid-template-columns: minmax(220px, 0.8fr) minmax(0, 1.5fr);
+  }
+  .utility-meta {
+    grid-column: 1 / -1;
+    display: block;
+  }
+  .utility-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 16px;
+  }
+  .utility-field { margin-bottom: 0; }
+  .utility-field.utility-wide { grid-column: 1 / -1; }
+  .utility-help { grid-column: 1 / -1; margin-top: 0; }
+}
+@media (max-width: 760px) {
+  .utility-stage {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+  .utility-workbench { min-height: 650px; }
+  .utility-workbench-head { align-items: flex-start; flex-direction: column; }
+  .utility-actions { justify-content: flex-start; }
+  .utility-form { grid-template-columns: 1fr; }
+  .utility-field.utility-wide { grid-column: auto; }
+}
+
+/* ============================================================
+   RADIO MODE — late-night personal broadcast
+   A bedside tape deck. Amber, low-glowing, deliberately analog.
+   ============================================================ */
+
+.radio-stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--tile-radius);
+  overflow: hidden;
+  isolation: isolate;
+  transform-style: preserve-3d;
+  perspective: 1200px;
+  transform:
+    rotateX(var(--rx, 0deg))
+    rotateY(var(--ry, 0deg));
+  transition: transform 600ms var(--ease);
+  background:
+    radial-gradient(ellipse 50% 35% at 50% 35%,
+      rgba(232, 169, 111, 0.12), transparent 60%),
+    radial-gradient(ellipse 80% 60% at 50% 100%,
+      rgba(20, 14, 10, 0.55), transparent 70%),
+    linear-gradient(180deg,
+      #14100c   0%,
+      #1a1410  40%,
+      #0e0a07  100%);
+  box-shadow:
+    0 1px 0 rgba(255, 220, 180, 0.06) inset,
+    0 -1px 0 rgba(0,0,0,0.7) inset,
+    0 30px 60px rgba(0,0,0,0.6),
+    0 80px 140px rgba(0,0,0,0.45);
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 1rem;
+  padding: 1.4rem;
+}
+
+@media (max-width: 760px) {
+  .radio-stage {
+    grid-template-columns: 1fr;
+    aspect-ratio: auto;
+    min-height: 620px;
+  }
+}
+
+.radio-scene { position: absolute; inset: 0; pointer-events: none; }
+.radio-bg {
+  background:
+    radial-gradient(ellipse 60% 40% at 30% 30%,
+      rgba(232, 169, 111, 0.06), transparent 70%);
+}
+.radio-glow {
+  background:
+    radial-gradient(ellipse 100% 50% at 50% 100%,
+      rgba(184, 106, 58, 0.18), transparent 75%);
+  mix-blend-mode: screen;
+  animation: radio-glow-breathe 8s ease-in-out infinite;
+}
+.radio-scanlines {
+  background-image: repeating-linear-gradient(
+    0deg,
+    transparent 0px,
+    transparent 2px,
+    rgba(255, 220, 180, 0.018) 2px,
+    rgba(255, 220, 180, 0.018) 3px);
+  mix-blend-mode: overlay;
+}
+
+@keyframes radio-glow-breathe {
+  0%, 100% { opacity: 0.55; }
+  50%      { opacity: 0.85; }
+}
+
+/* ---------- The deck (left column) ---------- */
+
+.deck {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: 1.1rem 1.2rem;
+  border-radius: 2px;
+  background:
+    linear-gradient(180deg,
+      rgba(34, 24, 18, 0.65),
+      rgba(14, 10, 8, 0.7));
+  border: 1px solid var(--hairline-warm);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 220, 180, 0.08),
+    inset 0 -1px 0 rgba(0,0,0,0.6),
+    0 12px 28px rgba(0,0,0,0.45);
+}
+
+.deck-meter {
+  position: relative;
+  height: 40px;
+  border-radius: 1px;
+  background:
+    linear-gradient(180deg, #0a0807, #1a0f08);
+  border: 1px solid rgba(100, 60, 30, 0.4);
+  box-shadow:
+    inset 0 2px 5px rgba(0,0,0,0.7),
+    inset 0 -1px 0 rgba(255, 180, 100, 0.05);
+  overflow: hidden;
+}
+.deck-meter canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+/* Resting bar — a single dim segment so it doesn't look broken */
+.deck-meter-fallback {
+  position: absolute;
+  inset: 0.2rem 0.4rem;
+  background: linear-gradient(90deg,
+    rgba(232, 169, 111, 0.10) 0%,
+    rgba(232, 169, 111, 0.04) 50%,
+    rgba(232, 169, 111, 0.10) 100%);
+  pointer-events: none;
+}
+
+.deck-display {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.85rem 0.95rem;
+  border-radius: 1px;
+  background:
+    radial-gradient(ellipse 80% 70% at 50% 30%,
+      rgba(70, 40, 18, 0.6),
+      rgba(30, 18, 10, 0.85));
+  border: 1px solid rgba(140, 80, 40, 0.35);
+  box-shadow:
+    inset 0 0 22px rgba(0,0,0,0.7),
+    inset 0 1px 0 rgba(255,210,170,0.08);
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--lantern-soft);
+  text-shadow:
+    0 0 6px rgba(232, 169, 111, 0.55),
+    0 0 14px rgba(232, 169, 111, 0.25);
+  min-height: 70px;
+}
+.deck-station {
+  font-size: 0.66rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: rgba(232, 169, 111, 0.65);
+  text-shadow:
+    0 0 4px rgba(232, 169, 111, 0.4);
+}
+.deck-track-title {
+  font-family: 'Fraunces', serif;
+  font-size: 1.4rem;
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.2;
+  color: #f4d8a0;
+  letter-spacing: 0.005em;
+  /* Soft scroll if the title's wide */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.deck-track-meta {
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(232, 169, 111, 0.55);
+}
+
+/* Tape reels */
+.deck-reels {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr 1fr;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.4rem 0;
+}
+.reel {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 50%,
+      #1a0f08 0%,
+      #0a0604 70%,
+      #000 100%);
+  border: 1px solid rgba(140, 80, 40, 0.35);
+  box-shadow:
+    inset 0 0 12px rgba(0,0,0,0.85),
+    inset 0 1px 0 rgba(255,210,170,0.08),
+    0 4px 10px rgba(0,0,0,0.5);
+  position: relative;
+  justify-self: center;
+}
+.reel-inner {
+  position: absolute;
+  inset: 14px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 50%,
+      rgba(232, 169, 111, 0.18) 0%,
+      transparent 60%),
+    repeating-conic-gradient(
+      from 0deg,
+      rgba(232, 169, 111, 0.18) 0deg 22.5deg,
+      transparent 22.5deg 45deg);
+  border: 1px solid rgba(140, 80, 40, 0.3);
+  animation: reel-spin 5s linear infinite paused;
+}
+.reel-tape {
+  height: 4px;
+  border-radius: 2px;
+  background: linear-gradient(180deg,
+    rgba(60, 40, 26, 0.6),
+    rgba(20, 12, 8, 0.8));
+  box-shadow: inset 0 1px 0 rgba(255, 210, 170, 0.05);
+  align-self: center;
+}
+
+body.radio-playing .reel-inner { animation-play-state: running; }
+
+@keyframes reel-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* Transport controls */
+.deck-controls {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  padding-top: 0.2rem;
+}
+.deck-btn {
+  appearance: none;
+  border: 1px solid rgba(140, 80, 40, 0.35);
+  background:
+    linear-gradient(180deg,
+      rgba(40, 26, 18, 0.7),
+      rgba(20, 12, 8, 0.85));
+  color: var(--lantern-soft);
+  font-size: 1rem;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    inset 0 1px 0 rgba(255,210,170,0.08),
+    inset 0 -1px 0 rgba(0,0,0,0.6),
+    0 2px 4px rgba(0,0,0,0.4);
+  transition: color 0.25s var(--ease),
+              background 0.25s var(--ease),
+              transform 0.15s var(--ease);
+  text-shadow: 0 0 6px rgba(232, 169, 111, 0.4);
+}
+.deck-btn:hover {
+  color: #f4d8a0;
+  background:
+    linear-gradient(180deg,
+      rgba(58, 38, 24, 0.8),
+      rgba(28, 18, 12, 0.85));
+}
+.deck-btn:active { transform: scale(0.94); }
+
+.deck-btn-primary {
+  width: 52px;
+  height: 52px;
+  font-size: 1.15rem;
+  color: var(--lantern);
+  border-color: rgba(184, 106, 58, 0.6);
+  background:
+    radial-gradient(circle at 50% 35%,
+      rgba(232, 169, 111, 0.25),
+      rgba(40, 22, 12, 0.85) 65%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,210,170,0.15),
+    inset 0 -1px 0 rgba(0,0,0,0.6),
+    0 0 12px rgba(232, 169, 111, 0.18),
+    0 3px 8px rgba(0,0,0,0.5);
+}
+
+.deck-btn-toggle[aria-pressed="true"] {
+  color: #f4d8a0;
+  border-color: rgba(184, 106, 58, 0.55);
+  box-shadow:
+    inset 0 1px 0 rgba(255,210,170,0.12),
+    0 0 10px rgba(232, 169, 111, 0.22),
+    0 2px 4px rgba(0,0,0,0.4);
+}
+.deck-btn-toggle[aria-pressed="false"] {
+  color: var(--text-muted);
+  text-shadow: none;
+  opacity: 0.55;
+}
+
+/* Sliders — broadcast (volume) + warmth (lowpass) */
+.deck-slider {
+  display: grid;
+  grid-template-columns: 5em 1fr 3em;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: lowercase;
+  color: var(--text-muted);
+}
+.deck-slider .deck-slider-label  { color: rgba(232, 169, 111, 0.65); }
+.deck-slider .deck-slider-value  { color: var(--lantern-soft); text-align: right; }
+
+.deck-slider input[type="range"] {
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  background: linear-gradient(
+    to right,
+    rgba(232, 169, 111, 0.55) 0%,
+    rgba(232, 169, 111, 0.55) var(--pct, 60%),
+    rgba(80, 50, 30, 0.45) var(--pct, 60%),
+    rgba(80, 50, 30, 0.45) 100%);
+  outline: none;
+  cursor: pointer;
+}
+.deck-slider input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #f0d2a0, #b86a3a);
+  border: 1px solid rgba(40, 24, 14, 0.6);
+  box-shadow:
+    0 0 6px rgba(232, 169, 111, 0.45),
+    0 1px 2px rgba(0,0,0,0.5);
+  cursor: pointer;
+}
+.deck-slider input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #f0d2a0, #b86a3a);
+  border: 1px solid rgba(40, 24, 14, 0.6);
+  box-shadow: 0 0 6px rgba(232, 169, 111, 0.45);
+  cursor: pointer;
+}
+
+/* ---------- Playlist (right column) ---------- */
+
+.deck-playlist {
+  position: relative;
+  z-index: 2;
+  border-radius: 2px;
+  background: linear-gradient(180deg,
+    rgba(28, 20, 14, 0.55),
+    rgba(12, 8, 6, 0.65));
+  border: 1px solid var(--hairline-warm);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 220, 180, 0.05),
+    0 8px 18px rgba(0,0,0,0.4);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.playlist-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 0.85rem 1rem 0.55rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: rgba(232, 169, 111, 0.6);
+  border-bottom: 1px solid var(--hairline-warm);
+}
+.playlist-list {
+  list-style: none;
+  padding: 0.3rem 0;
+  margin: 0;
+  overflow-y: auto;
+  flex: 1;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(232,169,111,0.25) transparent;
+}
+.playlist-list::-webkit-scrollbar { width: 6px; }
+.playlist-list::-webkit-scrollbar-thumb {
+  background: rgba(232,169,111,0.25);
+  border-radius: 3px;
+}
+.playlist-item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  padding: 0.55rem 1rem;
+  cursor: pointer;
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 300;
+  color: var(--text-muted);
+  border-left: 2px solid transparent;
+  transition: color 0.25s var(--ease),
+              background 0.25s var(--ease),
+              border-color 0.25s var(--ease);
+}
+.playlist-item:hover {
+  color: var(--text);
+  background: rgba(232, 169, 111, 0.04);
+}
+.playlist-item.playing {
+  color: var(--lantern-soft);
+  background: rgba(232, 169, 111, 0.07);
+  border-left-color: var(--lantern);
+}
+.playlist-item.playing .playlist-num { color: var(--lantern); }
+.playlist-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--text-faint);
+  letter-spacing: 0.1em;
+  min-width: 1.8em;
+}
+.playlist-name {
+  font-style: italic;
+  letter-spacing: 0.01em;
+}
+.playlist-empty {
+  padding: 1.5rem 1rem;
+  text-align: center;
+  color: var(--text-faint);
+  font-size: 0.78rem;
+  font-style: italic;
+}
+.playlist-empty code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--lantern-soft);
+  background: rgba(232, 169, 111, 0.08);
+  padding: 1px 5px;
+  border-radius: 2px;
+}
+
+
+/* ============================================================
+   DASHBOARD MODE — embedded Raspberry Pi terminal screen
+   The dashboard is kept in its own iframe so its CRT canvas,
+   reset styles, fixed layout, and keyboard preset handler do not
+   collide with the Nocturne shell.
+   ============================================================ */
+body[data-mode="dashboard"] .master,
+body[data-mode="dashboard"] footer {
+  display: none !important;
+}
+body[data-mode="dashboard"] .shell {
+  max-width: min(1640px, calc(100vw - 28px)) !important;
+}
+body[data-mode="dashboard"] .topbar {
+  display: flex !important;
+}
+.dashboard-hero {
+  position: relative;
+  min-height: calc(100svh - 7.5rem);
+}
+.dashboard-stage {
+  position: relative;
+  width: 100%;
+  height: clamp(560px, calc(100svh - 8.75rem), 920px);
+  overflow: hidden;
+  border-radius: clamp(18px, 2.2vw, 34px);
+  background: #02060a;
+  border: 1px solid rgba(232, 226, 214, 0.08);
+  box-shadow:
+    0 42px 140px -62px rgba(80, 240, 144, 0.26),
+    0 24px 90px -64px rgba(217, 154, 168, 0.20),
+    inset 0 0 0 1px rgba(255,255,255,0.025),
+    0 0 0 1px rgba(0,0,0,0.65);
+}
+.dashboard-frame {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #02060a;
+}
+.dashboard-caption {
+  position: absolute;
+  left: clamp(18px, 2vw, 30px);
+  bottom: clamp(16px, 1.8vw, 26px);
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8ch;
+  color: rgba(198, 255, 220, 0.72);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  pointer-events: none;
+  text-shadow: 0 0 10px rgba(86, 240, 144, 0.35);
+}
+.dashboard-caption .dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(86, 240, 144, 0.72);
+  box-shadow: 0 0 8px rgba(86, 240, 144, 0.7);
+}
+@media (max-width: 760px) {
+  .dashboard-stage {
+    height: calc(100svh - 7rem);
+    min-height: 480px;
+    border-radius: 18px;
+  }
+  .dashboard-caption { display: none; }
+}
+
+/* ---------- Master section copy/tweak for radio mode ---------- */
+
+/* In radio mode the master volume is the global trim that affects the
+   radio AND any background ambient sounds the user left raised.
+   Subtle helper text could change here if we wanted; left as-is for now. */
+
 </style>
 </head>
 <body>
@@ -2080,9 +3598,38 @@ footer {
           <span class="brand-sub">a quiet place</span>
         </div>
       </div>
-      <div class="topbar-meta">
-        <span class="location">Onsen · 3rd of April · 21:14</span>
-        <span class="live-status">Now mixing</span>
+      <div class="topbar-tools">
+        <div class="mode-switcher" role="tablist" aria-label="Mode">
+          <button class="mode-btn" data-mode="onsen" type="button"
+                  role="tab" aria-selected="true">
+            <span class="mode-glyph" aria-hidden="true">◐</span>
+            <span class="mode-label">Onsen</span>
+          </button>
+          <button class="mode-btn" data-mode="sky" type="button"
+                  role="tab" aria-selected="false">
+            <span class="mode-glyph" aria-hidden="true">☾</span>
+            <span class="mode-label">Sky</span>
+          </button>
+          <button class="mode-btn" data-mode="radio" type="button"
+                  role="tab" aria-selected="false">
+            <span class="mode-glyph" aria-hidden="true">◉</span>
+            <span class="mode-label">Radio</span>
+          </button>
+          <button class="mode-btn" data-mode="utility" type="button"
+                  role="tab" aria-selected="false">
+            <span class="mode-glyph" aria-hidden="true">⌁</span>
+            <span class="mode-label">Utility</span>
+          </button>
+          <button class="mode-btn" data-mode="dashboard" type="button"
+                  role="tab" aria-selected="false">
+            <span class="mode-glyph" aria-hidden="true">▣</span>
+            <span class="mode-label">Dashboard</span>
+          </button>
+        </div>
+        <button class="settings-open" id="settings-open" type="button" aria-haspopup="dialog" aria-controls="settings-overlay">
+          <span aria-hidden="true">⚙</span>
+          <span>Settings</span>
+        </button>
       </div>
     </header>
 
@@ -2158,8 +3705,251 @@ footer {
       </div>
     </section>
 
+    <!-- ─────────────────────  SKY HERO  ─────────────────────
+         Moon-phase and local weather, in the existing visual
+         language. Only rendered when body[data-mode="sky"].
+    -->
+    <section class="hero sky-hero" id="sky-hero" aria-label="Sky composition">
+      <div class="sky-stage" id="sky-stage" data-tilt
+           aria-label="Moon and local weather">
+        <!-- Atmospheric layers, parallax via the same .layer/data-depth
+             system the onsen scene uses. -->
+        <div class="sky-scene" aria-hidden="true">
+          <div class="layer sky-bg"          data-depth="2"></div>
+          <div class="layer sky-stars"       data-depth="3"></div>
+          <div class="layer sky-clouds-far"  data-depth="6"></div>
+          <div class="layer sky-clouds-mid"  data-depth="12"></div>
+          <div class="layer sky-clouds-near" data-depth="20"></div>
+          <div class="layer sky-rain-far"    data-depth="14"></div>
+          <div class="layer sky-rain-near"   data-depth="28"></div>
+          <div class="layer sky-snow-far"    data-depth="10"></div>
+          <div class="layer sky-snow-near"   data-depth="22"></div>
+          <div class="layer sky-mist"        data-depth="18"></div>
+        </div>
+
+        <!-- The moon. SVG so the terminator is crisp at any size. -->
+        <div class="moon-cradle" data-depth="14">
+          <svg class="moon" viewBox="-100 -100 200 200" aria-hidden="true">
+            <defs>
+              <radialGradient id="moonGlow" cx="50%" cy="50%" r="60%">
+                <stop offset="0%"   stop-color="#f0d8a0" stop-opacity="0.5"/>
+                <stop offset="50%"  stop-color="#f0d8a0" stop-opacity="0.10"/>
+                <stop offset="100%" stop-color="#f0d8a0" stop-opacity="0"/>
+              </radialGradient>
+              <radialGradient id="moonFace" cx="35%" cy="35%" r="80%">
+                <stop offset="0%"   stop-color="#fbf3df"/>
+                <stop offset="70%"  stop-color="#e8d8b0"/>
+                <stop offset="100%" stop-color="#c9b896"/>
+              </radialGradient>
+            </defs>
+            <circle class="moon-glow" r="140" fill="url(#moonGlow)"/>
+            <circle r="80" fill="url(#moonFace)"/>
+            <path id="moon-shadow" d="" fill="#0a0c14" opacity="0.92"/>
+          </svg>
+        </div>
+
+        <!-- A small readout — context, not a dashboard. -->
+        <div class="sky-readout">
+          <div class="readout-row">
+            <span class="readout-label">tonight</span>
+            <span class="readout-value" id="sky-condition">—</span>
+          </div>
+          <div class="readout-row">
+            <span class="readout-label">moon</span>
+            <span class="readout-value" id="sky-moon">—</span>
+          </div>
+          <div class="readout-row">
+            <span class="readout-label">where</span>
+            <span class="readout-value" id="sky-location">—</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─────────────────────  RADIO HERO  ─────────────────────
+         A late-night personal broadcast: tape deck on the left,
+         playlist on the right. Only rendered when body[data-mode="radio"].
+    -->
+    <section class="hero radio-hero" id="radio-hero" aria-label="Radio">
+      <div class="radio-stage" id="radio-stage" data-tilt
+           aria-label="Late-night broadcast">
+        <div class="radio-scene" aria-hidden="true">
+          <div class="layer radio-bg"        data-depth="2"></div>
+          <div class="layer radio-glow"      data-depth="6"></div>
+          <div class="layer radio-scanlines" data-depth="0"></div>
+        </div>
+
+        <!-- The deck -->
+        <div class="deck">
+          <div class="deck-meter">
+            <div class="deck-meter-fallback" aria-hidden="true"></div>
+            <canvas id="deck-meter-canvas" width="320" height="40"
+                    aria-hidden="true"></canvas>
+          </div>
+
+          <div class="deck-display">
+            <span class="deck-station">NOCTURNE FM · 88.3</span>
+            <span class="deck-track-title" id="deck-title">—</span>
+            <span class="deck-track-meta"  id="deck-meta">— · select a track —</span>
+          </div>
+
+          <div class="deck-reels" aria-hidden="true">
+            <div class="reel"><div class="reel-inner"></div></div>
+            <div class="reel-tape"></div>
+            <div class="reel"><div class="reel-inner"></div></div>
+          </div>
+
+          <div class="deck-controls">
+            <button class="deck-btn" id="deck-prev" type="button"
+                    aria-label="Previous track">⏮</button>
+            <button class="deck-btn deck-btn-primary" id="deck-play" type="button"
+                    aria-label="Play">▶</button>
+            <button class="deck-btn" id="deck-next" type="button"
+                    aria-label="Next track">⏭</button>
+            <button class="deck-btn deck-btn-toggle" id="deck-shuffle" type="button"
+                    aria-pressed="true" aria-label="Shuffle">⤨</button>
+          </div>
+
+          <div class="deck-slider">
+            <span class="deck-slider-label">broadcast</span>
+            <input type="range" id="deck-volume"
+                   min="0" max="100" step="1" value="60"
+                   aria-label="Radio volume">
+            <span class="deck-slider-value" id="deck-volume-value">60%</span>
+          </div>
+
+          <div class="deck-slider">
+            <span class="deck-slider-label">warmth</span>
+            <input type="range" id="deck-warmth"
+                   min="0" max="100" step="1" value="0"
+                   aria-label="Lo-fi warmth (lowpass)">
+            <span class="deck-slider-value" id="deck-warmth-value">0%</span>
+          </div>
+        </div>
+
+        <!-- Playlist -->
+        <div class="deck-playlist" aria-label="Playlist">
+          <div class="playlist-header">
+            <span>broadcast</span>
+            <span id="playlist-count">0 tracks</span>
+          </div>
+          <ol class="playlist-list" id="playlist-list" role="list"></ol>
+          <div class="playlist-empty" id="playlist-empty" hidden>
+            no tracks yet — drop audio into <code>sounds/radio/</code>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─────────────────────  UTILITY HERO  ─────────────────────
+         A local Strudel code sketchbook for saving, duplicating, and editing
+         sketches. Playback opens externally on strudel.cc. This mode is intentionally more workbench
+         than bedroom scene, while still sharing the Nocturne palette.
+    -->
+    <section class="hero utility-hero" id="utility-hero" aria-label="Utility sketchbook">
+      <div class="utility-stage" id="utility-stage" data-tilt>
+        <aside class="utility-panel utility-library" aria-label="Sketch library">
+          <div class="utility-library-head">
+            <span class="utility-kicker">utility · local</span>
+            <h2 class="utility-title">Strudel Sketchbook</h2>
+            <p class="utility-subtitle">Save Strudel snippets locally, then open them on strudel.cc when you want to play.</p>
+          </div>
+          <button class="btn btn-primary utility-new" id="utility-new" type="button">new sketch</button>
+          <ul class="utility-list" id="utility-list" role="list"></ul>
+          <p class="utility-empty" id="utility-empty" hidden>No sketches yet. Create one to begin.</p>
+        </aside>
+
+        <section class="utility-panel utility-workbench" aria-label="Sketch editor">
+          <div class="utility-workbench-head">
+            <div class="utility-now">
+              <span class="utility-kicker">now editing</span>
+              <span class="utility-now-title" id="utility-now-title">—</span>
+            </div>
+            <div class="utility-actions">
+              <button class="btn btn-primary" id="utility-save" type="button">save</button>
+              <a class="btn utility-open-strudel" id="utility-open-strudel" href="https://strudel.cc/" target="_blank" rel="noopener noreferrer">open in strudel</a>
+              <button class="btn" id="utility-copy" type="button">copy code</button>
+              <button class="btn" id="utility-duplicate" type="button">duplicate</button>
+              <button class="btn utility-btn-danger" id="utility-delete" type="button">delete</button>
+            </div>
+          </div>
+          <div class="utility-editor-wrap">
+            <div class="utility-editor-frame" id="utility-editor-frame">
+              <textarea class="utility-code-editor" id="utility-code-editor" spellcheck="false"
+                        aria-label="Strudel code editor"></textarea>
+            </div>
+          </div>
+          <p class="utility-status" id="utility-status" aria-live="polite"></p>
+        </section>
+
+        <aside class="utility-panel utility-meta" aria-label="Sketch metadata">
+          <div class="utility-meta-head">
+            <span class="utility-kicker">catalog</span>
+            <h2 class="utility-title">Patch Notes</h2>
+            <p class="utility-subtitle">Metadata stays in <code>songs/&lt;slug&gt;/meta.json</code>; code stays beside it. Playback happens on <code>strudel.cc</code>.</p>
+          </div>
+          <div class="utility-form">
+            <label class="utility-field utility-wide">
+              <span>title</span>
+              <input id="utility-title" placeholder="Untitled sketch">
+            </label>
+            <label class="utility-field utility-wide">
+              <span>artist</span>
+              <input id="utility-artist" placeholder="Artist / source">
+            </label>
+            <div class="utility-form-grid utility-wide">
+              <label class="utility-field">
+                <span>bpm</span>
+                <input id="utility-bpm" type="number" min="40" max="240" step="1">
+              </label>
+              <label class="utility-field">
+                <span>transpose</span>
+                <input id="utility-transpose" type="number" min="-24" max="24" step="1">
+              </label>
+            </div>
+            <label class="utility-field utility-wide">
+              <span>key</span>
+              <input id="utility-key" placeholder="e.g. E minor">
+            </label>
+            <label class="utility-field utility-wide">
+              <span>tags</span>
+              <input id="utility-tags" placeholder="comma, separated">
+            </label>
+            <label class="utility-field utility-wide">
+              <span>notes</span>
+              <textarea id="utility-notes" placeholder="Arrangement notes, reminders, source ideas..."></textarea>
+            </label>
+            <div class="utility-help utility-wide">
+              The Strudel editor provides its own play/stop controls. If the CDN is offline,
+              this page falls back to a saveable code textarea so the library still works.
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+
+    <!-- ─────────────────────  DASHBOARD HERO  ─────────────────────
+         A self-contained Raspberry Pi terminal/weather dashboard.
+         Loaded only when Dashboard mode is opened, then unloaded when
+         leaving the mode so the Pi is not rendering an extra canvas.
+    -->
+    <section class="hero dashboard-hero" id="dashboard-hero" aria-label="Raspberry Pi dashboard">
+      <div class="dashboard-stage" id="dashboard-stage" data-tilt>
+        <iframe class="dashboard-frame" id="dashboard-frame"
+                title="Raspberry Pi terminal dashboard"
+                data-src="/Dashboard_v4.html"
+                loading="lazy"
+                referrerpolicy="no-referrer"></iframe>
+        <div class="dashboard-caption" aria-hidden="true">
+          <span class="dot"></span>
+          <span>rpi4 dashboard · keys 1–4 inside panel switch CRT presets</span>
+        </div>
+      </div>
+    </section>
+
     <!-- ─────────────────────  MIXER  ───────────────────── -->
-    <section class="mixer-section" aria-label="The mixer">
+    <section class="mixer-section" aria-label="Sound mixer">
       <div class="mixer-grid" id="mixer-grid">
 
         <!-- 01 · WHISPER RAIN -->
@@ -2375,6 +4165,20 @@ footer {
         <button class="btn btn-primary" id="resume-mix" type="button">resume mix</button>
         <button class="btn" id="silence" type="button">silence all</button>
       </div>
+      <div class="sleep-timer" aria-label="Sleep timer">
+        <div class="label">
+          <span class="name">Sleep timer</span>
+          <span class="meta">fade then silence</span>
+        </div>
+        <div class="timer-controls">
+          <button class="btn timer-btn" data-timer-minutes="15" type="button">15 min</button>
+          <button class="btn timer-btn" data-timer-minutes="30" type="button">30 min</button>
+          <button class="btn timer-btn" data-timer-minutes="60" type="button">60 min</button>
+          <button class="btn timer-btn" data-timer-minutes="90" type="button">90 min</button>
+          <button class="btn" id="cancel-timer" type="button">cancel</button>
+        </div>
+        <div class="timer-status" id="timer-status" aria-live="polite"></div>
+      </div>
     </section>
 
     <!-- ─────────────────────  FOOTER  ───────────────────── -->
@@ -2387,6 +4191,45 @@ footer {
   </div>
 </main>
 
+<div class="settings-overlay" id="settings-overlay" hidden>
+  <section class="settings-dialog" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+    <div class="settings-head">
+      <div>
+        <span class="settings-kicker">local config</span>
+        <h2 id="settings-title">Settings</h2>
+      </div>
+      <button class="settings-close" id="settings-close" type="button" aria-label="Close settings">×</button>
+    </div>
+    <p class="settings-copy">Choose which Nocturne modes appear in the top bar. Changes are saved on this device in <code>config/nocturne.json</code>.</p>
+    <form class="settings-form" id="settings-form">
+      <label class="settings-check">
+        <input type="checkbox" data-setting-mode="onsen">
+        <span><strong>Onsen</strong><small>ambient mixer + rain scene</small></span>
+      </label>
+      <label class="settings-check">
+        <input type="checkbox" data-setting-mode="sky">
+        <span><strong>Sky</strong><small>moon phase + local weather</small></span>
+      </label>
+      <label class="settings-check">
+        <input type="checkbox" data-setting-mode="radio">
+        <span><strong>Radio</strong><small>tracks from <code>sounds/radio/</code></small></span>
+      </label>
+      <label class="settings-check">
+        <input type="checkbox" data-setting-mode="dashboard">
+        <span><strong>Dashboard</strong><small>embedded terminal/weather screen</small></span>
+      </label>
+      <label class="settings-check utility-toggle">
+        <input type="checkbox" data-setting-mode="utility">
+        <span><strong>Utility</strong><small>local Strudel sketchbook; writes files under <code>songs/</code></small></span>
+      </label>
+    </form>
+    <div class="settings-warning">
+      Utility exposes local sketch save/edit routes on this Nocturne server. Enable it only on a trusted local network.
+    </div>
+    <p class="settings-status" id="settings-status" aria-live="polite"></p>
+  </section>
+</div>
+
 <!-- ============================================================
      SCRIPTS
      ============================================================ -->
@@ -2398,6 +4241,7 @@ footer {
      STATE / CONFIG
      ───────────────────────────────────────────── */
   const STORAGE_PREFIX = 'nocturne:onsen:';
+  const TIMER_FADE_MS = 60 * 1000;
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* Sound channel registry. Edit `src` to attach real audio files —
@@ -2405,60 +4249,67 @@ footer {
      The `id` is the sound-id used in localStorage and the DOM. */
   const CHANNELS = [
     {
-      id: 'whisper-rain',
+      id: 'calming-rain',
       name: 'Calming Rain',
       category: 'soft-rain',
       categoryLabel: 'soft rain',
       src: '/sounds/calming_rain.mp3'
     },
     {
-      id: 'garden-rain',
+      id: 'gentle-rain',
       name: 'Gentle Rain',
       category: 'soft-rain',
       categoryLabel: 'gentle rain',
       src: '/sounds/gentle_rain.mp3'
     },
     {
-      id: 'distant-storm',
+      id: 'heavy-rain',
       name: 'Heavy Rain',
       category: 'heavy-rain',
       categoryLabel: 'heavy rain',
       src: '/sounds/heavy_rain.mp3'
     },
     {
-      id: 'mountain-thunder',
-      name: 'Rainstorm',
-      category: 'rain-thunder',
-      categoryLabel: 'rainstorm',
-      src: '/sounds/rainstorm.mp3'
-    },
-    {
-      id: 'first-squall',
-      name: 'Thunder',
-      category: 'thunder',
-      categoryLabel: 'thunder',
-      src: '/sounds/thunder.mp3'
-    },
-    {
-      id: 'tempest',
+      id: 'heavy-storm',
       name: 'Heavy Storm',
       category: 'rain-thunder',
       categoryLabel: 'heavy storm',
       src: '/sounds/heavy_storm.mp3'
     },
     {
-      id: 'hearth',
+      id: 'thunder',
+      name: 'Thunder',
+      category: 'thunder',
+      categoryLabel: 'thunder',
+      src: '/sounds/thunder.mp3'
+    },
+    {
+      id: 'fireplace',
       name: 'Fireplace',
       category: 'fireplace',
       categoryLabel: 'fireplace',
       src: '/sounds/fireplace.mp3'
     },
     {
-      id: 'pine-embers',
+      id: 'brown-noise',
+      name: 'Brown Noise',
+      category: 'noise',
+      categoryLabel: 'brown noise',
+      src: '/sounds/brown-noise.wav'
+    },
+    {
+      id: 'pink-noise',
       name: 'Pink Noise',
       category: 'noise',
       categoryLabel: 'pink noise',
       src: '/sounds/pinknoise.wav'
+    },
+    {
+      id: 'white-noise',
+      name: 'White Noise',
+      category: 'noise',
+      categoryLabel: 'white noise',
+      src: '/sounds/white-noise.wav'
     },
   ];
 
@@ -2489,6 +4340,7 @@ footer {
      ───────────────────────────────────────────── */
   let ctx = null;
   let masterGain = null;
+  let sleepTimer = null;
   const channelMap = new Map(); // id → { config, el, slider, valueEl, audio, source, gain }
 
   function ensureContext() {
@@ -2601,7 +4453,9 @@ footer {
   const masterEl   = document.getElementById('master');
   const masterValEl = document.getElementById('master-value');
 
-  function setMaster(percent, persist = true) {
+  function setMaster(percent, options = {}) {
+    if (typeof options === 'boolean') options = { persist: options };
+    const { persist = true, fromTimer = false } = options;
     percent = clamp(percent);
     const v = percent / 100;
     if (ctx && masterGain) {
@@ -2611,6 +4465,7 @@ footer {
     masterValEl.textContent = `${Math.round(percent)}%`;
     masterEl.style.setProperty('--pct', `${percent}%`);
     if (persist) saveVol('master', percent);
+    if (sleepTimer && !fromTimer) sleepTimer.baseMaster = percent;
   }
 
   masterEl.addEventListener('input', () => {
@@ -2619,8 +4474,123 @@ footer {
   });
 
   /* ─────────────────────────────────────────────
-     RESUME / SILENCE
+     RESUME / SLEEP TIMER / SILENCE
      ───────────────────────────────────────────── */
+  const timerButtons = document.querySelectorAll('[data-timer-minutes]');
+  const cancelTimerBtn = document.getElementById('cancel-timer');
+  const timerStatusEl = document.getElementById('timer-status');
+
+  function setTimerStatus(message = '') {
+    if (timerStatusEl) timerStatusEl.textContent = message;
+  }
+
+  function formatRemaining(ms) {
+    const totalSeconds = Math.max(0, Math.ceil(ms / 1000));
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    if (minutes <= 0) return `${seconds}s`;
+    return `${minutes}m ${String(seconds).padStart(2, '0')}s`;
+  }
+
+  function setActiveTimerButton(minutes) {
+    timerButtons.forEach(button => {
+      const isActive = minutes !== null && button.dataset.timerMinutes === String(minutes);
+      button.classList.toggle('active', isActive);
+      button.setAttribute('aria-pressed', String(isActive));
+    });
+  }
+
+  function clearSleepTimer(message = '') {
+    if (sleepTimer) {
+      clearInterval(sleepTimer.intervalId);
+      sleepTimer = null;
+    }
+    setActiveTimerButton(null);
+    setTimerStatus(message);
+  }
+
+  function pauseAmbientWithoutChangingSavedMix() {
+    for (const channel of channelMap.values()) {
+      if (channel.audio) channel.audio.pause();
+      if (channel.gain && ctx) {
+        const current = clamp(parseInt(channel.slider.value, 10)) / 100;
+        channel.gain.gain.cancelScheduledValues(ctx.currentTime);
+        channel.gain.gain.setValueAtTime(current, ctx.currentTime);
+      }
+    }
+  }
+
+  function pauseRadioWithoutChangingSavedLevels() {
+    if (radioState.audio) {
+      radioState.audio.pause();
+      updatePlayButton();
+    }
+  }
+
+  function finishSleepTimer() {
+    if (!sleepTimer) return;
+    const baseMaster = sleepTimer.baseMaster;
+    clearSleepTimer('timer finished — tap resume mix to play again');
+    pauseAmbientWithoutChangingSavedMix();
+    pauseRadioWithoutChangingSavedLevels();
+    /* Restore the visible master value without saving the temporary fade to storage. */
+    setMaster(baseMaster, { persist: false, fromTimer: true });
+  }
+
+  function tickSleepTimer() {
+    if (!sleepTimer) return;
+    const remaining = sleepTimer.endAt - Date.now();
+    if (remaining <= 0) {
+      finishSleepTimer();
+      return;
+    }
+    if (remaining <= sleepTimer.fadeMs) {
+      const ratio = remaining / sleepTimer.fadeMs;
+      setMaster(sleepTimer.baseMaster * ratio, { persist: false, fromTimer: true });
+    }
+    setTimerStatus(`sleep timer: ${formatRemaining(remaining)} remaining`);
+  }
+
+  function startSleepTimer(minutes) {
+    ensureContext();
+    if (sleepTimer) {
+      const baseMaster = sleepTimer.baseMaster;
+      clearSleepTimer();
+      setMaster(baseMaster, { persist: false, fromTimer: true });
+    } else {
+      clearSleepTimer();
+    }
+    const durationMs = minutes * 60 * 1000;
+    sleepTimer = {
+      endAt: Date.now() + durationMs,
+      fadeMs: Math.min(TIMER_FADE_MS, durationMs),
+      baseMaster: clamp(parseInt(masterEl.value, 10)),
+      intervalId: null
+    };
+    setActiveTimerButton(minutes);
+    sleepTimer.intervalId = setInterval(tickSleepTimer, 500);
+    tickSleepTimer();
+  }
+
+  timerButtons.forEach(button => {
+    button.setAttribute('aria-pressed', 'false');
+    button.addEventListener('click', () => {
+      startSleepTimer(parseInt(button.dataset.timerMinutes, 10));
+    });
+  });
+
+  if (cancelTimerBtn) {
+    cancelTimerBtn.addEventListener('click', () => {
+      if (!sleepTimer) {
+        clearSleepTimer();
+        return;
+      }
+      const baseMaster = sleepTimer.baseMaster;
+      clearSleepTimer('sleep timer cancelled');
+      setMaster(baseMaster, { persist: false, fromTimer: true });
+    });
+  }
+
   document.getElementById('resume-mix').addEventListener('click', () => {
     ensureContext();
     let started = 0;
@@ -2631,6 +4601,7 @@ footer {
         started++;
       }
     }
+    setTimerStatus(started ? `playing ${started} saved sound${started === 1 ? '' : 's'}` : 'raise a channel, then resume mix');
     /* Tiny visual breath on the master button so it doesn't feel inert */
     const btn = document.getElementById('resume-mix');
     btn.style.transition = 'transform 280ms cubic-bezier(0.22, 0.61, 0.36, 1)';
@@ -2639,11 +4610,20 @@ footer {
   });
 
   document.getElementById('silence').addEventListener('click', () => {
+    if (sleepTimer) {
+      const baseMaster = sleepTimer.baseMaster;
+      clearSleepTimer('silenced');
+      setMaster(baseMaster, { persist: false, fromTimer: true });
+    } else {
+      clearSleepTimer('silenced');
+    }
     for (const channel of channelMap.values()) {
       channel.slider.value = 0;
       setChannelVolume(channel, 0);
       if (channel.audio) channel.audio.pause();
     }
+    /* Also stop the radio — silence-all is a single panic button */
+    pauseRadioWithoutChangingSavedLevels();
   });
 
   /* ─────────────────────────────────────────────
@@ -2736,6 +4716,1058 @@ footer {
     }
   }
 
+  /* ============================================================
+     FIVE-MODE EXTENSIONS — mode switcher, sky, radio, utility, dashboard
+     Added inline so this code shares the existing IIFE's ctx,
+     masterGain, channelMap, storage helpers, and tilt system.
+     ============================================================ */
+
+  const VALID_MODES = ['onsen', 'sky', 'radio', 'utility', 'dashboard'];
+  const MODE_KEY = 'mode';
+  const DEFAULT_APP_SETTINGS = {
+    modes: { onsen: true, sky: true, radio: true, utility: false, dashboard: true }
+  };
+  let appSettings = mergeSettings(DEFAULT_APP_SETTINGS);
+
+  function mergeSettings(raw) {
+    const next = { modes: { ...DEFAULT_APP_SETTINGS.modes } };
+    if (raw && raw.modes && typeof raw.modes === 'object') {
+      for (const mode of VALID_MODES) {
+        if (typeof raw.modes[mode] === 'boolean') next.modes[mode] = raw.modes[mode];
+      }
+    }
+    if (!VALID_MODES.some(mode => next.modes[mode])) next.modes.onsen = true;
+    return next;
+  }
+
+  function modeEnabled(mode) {
+    return appSettings.modes[mode] !== false;
+  }
+
+  function firstEnabledMode() {
+    return VALID_MODES.find(mode => modeEnabled(mode)) || 'onsen';
+  }
+
+  function currentMode() {
+    return VALID_MODES.includes(document.body.dataset.mode) ? document.body.dataset.mode : null;
+  }
+
+  function settingsStatus(message = '', cls = '') {
+    const el = document.getElementById('settings-status');
+    if (!el) return;
+    el.textContent = message;
+    el.className = 'settings-status' + (cls ? ' ' + cls : '');
+  }
+
+  function applySettingsToUI() {
+    document.querySelectorAll('.mode-btn[data-mode]').forEach(btn => {
+      const enabled = modeEnabled(btn.dataset.mode);
+      btn.hidden = !enabled;
+      btn.setAttribute('aria-hidden', enabled ? 'false' : 'true');
+      btn.tabIndex = enabled ? 0 : -1;
+    });
+    document.querySelectorAll('[data-setting-mode]').forEach(input => {
+      input.checked = modeEnabled(input.dataset.settingMode);
+    });
+    const active = currentMode();
+    if (active && !modeEnabled(active)) setMode(firstEnabledMode());
+  }
+
+  async function loadSettings() {
+    try {
+      const res = await fetch('/api/settings', { cache: 'no-store' });
+      if (!res.ok) throw new Error('settings unavailable');
+      appSettings = mergeSettings(await res.json());
+      applySettingsToUI();
+      return appSettings;
+    } catch (e) {
+      console.warn('Nocturne settings: using defaults', e);
+      appSettings = mergeSettings(DEFAULT_APP_SETTINGS);
+      applySettingsToUI();
+      return appSettings;
+    }
+  }
+
+  async function saveSettings(nextSettings) {
+    const res = await fetch('/api/settings', {
+      method: 'PUT',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(nextSettings)
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || 'settings save failed');
+    }
+    appSettings = mergeSettings(await res.json());
+    applySettingsToUI();
+    return appSettings;
+  }
+
+  function openSettings() {
+    const overlay = document.getElementById('settings-overlay');
+    if (!overlay) return;
+    applySettingsToUI();
+    overlay.hidden = false;
+    settingsStatus('');
+    const first = overlay.querySelector('[data-setting-mode]');
+    if (first) first.focus({ preventScroll: true });
+  }
+
+  function closeSettings() {
+    const overlay = document.getElementById('settings-overlay');
+    if (!overlay) return;
+    overlay.hidden = true;
+    const open = document.getElementById('settings-open');
+    if (open) open.focus({ preventScroll: true });
+  }
+
+  function wireSettingsControls() {
+    const open = document.getElementById('settings-open');
+    const close = document.getElementById('settings-close');
+    const overlay = document.getElementById('settings-overlay');
+    if (open) open.addEventListener('click', openSettings);
+    if (close) close.addEventListener('click', closeSettings);
+    if (overlay) {
+      overlay.addEventListener('click', e => { if (e.target === overlay) closeSettings(); });
+    }
+    window.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && overlay && !overlay.hidden) closeSettings();
+    });
+    document.querySelectorAll('[data-setting-mode]').forEach(input => {
+      input.addEventListener('change', async () => {
+        const mode = input.dataset.settingMode;
+        const previous = mergeSettings(appSettings);
+        const next = mergeSettings({ modes: { ...appSettings.modes, [mode]: input.checked } });
+        if (!VALID_MODES.some(m => next.modes[m])) {
+          input.checked = true;
+          settingsStatus('At least one mode must stay enabled.', 'error');
+          return;
+        }
+        if (mode === 'utility' && input.checked && !previous.modes.utility) {
+          const ok = confirm('Enable Utility? It saves Strudel sketches under songs/ and exposes local sketch write routes on this Nocturne server. Use it only on a trusted local network.');
+          if (!ok) {
+            input.checked = false;
+            return;
+          }
+        }
+        appSettings = next;
+        applySettingsToUI();
+        settingsStatus('Saving…');
+        try {
+          await saveSettings(next);
+          settingsStatus('Saved.', 'success');
+        } catch (e) {
+          appSettings = previous;
+          applySettingsToUI();
+          settingsStatus(e.message || 'Could not save settings.', 'error');
+        }
+      });
+    });
+  }
+
+  function getMode() {
+    const saved = (() => {
+      try { return localStorage.getItem(STORAGE_PREFIX + MODE_KEY); }
+      catch (e) { return null; }
+    })();
+    return VALID_MODES.includes(saved) ? saved : 'onsen';
+  }
+
+  function setMode(mode) {
+    if (!VALID_MODES.includes(mode) || !modeEnabled(mode)) mode = firstEnabledMode();
+    try { localStorage.setItem(STORAGE_PREFIX + MODE_KEY, mode); } catch (e) {}
+    document.body.dataset.mode = mode;
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+      btn.setAttribute('aria-selected', btn.dataset.mode === mode ? 'true' : 'false');
+    });
+    /* Onsen video: paused when not visible to save CPU on the Pi.
+       The video itself is muted so this only affects rendering cost. */
+    const video = document.getElementById('bg-video');
+    if (video) {
+      if (mode === 'onsen') {
+        const p = video.play();
+        if (p && typeof p.catch === 'function') p.catch(() => {});
+      } else {
+        video.pause();
+      }
+    }
+    /* Sky: fire a refresh on entry so it's never blank */
+    if (mode === 'sky') {
+      refreshSky();
+      startSkyRefreshTimer();
+    }
+    /* Radio: lazily load the playlist on first entry */
+    if (mode === 'radio') {
+      ensureRadioLoaded();
+      /* Restart meter if we have something playing */
+      if (radioState.audio && !radioState.audio.paused) startMeter();
+    }
+    if (mode === 'utility') {
+      ensureUtilityLoaded();
+    }
+    /* Dashboard: the standalone terminal screen is canvas-heavy, so load
+       it on entry and clear it when leaving to avoid background rendering. */
+    const dashboardFrame = document.getElementById('dashboard-frame');
+    if (dashboardFrame) {
+      if (mode === 'dashboard') {
+        if (!dashboardFrame.dataset.loaded) {
+          dashboardFrame.src = dashboardFrame.dataset.src || '/Dashboard_v4.html';
+          dashboardFrame.dataset.loaded = 'true';
+        }
+      } else if (dashboardFrame.dataset.loaded) {
+        dashboardFrame.src = 'about:blank';
+        delete dashboardFrame.dataset.loaded;
+      }
+    }
+  }
+
+  document.querySelectorAll('.mode-btn').forEach(btn => {
+    btn.addEventListener('click', () => setMode(btn.dataset.mode));
+  });
+
+
+  /* ─────────────────────────────────────────────
+     MOON PHASE (client-side)
+     Known new moon: 2000-01-06 18:14 UTC. Synodic period 29.530588853 days.
+     Plenty accurate for a bedside visual — no ephemeris needed.
+     ───────────────────────────────────────────── */
+  const KNOWN_NEW_MOON_MS = Date.UTC(2000, 0, 6, 18, 14, 0);
+  const SYNODIC_MS = 29.530588853 * 86400000;
+
+  function moonPhase(date) {
+    const t = (date || new Date()).getTime();
+    let p = ((t - KNOWN_NEW_MOON_MS) % SYNODIC_MS) / SYNODIC_MS;
+    if (p < 0) p += 1;
+    return p;  /* 0 = new, 0.25 = first quarter, 0.5 = full, 0.75 = last quarter */
+  }
+
+  function moonIllumination(phase) {
+    return (1 - Math.cos(phase * 2 * Math.PI)) / 2;  /* 0..1 lit fraction */
+  }
+
+  function moonPhaseName(p) {
+    const tol = 0.012;
+    if (p < tol || p > 1 - tol)       return 'new';
+    if (Math.abs(p - 0.25) < tol)     return 'first quarter';
+    if (Math.abs(p - 0.5)  < tol)     return 'full';
+    if (Math.abs(p - 0.75) < tol)     return 'last quarter';
+    if (p < 0.25) return 'waxing crescent';
+    if (p < 0.5)  return 'waxing gibbous';
+    if (p < 0.75) return 'waning gibbous';
+    return 'waning crescent';
+  }
+
+  /* SVG path for the SHADOW portion of the moon.
+       - Waxing (p<0.5): shadow on the LEFT (sun lighting from the right)
+       - Waning (p>0.5): shadow on the RIGHT
+     Implementation: a half-disc outer arc + an ellipse arc as the terminator.
+     rx of the ellipse = |cos(2π·p)| · r; sweep flags determine which side
+     the terminator bows toward. */
+  function moonShadowPath(phase, r) {
+    const rx = Math.abs(Math.cos(phase * 2 * Math.PI)) * r;
+    let sweep1, sweep2;
+    if (phase < 0.5) {
+      sweep1 = 0;                       /* outer arc = left semicircle */
+      sweep2 = phase < 0.25 ? 0 : 1;    /* crescent vs gibbous */
+    } else {
+      sweep1 = 1;                       /* outer arc = right semicircle */
+      sweep2 = phase < 0.75 ? 0 : 1;    /* gibbous vs crescent */
+    }
+    return 'M 0 ' + (-r) +
+           ' A ' + r + ' ' + r + ' 0 0 ' + sweep1 + ' 0 ' + r +
+           ' A ' + rx + ' ' + r + ' 0 0 ' + sweep2 + ' 0 ' + (-r) + ' Z';
+  }
+
+  function updateMoon() {
+    const p = moonPhase();
+    const shadow = document.getElementById('moon-shadow');
+    if (shadow) shadow.setAttribute('d', moonShadowPath(p, 80));
+    const label = document.getElementById('sky-moon');
+    if (label) {
+      const pct = Math.round(moonIllumination(p) * 100);
+      label.textContent = moonPhaseName(p) + ' · ' + pct + '% lit';
+    }
+  }
+
+
+  /* ─────────────────────────────────────────────
+     WEATHER
+     Backend caches Open-Meteo and degrades gracefully. We just render.
+     ───────────────────────────────────────────── */
+  async function fetchWeather() {
+    try {
+      const res = await fetch('/api/weather', { cache: 'no-store' });
+      if (!res.ok) return null;
+      return await res.json();
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /* WMO weather codes → visual class + human label */
+  function weatherCondition(code) {
+    if (code === 0)                          return { cls: 'clear',         label: 'clear' };
+    if (code === 1)                          return { cls: 'mostly-clear',  label: 'mostly clear' };
+    if (code === 2)                          return { cls: 'partly-cloudy', label: 'partly cloudy' };
+    if (code === 3)                          return { cls: 'overcast',      label: 'overcast' };
+    if (code === 45 || code === 48)          return { cls: 'fog',           label: 'fog' };
+    if (code >= 51 && code <= 57)            return { cls: 'drizzle',       label: 'drizzle' };
+    if (code >= 61 && code <= 67)            return { cls: 'rain',          label: 'rain' };
+    if (code >= 71 && code <= 77)            return { cls: 'snow',          label: 'snow' };
+    if (code >= 80 && code <= 82)            return { cls: 'rain',          label: 'showers' };
+    if (code === 85 || code === 86)          return { cls: 'snow',          label: 'snow showers' };
+    if (code >= 95 && code <= 99)            return { cls: 'thunder',       label: 'thunderstorms' };
+    return { cls: 'clear', label: '—' };
+  }
+
+  const WEATHER_CLASSES = [
+    'w-clear', 'w-mostly-clear', 'w-partly-cloudy', 'w-overcast',
+    'w-fog', 'w-drizzle', 'w-rain', 'w-snow', 'w-thunder',
+    'w-day', 'w-night', 'w-stale'
+  ];
+
+  async function refreshSky() {
+    updateMoon();
+    const stage  = document.getElementById('sky-stage');
+    const condEl = document.getElementById('sky-condition');
+    const locEl  = document.getElementById('sky-location');
+    if (!stage) return;
+
+    const data = await fetchWeather();
+
+    WEATHER_CLASSES.forEach(c => stage.classList.remove(c));
+
+    if (!data || data.ok === false) {
+      /* Total failure: render a calm "clear night" and label as offline */
+      stage.classList.add('w-clear', 'w-night');
+      if (condEl) condEl.textContent = 'weather offline';
+      if (locEl)  locEl.textContent  = (data && data.location_name) || '—';
+      return;
+    }
+
+    const cond = weatherCondition(data.weather_code);
+    stage.classList.add('w-' + cond.cls);
+    stage.classList.add(data.is_day ? 'w-day' : 'w-night');
+    if (data.stale) stage.classList.add('w-stale');
+
+    if (condEl) {
+      const parts = [cond.label];
+      if (typeof data.temperature === 'number') {
+        parts.push(Math.round(data.temperature) + '°');
+      }
+      if (data.stale) parts.push('(stale)');
+      condEl.textContent = parts.join(' · ');
+    }
+    if (locEl) locEl.textContent = data.location_name || '—';
+  }
+
+  let _skyTimer = null;
+  function startSkyRefreshTimer() {
+    if (_skyTimer) return;
+    /* Refresh every 5 min while sky mode is active. The backend caches for
+       10 min by default, so this rarely hits Open-Meteo. */
+    _skyTimer = setInterval(() => {
+      if (document.body.dataset.mode === 'sky') refreshSky();
+    }, 5 * 60 * 1000);
+  }
+
+
+  /* ─────────────────────────────────────────────
+     RADIO
+     A single audio element wired through filter→gain→analyser→masterGain,
+     so the master volume still trims it. Sleep-friendly behavior:
+       - auto-advances on track end
+       - shuffle on by default
+       - prev tracks back through history (not a strict reverse index)
+       - track errors auto-skip after a short delay
+     ───────────────────────────────────────────── */
+  const radioState = {
+    loaded: false,
+    loading: false,
+    tracks: [],
+    current: -1,
+    audio: null,
+    source: null,
+    filter: null,
+    gain: null,
+    analyser: null,
+    volume: 0.6,
+    warmth: 0,
+    shuffle: true,
+    history: [],
+    meterRaf: null,
+    meterCtx: null
+  };
+
+  async function ensureRadioLoaded() {
+    if (radioState.loaded || radioState.loading) return;
+    radioState.loading = true;
+    try {
+      const res = await fetch('/api/radio', { cache: 'no-store' });
+      radioState.tracks = await res.json();
+      radioState.loaded = true;
+      renderPlaylist();
+    } catch (e) {
+      console.warn('Nocturne radio: could not load tracks', e);
+    } finally {
+      radioState.loading = false;
+    }
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+  }
+
+  function renderPlaylist() {
+    const list  = document.getElementById('playlist-list');
+    const empty = document.getElementById('playlist-empty');
+    const count = document.getElementById('playlist-count');
+    if (!list) return;
+    list.innerHTML = '';
+    if (!radioState.tracks.length) {
+      if (empty) empty.hidden = false;
+      if (count) count.textContent = '0 tracks';
+      return;
+    }
+    if (empty) empty.hidden = true;
+    if (count) count.textContent = radioState.tracks.length +
+      (radioState.tracks.length === 1 ? ' track' : ' tracks');
+
+    radioState.tracks.forEach((track, i) => {
+      const li = document.createElement('li');
+      li.className = 'playlist-item';
+      li.dataset.index = i;
+      li.innerHTML =
+        '<span class="playlist-num">' + String(i + 1).padStart(2, '0') + '</span>' +
+        '<span class="playlist-name">' + escapeHtml(track.name) + '</span>';
+      li.addEventListener('click', () => playTrack(i));
+      list.appendChild(li);
+    });
+  }
+
+  function ensureRadioGraph() {
+    if (!ensureContext()) return false;
+    if (radioState.gain) return true;
+    try {
+      radioState.audio = new Audio();
+      radioState.audio.preload = 'auto';
+      radioState.audio.crossOrigin = 'anonymous';
+      radioState.audio.addEventListener('ended', onRadioEnded);
+      radioState.audio.addEventListener('error', onRadioError);
+      radioState.audio.addEventListener('play',  updatePlayButton);
+      radioState.audio.addEventListener('pause', updatePlayButton);
+
+      radioState.source   = ctx.createMediaElementSource(radioState.audio);
+      radioState.filter   = ctx.createBiquadFilter();
+      radioState.filter.type = 'lowpass';
+      radioState.filter.frequency.value = 22050;  /* off by default */
+      radioState.filter.Q.value = 0.7;
+      radioState.gain     = ctx.createGain();
+      radioState.gain.gain.value = radioState.volume;
+      radioState.analyser = ctx.createAnalyser();
+      radioState.analyser.fftSize = 256;
+
+      radioState.source.connect(radioState.filter);
+      radioState.filter.connect(radioState.gain);
+      radioState.gain.connect(radioState.analyser);
+      radioState.analyser.connect(masterGain);
+      return true;
+    } catch (e) {
+      console.warn('Nocturne radio: could not build audio graph', e);
+      return false;
+    }
+  }
+
+  function setRadioVolume(percent, persist) {
+    percent = clamp(percent);
+    radioState.volume = percent / 100;
+    if (radioState.gain && ctx) {
+      radioState.gain.gain.setTargetAtTime(radioState.volume, ctx.currentTime, 0.05);
+    }
+    const slider = document.getElementById('deck-volume');
+    const valEl  = document.getElementById('deck-volume-value');
+    if (slider) {
+      slider.value = percent;
+      slider.style.setProperty('--pct', percent + '%');
+    }
+    if (valEl) valEl.textContent = Math.round(percent) + '%';
+    if (persist !== false) saveVol('radio:volume', percent);
+  }
+
+  function setRadioWarmth(percent, persist) {
+    percent = clamp(percent);
+    radioState.warmth = percent / 100;
+    if (radioState.filter && ctx) {
+      /* Map 0..100 → 22050..2500 Hz (logarithmic): 0% = no filtering,
+         100% = warm/muffled. */
+      const minF = 2500, maxF = 22050;
+      const freq = maxF * Math.pow(minF / maxF, radioState.warmth);
+      radioState.filter.frequency.setTargetAtTime(freq, ctx.currentTime, 0.1);
+    }
+    const slider = document.getElementById('deck-warmth');
+    const valEl  = document.getElementById('deck-warmth-value');
+    if (slider) {
+      slider.value = percent;
+      slider.style.setProperty('--pct', percent + '%');
+    }
+    if (valEl) valEl.textContent = Math.round(percent) + '%';
+    if (persist !== false) saveVol('radio:warmth', percent);
+  }
+
+  function updateDeckDisplay() {
+    const title = document.getElementById('deck-title');
+    const meta  = document.getElementById('deck-meta');
+    const track = radioState.tracks[radioState.current];
+    if (!track) {
+      if (title) title.textContent = '—';
+      if (meta)  meta.textContent  = '— · select a track —';
+      document.body.classList.remove('radio-playing');
+      return;
+    }
+    if (title) title.textContent = track.name;
+    if (meta) {
+      meta.textContent =
+        String(radioState.current + 1).padStart(2, '0') +
+        ' of ' + String(radioState.tracks.length).padStart(2, '0') +
+        (radioState.shuffle ? ' · shuffle' : '');
+    }
+  }
+
+  function highlightPlaylistRow(index) {
+    document.querySelectorAll('.playlist-item').forEach(el => {
+      el.classList.toggle('playing', parseInt(el.dataset.index, 10) === index);
+    });
+  }
+
+  function playTrack(index) {
+    if (!radioState.tracks.length) return;
+    if (!ensureRadioGraph()) return;
+    if (index < 0) index = radioState.tracks.length - 1;
+    if (index >= radioState.tracks.length) index = 0;
+    radioState.current = index;
+    const track = radioState.tracks[index];
+    radioState.audio.src = track.url;
+    const p = radioState.audio.play();
+    if (p && typeof p.catch === 'function') {
+      p.catch(e => console.warn('Nocturne radio: play() failed', e));
+    }
+    updateDeckDisplay();
+    highlightPlaylistRow(index);
+    startMeter();
+    radioState.history.push(index);
+    if (radioState.history.length > 50) radioState.history.shift();
+  }
+
+  function nextTrack() {
+    if (!radioState.tracks.length) return;
+    if (radioState.shuffle && radioState.tracks.length > 1) {
+      let n;
+      do { n = Math.floor(Math.random() * radioState.tracks.length); }
+      while (n === radioState.current);
+      playTrack(n);
+    } else {
+      playTrack(radioState.current + 1);
+    }
+  }
+
+  function prevTrack() {
+    if (!radioState.tracks.length) return;
+    if (radioState.history.length > 1) {
+      radioState.history.pop();           /* discard current */
+      const prev = radioState.history.pop(); /* will be re-pushed in playTrack */
+      playTrack(prev);
+    } else {
+      playTrack(radioState.current - 1);
+    }
+  }
+
+  function togglePlayPause() {
+    /* First-play case: nothing loaded yet */
+    if (!radioState.audio || !radioState.audio.src) {
+      if (!radioState.tracks.length) return;
+      if (radioState.shuffle) nextTrack();
+      else                    playTrack(0);
+      return;
+    }
+    if (radioState.audio.paused) {
+      ensureContext();
+      const p = radioState.audio.play();
+      if (p && typeof p.catch === 'function') p.catch(() => {});
+      startMeter();
+    } else {
+      radioState.audio.pause();
+    }
+    updatePlayButton();
+  }
+
+  function updatePlayButton() {
+    const btn = document.getElementById('deck-play');
+    const playing = radioState.audio && !radioState.audio.paused;
+    if (btn) {
+      btn.textContent = playing ? '⏸' : '▶';
+      btn.setAttribute('aria-label', playing ? 'Pause' : 'Play');
+    }
+    document.body.classList.toggle('radio-playing', !!playing);
+  }
+
+  function onRadioEnded() { nextTrack(); }
+  function onRadioError(e) {
+    console.warn('Nocturne radio: track error', e);
+    setTimeout(nextTrack, 1500);
+  }
+
+  /* VU-style segmented meter from AnalyserNode */
+  function startMeter() {
+    const canvas = document.getElementById('deck-meter-canvas');
+    if (!canvas || !radioState.analyser) return;
+    if (!radioState.meterCtx) radioState.meterCtx = canvas.getContext('2d');
+    if (radioState.meterRaf) cancelAnimationFrame(radioState.meterRaf);
+
+    const buf = new Uint8Array(radioState.analyser.frequencyBinCount);
+    const c2d = radioState.meterCtx;
+    const W   = canvas.width;
+    const H   = canvas.height;
+    const SEG = 24;
+    const segW = W / SEG;
+
+    /* Smooth the level a bit so the bar isn't twitchy */
+    let smoothed = 0;
+
+    function tick() {
+      radioState.analyser.getByteFrequencyData(buf);
+      const slice = buf.subarray(0, Math.floor(buf.length * 0.7));
+      let sum = 0; for (let i = 0; i < slice.length; i++) sum += slice[i];
+      const avg = sum / slice.length / 255;
+      smoothed = smoothed * 0.78 + avg * 0.22;
+      const lit = Math.min(SEG, Math.floor(smoothed * SEG * 1.7));
+
+      c2d.clearRect(0, 0, W, H);
+      for (let i = 0; i < SEG; i++) {
+        const isLit = i < lit;
+        let color;
+        if      (i / SEG > 0.85 && isLit) color = '#ff6b40';
+        else if (i / SEG > 0.65 && isLit) color = '#f4d8a0';
+        else if (isLit)                   color = '#e8a96f';
+        else                              color = 'rgba(180, 130, 80, 0.10)';
+        c2d.fillStyle = color;
+        c2d.fillRect(i * segW + 1, H * 0.2, segW - 2, H * 0.6);
+      }
+
+      if (document.body.dataset.mode === 'radio' &&
+          radioState.audio && !radioState.audio.paused) {
+        radioState.meterRaf = requestAnimationFrame(tick);
+      } else {
+        radioState.meterRaf = null;
+      }
+    }
+    tick();
+  }
+
+  /* Wire up the deck controls. These IDs only exist when the radio-hero
+     is in the DOM, but it's always there (just hidden) so this is safe. */
+  const _playBtn  = document.getElementById('deck-play');
+  const _nextBtn  = document.getElementById('deck-next');
+  const _prevBtn  = document.getElementById('deck-prev');
+  const _shufBtn  = document.getElementById('deck-shuffle');
+  const _volEl    = document.getElementById('deck-volume');
+  const _warmEl   = document.getElementById('deck-warmth');
+  if (_playBtn) _playBtn.addEventListener('click', togglePlayPause);
+  if (_nextBtn) _nextBtn.addEventListener('click', nextTrack);
+  if (_prevBtn) _prevBtn.addEventListener('click', prevTrack);
+  if (_shufBtn) _shufBtn.addEventListener('click', () => {
+    radioState.shuffle = !radioState.shuffle;
+    _shufBtn.setAttribute('aria-pressed', String(radioState.shuffle));
+    updateDeckDisplay();
+  });
+  if (_volEl)  _volEl.addEventListener('input', e => setRadioVolume(parseInt(e.target.value, 10)));
+  if (_warmEl) _warmEl.addEventListener('input', e => setRadioWarmth(parseInt(e.target.value, 10)));
+
+
+
+  /* ─────────────────────────────────────────────
+     UTILITY / STRUDEL CODE SKETCHBOOK
+     Nocturne stores the code + metadata locally. It deliberately does not
+     embed @strudel/repl; the "open in strudel" action hands the current
+     code to strudel.cc with a long URL hash, avoiding AudioWorklet issues
+     on plain LAN HTTP.
+     ───────────────────────────────────────────── */
+  const STARTER_SKETCH_CODE = (bpm) => `// New Nocturne utility sketch
+const TRANSPOSE = 0
+const BPM = ${bpm}
+setcpm(BPM / 4)
+
+// === SHARED HARMONY ===
+const loopChords = "<[c3,e3,g3] [f3,a3,c4] [g3,b3,d4] [c3,e3,g3]>"
+
+// === DRUMS ===
+const drums = stack(
+  s("bd ~ ~ ~ bd ~ ~ ~").gain(.9),
+  s("~ ~ sd ~ ~ ~ sd ~"),
+  s("hh*8").gain(.3),
+)
+
+// === SECTION ===
+const verse = stack(
+  drums,
+  note(loopChords).transpose(TRANSPOSE).s("gm_electric_piano_1").gain(.5),
+)
+
+// === FORM ===
+arrange(
+  [4, verse],
+)
+`;
+
+  const utility = {
+    loaded: false,
+    loading: false,
+    songs: [],
+    slug: null,
+    meta: null,
+    code: ''
+  };
+
+  const utilEl = (id) => document.getElementById(id);
+  const slugify = (s) => String(s || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 60);
+
+  function utilityStatus(msg, cls) {
+    const el = utilEl('utility-status');
+    if (!el) return;
+    el.textContent = msg || '';
+    el.className = 'utility-status' + (cls ? ' ' + cls : '');
+    if (cls === 'success') {
+      setTimeout(() => {
+        if (el.textContent === msg) {
+          el.textContent = '';
+          el.className = 'utility-status';
+        }
+      }, 2200);
+    }
+  }
+
+  function encodeStrudelCode(code) {
+    const bytes = new TextEncoder().encode(code || '');
+    let binary = '';
+    bytes.forEach(byte => { binary += String.fromCharCode(byte); });
+    return encodeURIComponent(btoa(binary));
+  }
+
+  function strudelUrlFor(code) {
+    const trimmed = code || '';
+    return trimmed ? 'https://strudel.cc/#' + encodeStrudelCode(trimmed) : 'https://strudel.cc/';
+  }
+
+  function updateStrudelLink() {
+    const link = utilEl('utility-open-strudel');
+    if (link) link.href = strudelUrlFor(getUtilityCode());
+  }
+
+  async function copyUtilityCode() {
+    const code = getUtilityCode();
+    try {
+      await navigator.clipboard.writeText(code);
+      utilityStatus('Code copied. Paste it into Strudel if the long link is too long.', 'success');
+    } catch (e) {
+      utilityStatus('Could not copy automatically; select the code and copy it manually.', 'error');
+    }
+  }
+
+  function getUtilityCode() {
+    const area = utilEl('utility-code-editor');
+    return area ? area.value : utility.code;
+  }
+
+  function setUtilityCode(code) {
+    utility.code = code || '';
+    const area = utilEl('utility-code-editor');
+    if (area) area.value = utility.code;
+    updateStrudelLink();
+  }
+
+  function setUtilityForm(meta, slug) {
+    meta = meta || {};
+    const title = utilEl('utility-title');
+    const artist = utilEl('utility-artist');
+    const bpm = utilEl('utility-bpm');
+    const transpose = utilEl('utility-transpose');
+    const key = utilEl('utility-key');
+    const tags = utilEl('utility-tags');
+    const notes = utilEl('utility-notes');
+    const now = utilEl('utility-now-title');
+    if (title) title.value = meta.title || slug || '';
+    if (artist) artist.value = meta.artist || '';
+    if (bpm) bpm.value = meta.bpm ?? '';
+    if (transpose) transpose.value = meta.transpose ?? 0;
+    if (key) key.value = meta.key || '';
+    if (tags) tags.value = (meta.tags || []).join(', ');
+    if (notes) notes.value = meta.notes || '';
+    if (now) now.textContent = meta.title || slug || '—';
+  }
+
+  function readUtilityForm() {
+    const fallbackTitle = utility.slug || 'untitled';
+    return {
+      ...(utility.meta || {}),
+      title: (utilEl('utility-title')?.value || '').trim() || fallbackTitle,
+      artist: (utilEl('utility-artist')?.value || '').trim(),
+      bpm: Number(utilEl('utility-bpm')?.value) || (utility.meta?.bpm || 0),
+      transpose: Number(utilEl('utility-transpose')?.value) || 0,
+      key: (utilEl('utility-key')?.value || '').trim(),
+      tags: (utilEl('utility-tags')?.value || '').split(',').map(t => t.trim()).filter(Boolean),
+      notes: utilEl('utility-notes')?.value || ''
+    };
+  }
+
+  function renderUtilityList() {
+    const list = utilEl('utility-list');
+    const empty = utilEl('utility-empty');
+    if (!list) return;
+    list.innerHTML = '';
+    if (!utility.songs.length) {
+      if (empty) empty.hidden = false;
+      return;
+    }
+    if (empty) empty.hidden = true;
+    utility.songs.forEach(song => {
+      const li = document.createElement('li');
+      const btn = document.createElement('button');
+      btn.className = 'utility-song-card';
+      btn.type = 'button';
+      btn.dataset.slug = song.slug;
+      btn.setAttribute('aria-current', song.slug === utility.slug ? 'true' : 'false');
+      const tags = (song.tags || []).slice(0, 4).map(t => '<span class="utility-tag">' + escapeHtml(t) + '</span>').join('');
+      const metaBits = [song.bpm ? song.bpm + ' BPM' : null, song.key || null].filter(Boolean).join(' · ');
+      btn.innerHTML =
+        '<span class="title">' + escapeHtml(song.title || song.slug) + '</span>' +
+        '<span class="artist">' + escapeHtml(song.artist || 'local sketch') + '</span>' +
+        '<span class="meta">' + escapeHtml(metaBits || 'no tempo set') + '</span>' +
+        '<span class="utility-tags">' + tags + '</span>';
+      btn.addEventListener('click', () => loadUtilitySong(song.slug));
+      li.appendChild(btn);
+      list.appendChild(li);
+    });
+  }
+
+  async function fetchUtilitySongs() {
+    const res = await fetch('/api/songs', { cache: 'no-store' });
+    if (!res.ok) throw new Error('Could not load utility library.');
+    utility.songs = await res.json();
+    renderUtilityList();
+    return utility.songs;
+  }
+
+  async function loadUtilitySong(slug) {
+    if (!slug) return;
+    const res = await fetch('/api/songs/' + encodeURIComponent(slug), { cache: 'no-store' });
+    if (!res.ok) {
+      utilityStatus('Could not load sketch.', 'error');
+      return;
+    }
+    const data = await res.json();
+    utility.slug = slug;
+    utility.meta = data.meta || {};
+    setUtilityCode(data.code || '');
+    setUtilityForm(utility.meta, slug);
+    renderUtilityList();
+    utilityStatus('Loaded ' + (utility.meta.title || slug) + '.', 'success');
+  }
+
+  function replaceUtilityConst(code, name, value) {
+    const re = new RegExp('(^|\\n)(\\s*const\\s+' + name + '\\s*=\\s*)(-?[\\d.]+)');
+    if (re.test(code)) return code.replace(re, '$1$2' + value);
+    return 'const ' + name + ' = ' + value + '\n' + code;
+  }
+
+  async function saveUtilitySong() {
+    if (!utility.slug) return false;
+    const meta = readUtilityForm();
+    const code = getUtilityCode();
+    const res = await fetch('/api/songs/' + encodeURIComponent(utility.slug), {
+      method: 'PUT',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ meta, code })
+    });
+    if (!res.ok) return false;
+    utility.meta = meta;
+    utility.code = code;
+    setUtilityForm(meta, utility.slug);
+    await fetchUtilitySongs();
+    return true;
+  }
+
+  async function createUtilitySong() {
+    const title = prompt('Sketch title?');
+    if (!title) return;
+    const slug = slugify(title);
+    if (!slug) {
+      alert('Could not derive a slug from that title. Try letters or numbers.');
+      return;
+    }
+    const meta = { title, artist: '', bpm: 120, key: '', tags: [], notes: '', transpose: 0 };
+    const res = await fetch('/api/songs', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ slug, meta, code: STARTER_SKETCH_CODE(120) })
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      alert('Could not create sketch: ' + (err.error || err.detail || res.statusText));
+      return;
+    }
+    await fetchUtilitySongs();
+    await loadUtilitySong(slug);
+  }
+
+  async function duplicateUtilitySong() {
+    if (!utility.slug) return;
+    const defaultName = (utility.meta?.title || utility.slug) + ' (v2)';
+    const title = prompt('Name for the copy?', defaultName);
+    if (!title) return;
+    const newSlug = slugify(title);
+    if (!newSlug) return alert('Could not derive a slug from that name.');
+    const saved = await saveUtilitySong();
+    if (!saved && !confirm('Could not save current changes. Duplicate last saved version anyway?')) return;
+    const res = await fetch('/api/songs/' + encodeURIComponent(utility.slug) + '/duplicate', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ newSlug, title })
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      alert('Duplicate failed: ' + (err.error || err.detail || res.statusText));
+      return;
+    }
+    await fetchUtilitySongs();
+    await loadUtilitySong(newSlug);
+  }
+
+  async function deleteUtilitySong() {
+    if (!utility.slug) return;
+    if (!confirm('Delete "' + (utility.meta?.title || utility.slug) + '" permanently?')) return;
+    const res = await fetch('/api/songs/' + encodeURIComponent(utility.slug), { method: 'DELETE' });
+    if (!res.ok) {
+      alert('Delete failed.');
+      return;
+    }
+    utility.slug = null;
+    utility.meta = null;
+    utility.code = '';
+    setUtilityCode('');
+    setUtilityForm({}, '');
+    await fetchUtilitySongs();
+    if (utility.songs.length) await loadUtilitySong(utility.songs[0].slug);
+    else utilityStatus('Sketch deleted.', 'success');
+  }
+
+  async function ensureUtilityLoaded() {
+    if (utility.loading) return;
+    utility.loading = true;
+    try {
+        await fetchUtilitySongs();
+      if (!utility.slug && utility.songs.length) await loadUtilitySong(utility.songs[0].slug);
+      utility.loaded = true;
+    } catch (e) {
+      console.warn('Nocturne utility: could not load sketchbook', e);
+      utilityStatus('Could not load sketchbook.', 'error');
+    } finally {
+      utility.loading = false;
+    }
+  }
+
+  function wireUtilityControls() {
+    const newBtn = utilEl('utility-new');
+    const saveBtn = utilEl('utility-save');
+    const openLink = utilEl('utility-open-strudel');
+    const copyBtn = utilEl('utility-copy');
+    const dupBtn = utilEl('utility-duplicate');
+    const delBtn = utilEl('utility-delete');
+    const bpm = utilEl('utility-bpm');
+    const transpose = utilEl('utility-transpose');
+    const area = utilEl('utility-code-editor');
+
+    if (newBtn) newBtn.addEventListener('click', createUtilitySong);
+    if (saveBtn) saveBtn.addEventListener('click', async () => {
+      const ok = await saveUtilitySong();
+      utilityStatus(ok ? 'Saved.' : 'Save failed.', ok ? 'success' : 'error');
+    });
+    if (openLink) openLink.addEventListener('click', () => {
+      updateStrudelLink();
+      const code = getUtilityCode();
+      if (code.length > 6500) {
+        copyUtilityCode();
+        utilityStatus('Large sketch copied. If the Strudel link does not load, paste the code there manually.', 'error');
+      }
+    });
+    if (copyBtn) copyBtn.addEventListener('click', copyUtilityCode);
+    if (dupBtn) dupBtn.addEventListener('click', duplicateUtilitySong);
+    if (delBtn) delBtn.addEventListener('click', deleteUtilitySong);
+
+    if (bpm) bpm.addEventListener('change', () => {
+      const v = Number(bpm.value);
+      if (!Number.isFinite(v)) return;
+      const next = replaceUtilityConst(getUtilityCode(), 'BPM', v);
+      setUtilityCode(next);
+      utilityStatus('BPM updated in code. Press save to keep.');
+    });
+    if (transpose) transpose.addEventListener('change', () => {
+      const v = Number(transpose.value);
+      if (!Number.isFinite(v)) return;
+      const next = replaceUtilityConst(getUtilityCode(), 'TRANSPOSE', v);
+      setUtilityCode(next);
+      utilityStatus('Transpose updated in code. Press save to keep.');
+    });
+    if (area) area.addEventListener('input', () => { utility.code = area.value; updateStrudelLink(); });
+  }
+
+  window.addEventListener('keydown', e => {
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 's' && document.body.dataset.mode === 'utility') {
+      e.preventDefault();
+      const save = utilEl('utility-save');
+      if (save) save.click();
+    }
+  });
+
+  /* ─────────────────────────────────────────────
+     SKY/RADIO BOOT
+     Called from the original boot() at the end of the IIFE.
+     ───────────────────────────────────────────── */
+  function bootThreeMode() {
+    wireSettingsControls();
+    wireUtilityControls();
+    applySettingsToUI();
+
+    /* Restore radio levels from storage */
+    setRadioVolume(loadVol('radio:volume', 60), false);
+    setRadioWarmth(loadVol('radio:warmth', 0),  false);
+
+    /* Restore mode (drives initial layout & calls refreshSky/ensureRadioLoaded).
+       Settings are server-persisted, so we also refresh after they arrive. */
+    setMode(getMode());
+    loadSettings().then(() => setMode(getMode()));
+
+    /* Attach tilt to the new stages so they feel alive */
+    const sky = document.getElementById('sky-stage');
+    if (sky) attachTilt(sky, { maxTilt: 1.4 });
+    const radio = document.getElementById('radio-stage');
+    if (radio) attachTilt(radio, { maxTilt: 0.8 });
+    const utilityStage = document.getElementById('utility-stage');
+    if (utilityStage) attachTilt(utilityStage, { maxTilt: 0.55 });
+
+    /* Draw the moon immediately even before the sky tab is opened, so
+       that if the user lands on Sky the moon is already correct. */
+    updateMoon();
+    /* And refresh once an hour in the background so a long-running tab
+       doesn't show yesterday's moon. */
+    setInterval(updateMoon, 60 * 60 * 1000);
+  }
+
+
   /* ─────────────────────────────────────────────
      BOOT
      ───────────────────────────────────────────── */
@@ -2756,6 +5788,9 @@ footer {
 
     /* Video */
     setupVideo();
+
+    /* Five-mode extensions: mode switch, sky, radio, utility, dashboard */
+    bootThreeMode();
 
     /* Soft body fade-in */
     if (!prefersReduced) {

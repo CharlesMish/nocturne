@@ -1,30 +1,58 @@
 # sounds/
 
-Drop any `.mp3`, `.ogg`, `.m4a`, `.wav`, `.opus`, `.webm`, or `.flac` file
-in here and it'll show up in the app on the next page reload.
+This folder is for the **Onsen/Sky ambient mixer**.
 
-The filename (minus the extension) becomes the display name. So:
-- `rain-on-tent.mp3` → "Rain On Tent"
-- `crackling_fire.ogg` → "Crackling Fire"
+The current Nocturne UI uses nine styled, hardcoded mixer slots. Drop your real
+loop-friendly audio files directly into this folder with these exact filenames:
 
-## Where to get loop-friendly sounds
+- `brown-noise.wav`
+- `calming_rain.mp3`
+- `fireplace.mp3`
+- `gentle_rain.mp3`
+- `heavy_rain.mp3`
+- `heavy_storm.mp3`
+- `pinknoise.wav`
+- `thunder.mp3`
+- `white-noise.wav`
 
-- **freesound.org** — huge library, filter by Creative Commons, look for
-  files tagged "loop" or "seamless". Search "rain loop", "fire crackle loop", etc.
-- **mynoise.net** — has free sample loops you can download.
-- **YouTube** — pull audio with `yt-dlp -x --audio-format mp3 <url>`.
-  Stick to channels that label loops as seamless.
+The visible mixer labels are:
 
-## Testing without real sounds
+- Calming Rain
+- Gentle Rain
+- Heavy Rain
+- Heavy Storm
+- Thunder
+- Fireplace
+- Brown Noise
+- Pink Noise
+- White Noise
 
-Run `python make_test_noise.py` from the project root to generate
-brown / pink / white noise samples. They sound rough but they prove
-the mixer works.
+`python scripts/generate_noise.py` creates the procedural WAV beds locally:
+
+- `brown-noise.wav`
+- `pinknoise.wav`
+- `white-noise.wav`
+
+For rain/fire/thunder MP3 files, copy `media_sources.example.json` to
+`media_sources.json`, fill in the source URLs and creator/license notes, then run:
+
+```bash
+python scripts/fetch_media.py --yes
+```
+
+`python make_test_noise.py` remains available as a quick smoke-test generator for
+synthetic placeholder files. It writes WAV files directly and uses `ffmpeg` for
+the MP3 slots when `ffmpeg` is installed.
+
+## Radio mode
+
+Radio tracks live in `sounds/radio/`, not here. Radio mode is dynamic: any
+`.mp3`, `.ogg`, `.m4a`, `.wav`, `.opus`, `.webm`, or `.flac` file in
+`sounds/radio/` appears in the Radio tab after a browser refresh.
 
 ## Tips
 
-- **OGG/Opus/WebM** are often best for seamless loops. MP3 is fine too,
-  especially for long recordings, but some MP3s have tiny loop seams. WAV files are huge.
-- **Aim for 60+ second loops** — too short and the seam becomes obvious.
-- **Match the loudness** of your files (around -20 LUFS) so volumes
-  feel comparable across the mixer.
+- OGG/Opus/WebM are often best for seamless loops.
+- MP3 is fine for long recordings, but it can have tiny loop seams.
+- Aim for 60+ second loops.
+- Match loudness across files so slider values feel comparable.

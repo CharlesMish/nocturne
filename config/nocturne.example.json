@@ -1,0 +1,9 @@
+{
+  "modes": {
+    "onsen": true,
+    "sky": true,
+    "radio": true,
+    "utility": false,
+    "dashboard": true
+  }
+}
