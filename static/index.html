@@ -4024,8 +4024,8 @@ body[data-mode="dashboard"] .topbar {
           </div>
         </article>
 
-        <!-- 04 · HEAVY STORM -->
-        <article class="channel p-mountain" data-tilt data-sound-id="heavy-storm" data-category="rain &amp; thunder"
+        <!-- 04 · RAINSTORM -->
+        <article class="channel p-mountain" data-tilt data-sound-id="rainstorm" data-category="rainstorm"
                  style="--glow-color: rgba(140, 165, 215, 0.4);">
           <div class="stage" aria-hidden="true">
             <div class="layer l-clouds"      data-depth="8"></div>
@@ -4039,19 +4039,19 @@ body[data-mode="dashboard"] .topbar {
           </div>
           <div class="controls">
             <div class="meta-row">
-              <span class="category">rain &amp; thunder</span>
+              <span class="category">rainstorm</span>
               <span>ch · 04</span>
             </div>
             <div class="info-row">
-              <span class="name">Heavy Storm</span>
+              <span class="name">Rainstorm</span>
               <span class="value">0%</span>
             </div>
-            <input type="range" min="0" max="100" step="1" value="0" aria-label="Heavy Storm volume">
+            <input type="range" min="0" max="100" step="1" value="0" aria-label="Rainstorm volume">
           </div>
         </article>
 
-        <!-- 05 · THUNDER -->
-        <article class="channel p-squall" data-tilt data-sound-id="thunder" data-category="thunder"
+        <!-- 05 · HEAVY STORM -->
+        <article class="channel p-squall" data-tilt data-sound-id="heavy-storm" data-category="rain &amp; thunder"
                  style="--glow-color: rgba(244, 216, 160, 0.4);">
           <div class="stage" aria-hidden="true">
             <div class="layer l-clouds"   data-depth="8"></div>
@@ -4063,19 +4063,19 @@ body[data-mode="dashboard"] .topbar {
           </div>
           <div class="controls">
             <div class="meta-row">
-              <span class="category">thunder</span>
+              <span class="category">rain &amp; thunder</span>
               <span>ch · 05</span>
             </div>
             <div class="info-row">
-              <span class="name">Thunder</span>
+              <span class="name">Heavy Storm</span>
               <span class="value">0%</span>
             </div>
-            <input type="range" min="0" max="100" step="1" value="0" aria-label="Thunder volume">
+            <input type="range" min="0" max="100" step="1" value="0" aria-label="Heavy Storm volume">
           </div>
         </article>
 
-        <!-- 06 · FIREPLACE -->
-        <article class="channel p-tempest" data-tilt data-sound-id="fireplace" data-category="fireplace"
+        <!-- 06 · THUNDER -->
+        <article class="channel p-tempest" data-tilt data-sound-id="thunder" data-category="thunder"
                  style="--glow-color: rgba(232, 238, 248, 0.38);">
           <div class="stage" aria-hidden="true">
             <div class="layer l-clouds-deep" data-depth="6"></div>
@@ -4089,19 +4089,19 @@ body[data-mode="dashboard"] .topbar {
           </div>
           <div class="controls">
             <div class="meta-row">
-              <span class="category">fireplace</span>
+              <span class="category">thunder</span>
               <span>ch · 06</span>
             </div>
             <div class="info-row">
-              <span class="name">Fireplace</span>
+              <span class="name">Thunder</span>
               <span class="value">0%</span>
             </div>
-            <input type="range" min="0" max="100" step="1" value="0" aria-label="Fireplace volume">
+            <input type="range" min="0" max="100" step="1" value="0" aria-label="Thunder volume">
           </div>
         </article>
 
-        <!-- 07 · BROWN NOISE -->
-        <article class="channel p-hearth" data-tilt data-sound-id="brown-noise" data-category="noise"
+        <!-- 07 · FIREPLACE -->
+        <article class="channel p-hearth" data-tilt data-sound-id="fireplace" data-category="fireplace"
                  style="--glow-color: rgba(255, 170, 90, 0.45);">
           <div class="stage" aria-hidden="true">
             <div class="layer l-glow"   data-depth="6"></div>
@@ -4112,14 +4112,14 @@ body[data-mode="dashboard"] .topbar {
           </div>
           <div class="controls">
             <div class="meta-row">
-              <span class="category">noise</span>
+              <span class="category">fireplace</span>
               <span>ch · 07</span>
             </div>
             <div class="info-row">
-              <span class="name">Brown Noise</span>
+              <span class="name">Fireplace</span>
               <span class="value">0%</span>
             </div>
-            <input type="range" min="0" max="100" step="1" value="0" aria-label="Brown Noise volume">
+            <input type="range" min="0" max="100" step="1" value="0" aria-label="Fireplace volume">
           </div>
         </article>
 
@@ -4267,6 +4267,12 @@ body[data-mode="dashboard"] .topbar {
       src: '/sounds/heavy_rain.mp3'
     },
     {
+      id: 'rainstorm',
+      name: 'Rainstorm',
+      category: 'rainstorm',
+      src: '/sounds/rainstorm.mp3'
+    },
+    {
       id: 'heavy-storm',
       name: 'Heavy Storm',
       category: 'rain & thunder',
@@ -4283,12 +4289,6 @@ body[data-mode="dashboard"] .topbar {
       name: 'Fireplace',
       category: 'fireplace',
       src: '/sounds/fireplace.mp3'
-    },
-    {
-      id: 'brown-noise',
-      name: 'Brown Noise',
-      category: 'noise',
-      src: '/sounds/brown-noise.wav'
     },
     {
       id: 'pink-noise',

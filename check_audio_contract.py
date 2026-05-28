@@ -16,12 +16,11 @@ EXPECTED = [
     ("calming-rain", "Calming Rain", "calming_rain.mp3"),
     ("gentle-rain", "Gentle Rain", "gentle_rain.mp3"),
     ("heavy-rain", "Heavy Rain", "heavy_rain.mp3"),
+    ("rainstorm", "Rainstorm", "rainstorm.mp3"),
     ("heavy-storm", "Heavy Storm", "heavy_storm.mp3"),
     ("thunder", "Thunder", "thunder.mp3"),
     ("fireplace", "Fireplace", "fireplace.mp3"),
-    ("brown-noise", "Brown Noise", "brown-noise.wav"),
     ("pink-noise", "Pink Noise", "pinknoise.wav"),
-    ("white-noise", "White Noise", "white-noise.wav"),
 ]
 
 

@@ -3,25 +3,29 @@
 Nocturne's source repository intentionally does **not** need to include third-party audio binaries.
 The app is a creative work, but a public GitHub repository containing raw `.mp3` files can also act like a direct media redistribution channel. To keep the repo clean, use one of these paths:
 
-1. Generate procedural noise locally:
+1. Generate procedural noise locally (always safe, no network):
 
    ```bash
    python scripts/generate_noise.py
    ```
 
-   This creates:
+   This creates three optional beds:
 
    - `sounds/brown-noise.wav`
    - `sounds/pinknoise.wav`
    - `sounds/white-noise.wav`
 
-2. Download third-party ambient files from source pages chosen by the installer:
+   Only `pinknoise.wav` is used as a visible v0.1 mixer channel.
+
+2. Download the seven Pixabay rain/fire/thunder MP3s (recommended low-friction path):
 
    ```bash
-   cp media_sources.example.json media_sources.json
-   # edit media_sources.json with source URLs / creator notes
-   python scripts/fetch_media.py --yes
+   cp media_sources.default.json media_sources.json
+   # Fill the 7 'url' fields using the DevTools method described in the file
+   python3 install.py --fetch-media
    ```
+
+   Or run the fetcher directly after preparing the manifest.
 
    This writes `sounds/MEDIA_MANIFEST.generated.json` with source URLs, creator notes, hashes, byte sizes, and download timestamps.
 
@@ -32,12 +36,11 @@ The Nocturne mixer expects these exact filenames in `sounds/`:
 - `calming_rain.mp3`
 - `gentle_rain.mp3`
 - `heavy_rain.mp3`
+- `rainstorm.mp3`
 - `heavy_storm.mp3`
 - `thunder.mp3`
 - `fireplace.mp3`
-- `brown-noise.wav`
 - `pinknoise.wav`
-- `white-noise.wav`
 
 ## Bundled visual media
 

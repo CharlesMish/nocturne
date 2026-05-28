@@ -11,5 +11,15 @@ sounds/*.opus
 sounds/*.webm
 sounds/MEDIA_MANIFEST.generated.json
 
+# User radio tracks (any audio the user adds for Radio mode)
+sounds/radio/*.mp3
+sounds/radio/*.wav
+sounds/radio/*.flac
+sounds/radio/*.ogg
+sounds/radio/*.m4a
+sounds/radio/*.opus
+sounds/radio/*.webm
+
+# Local user manifest override (committed defaults live in media_sources.default.json)
 media_sources.json
 config/nocturne.json

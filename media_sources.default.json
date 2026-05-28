@@ -1,0 +1,75 @@
+{
+  "notes": [
+    "This is the committed reference manifest with Pixabay source pages for provenance.",
+    "Copy this file to media_sources.json (which is gitignored) and fill in CURRENT direct download URLs.",
+    "Pixabay direct CDN links (https://cdn.pixabay.com/audio/...) are the most reliable.",
+    "How to get a working direct URL (takes ~20 seconds per file):",
+    "  1. Open the source_page URL in a browser.",
+    "  2. Click the play button or the Download button.",
+    "  3. Open DevTools (F12) → Network tab → filter by 'audio' or '.mp3'.",
+    "  4. Right-click the request to cdn.pixabay.com → Copy → Copy link address.",
+    "  5. Paste that full URL into the 'url' field below.",
+    "These links usually work without login and are covered by the Pixabay license.",
+    "Links can be time-limited; repeat the process if a download fails later.",
+    "Only the 'filename' and 'url' fields are required by scripts/fetch_media.py.",
+    "Keep the source_page + creator/license fields for your own MEDIA_LICENSES.md audit trail."
+  ],
+  "files": [
+    {
+      "filename": "calming_rain.mp3",
+      "url": "TODO-direct-download-url",
+      "source_page": "https://pixabay.com/sound-effects/nature-calming-rain-257596/",
+      "creator": "Pixabay / original uploader",
+      "license": "Pixabay Content License (royalty-free, no attribution required)",
+      "permission_note": "Visit source_page, capture current direct CDN URL from Network tab."
+    },
+    {
+      "filename": "gentle_rain.mp3",
+      "url": "TODO-direct-download-url",
+      "source_page": "https://pixabay.com/sound-effects/nature-gentle-rain-07-437321/",
+      "creator": "Pixabay / original uploader",
+      "license": "Pixabay Content License (royalty-free, no attribution required)",
+      "permission_note": "Visit source_page, capture current direct CDN URL from Network tab."
+    },
+    {
+      "filename": "heavy_rain.mp3",
+      "url": "TODO-direct-download-url",
+      "source_page": "https://pixabay.com/sound-effects/nature-heavy-rain-outside-the-window-515266/",
+      "creator": "Pixabay / original uploader",
+      "license": "Pixabay Content License (royalty-free, no attribution required)",
+      "permission_note": "Visit source_page, capture current direct CDN URL from Network tab."
+    },
+    {
+      "filename": "rainstorm.mp3",
+      "url": "TODO-direct-download-url",
+      "source_page": "https://pixabay.com/sound-effects/nature-rain-storm-sound-155232/",
+      "creator": "Pixabay / original uploader",
+      "license": "Pixabay Content License (royalty-free, no attribution required)",
+      "permission_note": "Visit source_page, capture current direct CDN URL from Network tab."
+    },
+    {
+      "filename": "heavy_storm.mp3",
+      "url": "TODO-direct-download-url",
+      "source_page": "https://pixabay.com/sound-effects/nature-heavy-thunderstorm-sound-effect-473418/",
+      "creator": "Pixabay / original uploader",
+      "license": "Pixabay Content License (royalty-free, no attribution required)",
+      "permission_note": "Visit source_page, capture current direct CDN URL from Network tab."
+    },
+    {
+      "filename": "thunder.mp3",
+      "url": "TODO-direct-download-url",
+      "source_page": "https://pixabay.com/sound-effects/nature-thunder-sound-375727/",
+      "creator": "Pixabay / original uploader",
+      "license": "Pixabay Content License (royalty-free, no attribution required)",
+      "permission_note": "Visit source_page, capture current direct CDN URL from Network tab."
+    },
+    {
+      "filename": "fireplace.mp3",
+      "url": "TODO-direct-download-url",
+      "source_page": "https://pixabay.com/sound-effects/film-special-effects-fireplace-loop-original-noise-178209/",
+      "creator": "Pixabay / original uploader",
+      "license": "Pixabay Content License (royalty-free, no attribution required)",
+      "permission_note": "Visit source_page, capture current direct CDN URL from Network tab."
+    }
+  ]
+}

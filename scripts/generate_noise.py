@@ -2,10 +2,13 @@
 """
 Generate Nocturne's procedural noise beds.
 
-This creates the three non-third-party mixer files reproducibly:
+This creates three optional WAV beds reproducibly:
   sounds/brown-noise.wav
   sounds/pinknoise.wav
   sounds/white-noise.wav
+
+Only pinknoise.wav is used as a visible mixer channel in v0.1.
+Brown and white noise are generated for optional/manual use only.
 
 It intentionally does not create the rain/fire/thunder MP3s; those are either
 user-provided or downloaded via scripts/fetch_media.py from the user's chosen

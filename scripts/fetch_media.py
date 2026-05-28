@@ -8,10 +8,11 @@ Why this exists:
   repo lightweight and lets each installer download the upstream files directly.
 
 Usage:
-  1. Copy media_sources.example.json to media_sources.json.
-  2. Fill in the direct source/download URLs and creator fields.
+  1. cp media_sources.default.json media_sources.json
+  2. Fill in fresh direct CDN URLs (see instructions inside the default file).
   3. Run:
        python scripts/fetch_media.py --yes
+       # or let `python3 install.py` do it automatically when real URLs are present
 
 The script writes files into sounds/ using the exact filenames the mixer expects
 and writes sounds/MEDIA_MANIFEST.generated.json with hashes/provenance receipts.
@@ -41,12 +42,28 @@ EXPECTED_AMBIENT = {
     "calming_rain.mp3",
     "gentle_rain.mp3",
     "heavy_rain.mp3",
+    "rainstorm.mp3",
     "heavy_storm.mp3",
     "thunder.mp3",
     "fireplace.mp3",
 }
 
 USER_AGENT = "Nocturne/0.1 (+https://github.com/CharlesMish/nocturne)"
+
+
+def is_usable_download_url(url: str) -> bool:
+    url = url.strip()
+    if not url or url.startswith("TODO"):
+        return False
+    if not (url.startswith("http://") or url.startswith("https://")):
+        return False
+    if "example.com" in url or "..." in url:
+        return False
+    if any(ch.isspace() for ch in url):
+        return False
+    if "(" in url or ")" in url:
+        return False
+    return True
 
 
 def _sha256(path: Path) -> str:
@@ -84,7 +101,7 @@ def _entry_status(entry: dict[str, Any]) -> str | None:
         return "missing filename"
     if filename not in EXPECTED_AMBIENT:
         return f"unexpected filename {filename!r}"
-    if not url or url.startswith("TODO") or "example.com" in url:
+    if not is_usable_download_url(url):
         return "missing url"
     return None
 
@@ -114,8 +131,9 @@ def fetch_media(manifest_path: Path, *, yes: bool, overwrite: bool, dry_run: boo
         print()
 
     if not valid_entries:
-        print("No downloadable media entries found.")
-        print(f"Edit {manifest_path.relative_to(ROOT)} with source URLs, then rerun this script.")
+        print("No downloadable media entries found (all URLs were missing, TODO, or example.com).")
+        print(f"Edit the 'url' fields in {manifest_path.relative_to(ROOT)} with fresh direct CDN links.")
+        print("See media_sources.default.json for the exact Pixabay source pages and instructions.")
         return 2
 
     print("This will download these optional media files into sounds/:")

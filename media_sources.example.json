@@ -1,57 +1,67 @@
 {
   "notes": [
-    "Copy this file to media_sources.json and fill in direct download URLs.",
-    "Only the filename and url fields are required by scripts/fetch_media.py.",
-    "Keep creator/source/license notes as receipts for MEDIA_LICENSES.md."
+    "Minimal template. For the best starting point with all 7 Pixabay source pages, use:",
+    "  cp media_sources.default.json media_sources.json",
+    "Then fill the 'url' fields with current direct CDN links (instructions are inside default.json).",
+    "This example.json exists mainly for advanced users who want a blank slate.",
+    "Only the filename and url fields are required by scripts/fetch_media.py."
   ],
   "files": [
     {
       "filename": "calming_rain.mp3",
       "url": "TODO-direct-download-url",
-      "source_page": "TODO-source-page-url",
-      "creator": "TODO-creator-name",
-      "license": "TODO-license-or-permission-text",
-      "permission_note": "Creator states this file may be used for any purpose."
+      "source_page": "https://pixabay.com/sound-effects/nature-calming-rain-257596/",
+      "creator": "TODO-pixabay-creator-name",
+      "license": "Pixabay Content License",
+      "permission_note": "TODO-confirm current Pixabay license terms and direct download URL before fetching."
     },
     {
       "filename": "gentle_rain.mp3",
       "url": "TODO-direct-download-url",
-      "source_page": "TODO-source-page-url",
-      "creator": "TODO-creator-name",
-      "license": "TODO-license-or-permission-text",
-      "permission_note": "Creator states this file may be used for any purpose."
+      "source_page": "https://pixabay.com/sound-effects/nature-gentle-rain-07-437321/",
+      "creator": "TODO-pixabay-creator-name",
+      "license": "Pixabay Content License",
+      "permission_note": "TODO-confirm current Pixabay license terms and direct download URL before fetching."
     },
     {
       "filename": "heavy_rain.mp3",
       "url": "TODO-direct-download-url",
-      "source_page": "TODO-source-page-url",
-      "creator": "TODO-creator-name",
-      "license": "TODO-license-or-permission-text",
-      "permission_note": "Creator states this file may be used for any purpose."
+      "source_page": "https://pixabay.com/sound-effects/nature-heavy-rain-outside-the-window-515266/",
+      "creator": "TODO-pixabay-creator-name",
+      "license": "Pixabay Content License",
+      "permission_note": "TODO-confirm current Pixabay license terms and direct download URL before fetching."
+    },
+    {
+      "filename": "rainstorm.mp3",
+      "url": "TODO-direct-download-url",
+      "source_page": "https://pixabay.com/sound-effects/nature-rain-storm-sound-155232/",
+      "creator": "TODO-pixabay-creator-name",
+      "license": "Pixabay Content License",
+      "permission_note": "TODO-confirm current Pixabay license terms and direct download URL before fetching."
     },
     {
       "filename": "heavy_storm.mp3",
       "url": "TODO-direct-download-url",
-      "source_page": "TODO-source-page-url",
-      "creator": "TODO-creator-name",
-      "license": "TODO-license-or-permission-text",
-      "permission_note": "Creator states this file may be used for any purpose."
+      "source_page": "https://pixabay.com/sound-effects/nature-heavy-thunderstorm-sound-effect-473418/",
+      "creator": "TODO-pixabay-creator-name",
+      "license": "Pixabay Content License",
+      "permission_note": "TODO-confirm current Pixabay license terms and direct download URL before fetching."
     },
     {
       "filename": "thunder.mp3",
       "url": "TODO-direct-download-url",
-      "source_page": "TODO-source-page-url",
-      "creator": "TODO-creator-name",
-      "license": "TODO-license-or-permission-text",
-      "permission_note": "Creator states this file may be used for any purpose."
+      "source_page": "https://pixabay.com/sound-effects/nature-thunder-sound-375727/",
+      "creator": "TODO-pixabay-creator-name",
+      "license": "Pixabay Content License",
+      "permission_note": "TODO-confirm current Pixabay license terms and direct download URL before fetching."
     },
     {
       "filename": "fireplace.mp3",
       "url": "TODO-direct-download-url",
-      "source_page": "TODO-source-page-url",
-      "creator": "TODO-creator-name",
-      "license": "TODO-license-or-permission-text",
-      "permission_note": "Creator states this file may be used for any purpose."
+      "source_page": "https://pixabay.com/sound-effects/film-special-effects-fireplace-loop-original-noise-178209/",
+      "creator": "TODO-pixabay-creator-name",
+      "license": "Pixabay Content License",
+      "permission_note": "TODO-confirm current Pixabay license terms and direct download URL before fetching."
     }
   ]
 }

@@ -8,18 +8,26 @@ echo ===============================
 echo.
 
 if not exist "media_sources.json" (
-  if exist "media_sources.example.json" (
-    copy "media_sources.example.json" "media_sources.json" >nul
-    echo Created media_sources.json from media_sources.example.json.
+  if exist "media_sources.default.json" (
+    copy "media_sources.default.json" "media_sources.json" >nul
+    echo Created media_sources.json from media_sources.default.json (recommended).
     echo.
-    echo Add the direct download URLs and creator/source notes, save the file,
-    echo then double-click this fetcher again.
+    echo Fill the 7 'url' fields with fresh direct CDN links (see instructions inside the file),
+    echo save, then double-click this fetcher again.
     echo.
     start "" notepad "media_sources.json"
     pause
     exit /b 0
+  ) else if exist "media_sources.example.json" (
+    copy "media_sources.example.json" "media_sources.json" >nul
+    echo Created media_sources.json from media_sources.example.json.
+    echo.
+    echo (Better: use media_sources.default.json as your starting point.)
+    start "" notepad "media_sources.json"
+    pause
+    exit /b 0
   ) else (
-    echo media_sources.example.json was not found.
+    echo Neither media_sources.default.json nor .example.json found.
     pause
     exit /b 1
   )

@@ -48,19 +48,36 @@ On macOS, double-click `Install Nocturne.command`; if Gatekeeper blocks it, righ
 
 For access from another device on your trusted LAN, double-click `Start Nocturne LAN.bat` and allow Python through Windows Firewall for **private networks** only. Then open `http://<windows-pc-ip>:8000/` from the other device.
 
-For optional third-party ambience, double-click `Fetch Ambient Media.bat`. The first run creates `media_sources.json` and opens it in Notepad; add the source URLs/creator notes, save it, then run the fetcher again.
+For optional third-party ambience on Windows, double-click `Fetch Ambient Media.bat` (or just run `Install Nocturne.bat` + `Start Nocturne.bat`). The new default behavior prefers real URLs from a manifest when present; use `--no-fetch-media` if you want to skip network access entirely.
 
-### Optional real ambient media
+### Optional real ambient media (low-friction)
 
-The installer generates the procedural noise beds locally. It does **not** bundle third-party rain/fire/thunder MP3 files. To let each user download those directly from the original creators/source pages:
+`python3 install.py` (the default) already generates the required `pinknoise.wav` locally.
+
+If you have a `media_sources.json` (or the committed `media_sources.default.json`) that contains **real direct download URLs**, install.py will automatically fetch the seven MP3s for you.
 
 ```bash
-cp media_sources.example.json media_sources.json
-# edit media_sources.json with direct download URLs and creator/license notes
+# Happy path — just run the installer
+python3 install.py
+
+# Explicitly skip any network fetch (even if real URLs exist)
+python3 install.py --no-fetch-media
+
+# Force a fetch / retry after you added URLs
 python3 install.py --fetch-media
 ```
 
-The fetcher writes `sounds/MEDIA_MANIFEST.generated.json` with source URLs, creator notes, hashes, byte sizes, and download timestamps. This keeps the public repo lightweight while making provenance easy to audit.
+To enable real ambience:
+
+1. `cp media_sources.default.json media_sources.json`
+2. Open the 7 Pixabay source pages listed inside the file.
+3. In DevTools → Network tab, capture the current `cdn.pixabay.com/audio/...` direct URL for each.
+4. Paste the seven URLs into the `url` fields and save.
+5. Re-run `python3 install.py --fetch-media` (or just `python3 install.py`).
+
+The fetcher writes `sounds/MEDIA_MANIFEST.generated.json` with full provenance (source URLs, hashes, timestamps). This keeps the public repo clean while making every file auditable.
+
+You can also just drop your own loop-friendly files into `sounds/` using the exact filenames below — no manifest needed. Run `python3 check_audio_contract.py` afterward to see what the mixer sees.
 
 ---
 
@@ -68,31 +85,35 @@ The fetcher writes `sounds/MEDIA_MANIFEST.generated.json` with source URLs, crea
 
 | Path                  | What it's for                                       |
 |-----------------------|-----------------------------------------------------|
-| `sounds/`             | Files for the **ambient mixer** (9 hardcoded slots) |
+| `sounds/`             | Files for the **ambient mixer** (8 hardcoded slots) |
 | `sounds/radio/`       | Files for **Radio mode** (any number; auto-listed)  |
 | `songs/`              | Local **Utility mode** Strudel sketches             |
 
-The ambient mixer UI is styled around nine named slots. Drop your real loop-friendly
+The ambient mixer UI is styled around eight named slots. Drop your real loop-friendly
 files into `sounds/` with these exact filenames:
 
 ```text
-brown-noise.wav
 calming_rain.mp3
-fireplace.mp3
 gentle_rain.mp3
 heavy_rain.mp3
+rainstorm.mp3
 heavy_storm.mp3
-pinknoise.wav
 thunder.mp3
-white-noise.wav
+fireplace.mp3
+pinknoise.wav
 ```
 
-The visible mixer labels are Calming Rain, Gentle Rain, Heavy Rain, Heavy Storm,
-Thunder, Fireplace, Brown Noise, Pink Noise, and White Noise. `python
-scripts/generate_noise.py` creates the procedural WAV beds. `python
-scripts/fetch_media.py` downloads the optional rain/fire/thunder MP3s from your
-local `media_sources.json` manifest. `python make_test_noise.py` remains as a
-quick smoke-test generator for placeholder files.
+The visible mixer labels are Calming Rain, Gentle Rain, Heavy Rain, Rainstorm,
+Heavy Storm, Thunder, Fireplace, and Pink Noise.
+
+`python scripts/generate_noise.py` creates three optional WAV beds (brown, pink, white).
+Only `pinknoise.wav` is a visible mixer channel in v0.1.
+
+After adding or changing files, run `python3 check_audio_contract.py` — it will
+tell you exactly which of the 8 required channels are present and their sizes.
+
+`python scripts/fetch_media.py` (or the automatic path inside `install.py`) downloads
+the seven MP3s from a local manifest when you provide current direct URLs.
 
 Radio tracks are dynamic. Anything in `sounds/radio/` is served via `/api/radio`
 and reached at `/sounds/radio/<filename>`. Supported extensions: `mp3 · ogg ·
