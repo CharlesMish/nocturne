@@ -39,6 +39,12 @@ The Nocturne mixer expects these exact filenames in `sounds/`:
 - `pinknoise.wav`
 - `white-noise.wav`
 
+## Bundled visual media
+
+- `static/rain1.mp4` - TODO: provenance is not documented in this repository.
+  Treat this as an unknown-origin bundled media asset and replace it with
+  original project footage or a clearly licensed asset before public release.
+
 ## Notes for maintainers
 
 For each downloaded file, keep at least:

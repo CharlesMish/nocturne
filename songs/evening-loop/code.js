@@ -1,8 +1,7 @@
-// === Say So (Doja Cat) — Strudel cover sketch ===
+// === Evening Loop — Strudel starter sketch ===
 // One progression: Em7 -> A7 -> Dmaj7 -> B7 (one chord per bar)
-// The song stays on this loop end-to-end; arrangement does the work.
-// Identity carriers: disco 4-on-the-floor groove, octave-jumping bass,
-// and the descending muted-guitar hook.
+// A warm four-bar groove with 4-on-the-floor drums, octave bass movement,
+// and a muted-guitar response.
 
 const TRANSPOSE = 0
 const BPM = 111
@@ -10,7 +9,7 @@ setcpm(BPM / 4)
 
 // === SHARED HARMONY ===
 const loopChords = "<[e4,g4,b4,d5] [e4,g4,a4,c#5] [d4,f#4,a4,c#5] [b3,d#4,f#4,a4]>"
-// Disco octave-jumping bass — Say So's funk identity
+// Disco octave-jumping bass
 const loopRoots = "<[e2 ~ e2 ~ e2 ~ ~ ~] [~ a2 ~ a2 a2 ~ ~ [a2 b2]] [d2 ~ d2 ~ d2 ~ ~ [~ b2]] [~ b2 ~ b2 b2 ~ ~ [~ b2]]>"
 
 // === DRUMS ===
@@ -166,22 +165,22 @@ const versePluck = notes => note(notes)
   .orbit(12)
 
 // === HOOKS AND TEXTURES ===
-// Main descending hook — the song's signature gesture.
+// Main descending motif.
 // Each bar outlines its chord with a syncopated descending phrase.
 const riffA = hookPluck("<[b4 g4 ~ e5 d5 ~ b4 g4] [c#5 a4 ~ e5 g5 ~ e5 c#5] [a4 f#4 ~ d5 c#5 ~ a4 f#4] [a4 f#4 ~ d#5 b4 ~ a4 f#4]>")
 
-// Sparkle: high airy sister of riffA, dotted delays for the post-chorus lift
+// Sparkle: high airy sister of riffA, dotted delays for the lift section.
 const riffASparkle = hookPluck("<[~ g5 ~ b5 ~ ~ d6 ~ ~ b5 ~ g5 ~ e5 ~ ~] [~ a5 ~ c#6 ~ ~ e6 ~ ~ c#6 ~ a5 ~ g5 ~ ~] [~ d6 ~ f#6 ~ ~ a6 ~ ~ f#6 ~ d6 ~ c#6 ~ ~] [~ b5 ~ d#6 ~ ~ f#6 ~ ~ d#6 ~ b5 ~ a5 ~ ~]>")
   .gain(.22)
   .delay(.4)
   .delaytime(.2175)
   .delayfeedback(.42)
 
-// Secondary riff — low ascending chord-tone pluck for the rap verse
+// Secondary riff: low ascending chord-tone pluck.
 const riffB = versePluck("<[~ ~ e3 ~ ~ g3 ~ b3] [~ ~ a3 ~ ~ c#4 ~ e4] [~ ~ d3 ~ ~ f#3 ~ a3] [~ ~ b2 ~ ~ d#3 ~ f#3]>")
 
-// Quiet melodic chatter under the rap verse, slightly degraded
-const rapBed = note("<[~ b5 ~ d6 ~ g5 d6 ~] [~ c#6 ~ e6 ~ a5 e6 ~] [~ f#5 ~ a5 ~ d6 a5 ~] [~ f#5 ~ a5 ~ d#6 a5 ~]>")
+// Quiet melodic chatter, slightly degraded.
+const textureBed = note("<[~ b5 ~ d6 ~ g5 d6 ~] [~ c#6 ~ e6 ~ a5 e6 ~] [~ f#5 ~ a5 ~ d6 a5 ~] [~ f#5 ~ a5 ~ d#6 a5 ~]>")
   .transpose(TRANSPOSE)
   .s("square")
   .clip(.12)
@@ -221,30 +220,30 @@ const openingHook = stack(
   riffA
 )
 
-// Verse 1 — full bed + secondary low pluck (less melodic, lets vocal sit)
-const verseLight = stack(
+// Light section: full bed + secondary low pluck.
+const lightSection = stack(
   harmonicBedSoft,
   riffB
 )
 
-// Main chorus — full bed + the recognizable hook
-const chorusMain = stack(
+// Main section: full bed + primary motif.
+const mainSection = stack(
   harmonicBedSoft,
   riffA
 )
 
-// Pre-chorus / post-chorus lift — chorus with the sparkle on top
-const postChorusHook = stack(
+// Lift section: main groove with sparkle on top.
+const liftSection = stack(
   harmonicBedSoft,
   riffA,
   riffASparkle
 )
 
-// Verse 2 (the "Let me check my chest" rap) — denser drums + texture
-const rapVerse = stack(
+// Dense section: lifted drums + texture.
+const denseSection = stack(
   harmonicBedLift,
   riffB,
-  rapBed
+  textureBed
 )
 
 // Outro — pad + bass + hook, drums drop out (echo of intro)
@@ -254,15 +253,15 @@ const outro = stack(
   riffA.gain(.7)
 )
 
-// === SONG FORM ===
+// === LOOP FORM ===
 arrange(
-  [4,  openingHook],     // intro hook
-  [8,  chorusMain],      // chorus 1
-  [8,  verseLight],      // verse 1
-  [4,  postChorusHook],  // pre-chorus lift
-  [8,  chorusMain],      // chorus 2
-  [16, rapVerse],        // verse 2 (rap)
-  [8,  chorusMain],      // chorus 3
-  [4,  postChorusHook],  // final lift
-  [4,  outro]            // outro
+  [4,  openingHook],   // intro motif
+  [8,  mainSection],   // main pass 1
+  [8,  lightSection],  // light pass
+  [4,  liftSection],   // lift
+  [8,  mainSection],   // main pass 2
+  [16, denseSection],  // dense pass
+  [8,  mainSection],   // main pass 3
+  [4,  liftSection],   // final lift
+  [4,  outro]          // outro
 )

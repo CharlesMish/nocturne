@@ -40,9 +40,7 @@ For rain/fire/thunder MP3 files, copy `media_sources.example.json` to
 python scripts/fetch_media.py --yes
 ```
 
-`python make_test_noise.py` remains available as a quick smoke-test generator for
-synthetic placeholder files. It writes WAV files directly and uses `ffmpeg` for
-the MP3 slots when `ffmpeg` is installed.
+`python3 scripts/generate_noise.py` is available for quick synthetic placeholders.
 
 ## Radio mode
 

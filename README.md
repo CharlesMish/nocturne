@@ -225,7 +225,7 @@ songs/<slug>/meta.json
 songs/<slug>/code.js
 ```
 
-The bundled starter sketch is `songs/say-so/`. Utility mode can create, save,
+The bundled starter sketch is `songs/evening-loop/`. Utility mode can create, save,
 duplicate, and delete sketches through the FastAPI backend. The visible editor
 is a plain textarea, so it works over ordinary LAN HTTP and does not require
 `AudioWorklet`, HTTPS, CDN scripts, or Strudel runtime code inside Nocturne.
