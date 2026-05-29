@@ -2365,6 +2365,13 @@ footer {
   flex-wrap: wrap;
   margin-top: 0.8rem;
 }
+.settings-search-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.55rem;
+  align-items: end;
+  margin-bottom: 0.8rem;
+}
 .settings-action {
   appearance: none;
   border: 1px solid rgba(232, 169, 111, 0.24);
@@ -2386,6 +2393,29 @@ footer {
   color: var(--text-faint);
   font-size: 0.78rem;
   line-height: 1.5;
+}
+.location-results {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0 0 0.85rem;
+}
+.location-result {
+  appearance: none;
+  width: 100%;
+  border: 1px solid rgba(255, 245, 220, 0.09);
+  border-radius: 12px;
+  background: rgba(255, 245, 220, 0.04);
+  color: var(--text-muted);
+  cursor: pointer;
+  font: 400 0.84rem 'Manrope', sans-serif;
+  line-height: 1.35;
+  padding: 0.58rem 0.68rem;
+  text-align: left;
+}
+.location-result:hover {
+  color: var(--text);
+  border-color: rgba(232, 169, 111, 0.30);
+  background: rgba(232, 169, 111, 0.08);
 }
 .settings-warning {
   margin-top: 0.9rem;
@@ -2413,6 +2443,7 @@ footer {
   .topbar-tools { justify-content: flex-start; }
   .mode-switcher { flex-wrap: wrap; border-radius: 20px; }
   .settings-grid { grid-template-columns: 1fr; }
+  .settings-search-row { grid-template-columns: 1fr; }
 }
 
 /* ---------- HERO CONTAINERS ---------- */
@@ -4301,6 +4332,14 @@ body[data-mode="dashboard"] .topbar {
     </form>
     <section class="settings-section" aria-labelledby="settings-location-title">
       <h3 id="settings-location-title">Location</h3>
+      <div class="settings-search-row">
+        <label class="settings-field">
+          <span>Search city or place</span>
+          <input id="setting-location-search" type="search" maxlength="80" autocomplete="off">
+        </label>
+        <button class="settings-action" id="search-location-settings" type="button">Search</button>
+      </div>
+      <div class="location-results" id="location-search-results" aria-live="polite"></div>
       <div class="settings-grid">
         <label class="settings-field wide">
           <span>Display name</span>
@@ -4330,7 +4369,8 @@ body[data-mode="dashboard"] .topbar {
         <button class="settings-action" id="use-browser-location" type="button">Use browser location</button>
         <button class="settings-action" id="save-location-settings" type="button">Save location</button>
       </div>
-      <p class="settings-note">Used for Sky weather. Moon phase does not require location. Manual latitude/longitude always works; browser location usually requires localhost or HTTPS.</p>
+      <p class="settings-note">Search by city, use browser location, or enter coordinates manually. Used for Sky weather. Moon phase does not require location.</p>
+      <p class="settings-note">Manual latitude/longitude always works; browser location usually requires localhost or HTTPS.</p>
     </section>
     <div class="settings-warning">
       Utility exposes local sketch save/edit routes on this Nocturne server. Enable it only on a trusted local network.
@@ -4953,6 +4993,69 @@ body[data-mode="dashboard"] .topbar {
     return next;
   }
 
+  function setLocationFields(location) {
+    const label = document.getElementById('setting-location-label');
+    const latitude = document.getElementById('setting-location-latitude');
+    const longitude = document.getElementById('setting-location-longitude');
+    const timezone = document.getElementById('setting-location-timezone');
+    if (label && location.label) label.value = location.label;
+    if (latitude && typeof location.latitude === 'number') latitude.value = location.latitude.toFixed(4);
+    if (longitude && typeof location.longitude === 'number') longitude.value = location.longitude.toFixed(4);
+    if (timezone && location.timezone) timezone.value = location.timezone;
+  }
+
+  function renderLocationResults(results, message = '') {
+    const container = document.getElementById('location-search-results');
+    if (!container) return;
+    container.innerHTML = '';
+    if (message) {
+      const note = document.createElement('p');
+      note.className = 'settings-note';
+      note.textContent = message;
+      container.appendChild(note);
+      return;
+    }
+    results.forEach(result => {
+      const button = document.createElement('button');
+      button.className = 'location-result';
+      button.type = 'button';
+      button.textContent = result.label;
+      button.addEventListener('click', () => {
+        setLocationFields(result);
+        settingsStatus('Place filled. Review and save.', 'success');
+      });
+      container.appendChild(button);
+    });
+  }
+
+  async function searchLocation() {
+    const input = document.getElementById('setting-location-search');
+    const query = (input && input.value || '').trim();
+    if (query.length < 2 || query.length > 80) {
+      renderLocationResults([], 'Enter 2-80 characters to search.');
+      settingsStatus('Enter a city or place name.', 'error');
+      return;
+    }
+    renderLocationResults([], 'Searching…');
+    settingsStatus('Searching places…');
+    try {
+      const res = await fetch('/api/geocode?q=' + encodeURIComponent(query), { cache: 'no-store' });
+      const payload = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(payload.detail || 'Place search failed.');
+      const results = Array.isArray(payload.results) ? payload.results : [];
+      if (!results.length) {
+        renderLocationResults([], 'No places found.');
+        settingsStatus('No places found.', 'error');
+        return;
+      }
+      renderLocationResults(results.slice(0, 5));
+      settingsStatus('Choose a place, then save location.', 'success');
+    } catch (e) {
+      renderLocationResults([], e.message || 'Place search failed.');
+      settingsStatus(e.message || 'Place search failed.', 'error');
+    }
+  }
+
   function openSettings() {
     const overlay = document.getElementById('settings-overlay');
     if (!overlay) return;
@@ -4975,6 +5078,8 @@ body[data-mode="dashboard"] .topbar {
     const open = document.getElementById('settings-open');
     const close = document.getElementById('settings-close');
     const overlay = document.getElementById('settings-overlay');
+    const searchLocationButton = document.getElementById('search-location-settings');
+    const searchLocationInput = document.getElementById('setting-location-search');
     const useBrowserLocation = document.getElementById('use-browser-location');
     const saveLocation = document.getElementById('save-location-settings');
     if (open) open.addEventListener('click', openSettings);
@@ -5015,6 +5120,15 @@ body[data-mode="dashboard"] .topbar {
         }
       });
     });
+    if (searchLocationButton) searchLocationButton.addEventListener('click', searchLocation);
+    if (searchLocationInput) {
+      searchLocationInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          searchLocation();
+        }
+      });
+    }
     if (useBrowserLocation) {
       useBrowserLocation.addEventListener('click', () => {
         if (!navigator.geolocation) {
@@ -5024,13 +5138,14 @@ body[data-mode="dashboard"] .topbar {
         settingsStatus('Waiting for browser location…');
         navigator.geolocation.getCurrentPosition(
           position => {
-            const lat = document.getElementById('setting-location-latitude');
-            const lon = document.getElementById('setting-location-longitude');
             const tz = document.getElementById('setting-location-timezone');
             const label = document.getElementById('setting-location-label');
-            if (lat) lat.value = position.coords.latitude.toFixed(4);
-            if (lon) lon.value = position.coords.longitude.toFixed(4);
             const browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            setLocationFields({
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude,
+              timezone: browserTimezone || ''
+            });
             if (tz && browserTimezone) tz.value = browserTimezone;
             if (label && (!label.value.trim() || label.value.trim() === DEFAULT_APP_SETTINGS.location.label)) {
               label.value = 'Browser location';

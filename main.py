@@ -14,6 +14,7 @@ Endpoints:
                         ./sounds/radio/ is automatically excluded)
   GET  /api/radio     — tracks in ./sounds/radio/
   GET  /api/weather   — cached current weather from Open-Meteo (graceful fail)
+  GET  /api/geocode   — small city/place search via Open-Meteo Geocoding
   GET  /api/config    — non-secret runtime config for the UI (lat/lon, label)
   GET/PUT /api/settings — server-persisted mode visibility / feature gates
   GET  /api/songs     — Strudel code sketch metadata list (gated by Utility setting)
@@ -431,6 +432,59 @@ def delete_song(slug: str) -> dict[str, bool]:
 #  Weather (Open-Meteo, no API key)
 # --------------------------------------------------------------------------- #
 OPEN_METEO_URL = "https://api.open-meteo.com/v1/forecast"
+OPEN_METEO_GEOCODE_URL = "https://geocoding-api.open-meteo.com/v1/search"
+
+
+def _normalise_geocode_result(item: dict[str, Any]) -> dict[str, Any] | None:
+    name = item.get("name")
+    latitude = item.get("latitude")
+    longitude = item.get("longitude")
+    if not isinstance(name, str) or not isinstance(latitude, (int, float)) or not isinstance(longitude, (int, float)):
+        return None
+    admin1 = item.get("admin1") if isinstance(item.get("admin1"), str) else ""
+    country = item.get("country") if isinstance(item.get("country"), str) else ""
+    timezone = item.get("timezone") if isinstance(item.get("timezone"), str) else ""
+    label = ", ".join(part for part in (name, admin1, country) if part)
+    return {
+        "label": label or name,
+        "name": name,
+        "admin1": admin1,
+        "country": country,
+        "latitude": float(latitude),
+        "longitude": float(longitude),
+        "timezone": timezone,
+    }
+
+
+@app.get("/api/geocode")
+async def geocode(q: str) -> dict[str, Any]:
+    query = q.strip()
+    if len(query) < 2 or len(query) > 80:
+        raise HTTPException(status_code=400, detail="search query must be 2-80 characters")
+    params = {
+        "name": query,
+        "count": 5,
+        "language": "en",
+        "format": "json",
+    }
+    try:
+        async with httpx.AsyncClient(timeout=8.0) as client:
+            r = await client.get(OPEN_METEO_GEOCODE_URL, params=params)
+            r.raise_for_status()
+            payload = r.json()
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"place search unavailable: {exc}") from exc
+
+    raw_results = payload.get("results", []) if isinstance(payload, dict) else []
+    if not isinstance(raw_results, list):
+        raw_results = []
+    results = []
+    for item in raw_results[:5]:
+        if isinstance(item, dict):
+            result = _normalise_geocode_result(item)
+            if result is not None:
+                results.append(result)
+    return {"results": results}
 
 
 async def _fetch_weather() -> dict[str, Any]:

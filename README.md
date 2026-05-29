@@ -159,8 +159,9 @@ the sketchbook write surface is hidden as well as removed from the UI.
 
 Sky mode pulls current conditions from **Open-Meteo** (no API key required)
 through a small backend cache so it doesn't hammer their API. Configure the
-weather location from **Settings → Location** in the app; changes are saved to
-`config/nocturne.json` and the weather cache is refreshed.
+weather location from **Settings → Location** in the app by city search or
+manual coordinates; changes are saved to `config/nocturne.json` and the weather
+cache is refreshed.
 
 Manual latitude/longitude entry always works. The **Use browser location**
 button is only a convenience; browsers usually allow it on `localhost` or HTTPS,
@@ -303,6 +304,7 @@ animating when not visible.
 
 - `GET /api/radio` — lists `sounds/radio/` tracks
 - `GET /api/weather` — cached current weather from Open-Meteo
+- `GET /api/geocode` — city/place search for Sky weather location settings
 - `GET /api/config` — exposes non-secret location config for the UI
 - `GET/PUT /api/settings` — reads/saves enabled modes and Sky weather location in `config/nocturne.json`
 - `GET /api/songs` — lists saved Utility sketches when Utility is enabled
