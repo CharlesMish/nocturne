@@ -25,49 +25,42 @@ the current sketch on strudel.cc when you want playback.
 
 ```bash
 cd ~/nocturne
-
-# One-step local install: venv, Python deps, folders, generated noise beds
 python3 install.py
-
-# Run locally
 source .venv/bin/activate
-uvicorn main:app --host 127.0.0.1 --port 8000
+python -m uvicorn main:app --host 127.0.0.1 --port 8000
 ```
 
-Open `http://127.0.0.1:8000/` on the same machine. For phone/tablet access on your trusted LAN, run deliberately with `--host 0.0.0.0` and open `http://<pi-ip>:8000/` or `http://<hostname>.local:8000/`. Use the topbar mode switcher to jump between enabled modes. Click **Settings** to show/hide Onsen, Sky, Radio, Utility, and Dashboard without editing JSON by hand.
+Open `http://localhost:8000` on the same machine.
 
-### Windows double-click install
+`python3 install.py` creates the virtualenv, installs Python dependencies, creates the local folders, and generates `pinknoise.wav`. Nocturne works with that generated pink noise before the optional rain/fire/thunder MP3 files are installed.
 
-On Windows, you can use the included batch launchers instead of typing commands:
+For phone/tablet access on your trusted LAN, run deliberately with `--host 0.0.0.0` and open `http://<pi-ip>:8000/` or `http://<hostname>.local:8000/`. Use the topbar mode switcher to jump between enabled modes. Click **Settings** to show/hide Onsen, Sky, Radio, Utility, and Dashboard without editing JSON by hand.
+
+### Launchers
+
+On Windows:
 
 1. Double-click `Install Nocturne.bat`.
 2. Double-click `Start Nocturne.bat`.
 3. The browser should open to `http://127.0.0.1:8000/`.
 
+For LAN access from another device, double-click `Start Nocturne LAN.bat` and allow Python through Windows Firewall for **private networks** only.
+
 On macOS, double-click `Install Nocturne.command`; if Gatekeeper blocks it, right-click the file and choose **Open** the first time.
 
-For access from another device on your trusted LAN, double-click `Start Nocturne LAN.bat` and allow Python through Windows Firewall for **private networks** only. Then open `http://<windows-pc-ip>:8000/` from the other device.
+---
 
-For optional third-party ambience on Windows, double-click `Fetch Ambient Media.bat` (or just run `Install Nocturne.bat` + `Start Nocturne.bat`). The new default behavior prefers real URLs from a manifest when present; use `--no-fetch-media` if you want to skip network access entirely.
+## Optional: full ambience media
 
-### Optional real ambient media (low-friction)
+The ambient mixer has eight channels. The app can start with generated `pinknoise.wav`, and the seven MP3 channels can be added later.
 
-`python3 install.py` (the default) already generates the required `pinknoise.wav` locally.
-
-If you have a `media_sources.json` (or the committed `media_sources.default.json`) that contains **real direct download URLs**, install.py will automatically fetch the seven MP3s for you.
+To verify which files are present:
 
 ```bash
-# Happy path — just run the installer
-python3 install.py
-
-# Explicitly skip any network fetch (even if real URLs exist)
-python3 install.py --no-fetch-media
-
-# Force a fetch / retry after you added URLs
-python3 install.py --fetch-media
+python3 check_audio_contract.py
 ```
 
-To enable real ambience:
+To install the optional MP3 ambience from source pages:
 
 1. `cp media_sources.default.json media_sources.json`
 2. Open the 7 Pixabay source pages listed inside the file.
@@ -75,7 +68,16 @@ To enable real ambience:
 4. Paste the seven URLs into the `url` fields and save.
 5. Re-run `python3 install.py --fetch-media` (or just `python3 install.py`).
 
-The fetcher writes `sounds/MEDIA_MANIFEST.generated.json` with full provenance (source URLs, hashes, timestamps). This keeps the public repo clean while making every file auditable.
+On Windows, `Fetch Ambient Media.bat` creates `media_sources.json` from the default manifest and opens it in Notepad the first time. After you fill the URL fields, run it again.
+
+Useful flags:
+
+```bash
+python3 install.py --no-fetch-media
+python3 install.py --fetch-media
+```
+
+The fetcher writes `sounds/MEDIA_MANIFEST.generated.json` with full provenance: source URLs, hashes, and timestamps. This keeps the public repo clean while making every file auditable.
 
 You can also just drop your own loop-friendly files into `sounds/` using the exact filenames below — no manifest needed. Run `python3 check_audio_contract.py` afterward to see what the mixer sees.
 
