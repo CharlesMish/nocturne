@@ -1,6 +1,7 @@
 # Edit this file before installing it.
 # Replace every YOUR_USER value with your Pi username (for example: pi).
-# Add optional Environment= lines below if you want custom location/weather config.
+# Sky weather location can be changed later from the in-app Settings panel.
+# Optional Environment= lines below only change fallback defaults.
 #
 # Install:
 #   sudo cp nocturne.service /etc/systemd/system/nocturne.service
@@ -24,10 +25,12 @@ Wants=network-online.target
 Type=simple
 User=YOUR_USER
 WorkingDirectory=/home/YOUR_USER/nocturne
-# Optional Sky-mode location settings:
-# Environment=NOCTURNE_LAT=35.4676
-# Environment=NOCTURNE_LON=-97.5164
-# Environment=NOCTURNE_LOCATION_NAME=Oklahoma City
+# Optional Sky-mode fallback location settings:
+# Environment=NOCTURNE_LAT=41.8781
+# Environment=NOCTURNE_LON=-87.6298
+# Environment=NOCTURNE_LOCATION_NAME=Chicago
+# Environment=NOCTURNE_TIMEZONE=America/Chicago
+# Environment=NOCTURNE_TEMPERATURE_UNIT=fahrenheit
 ExecStart=/home/YOUR_USER/nocturne/.venv/bin/uvicorn main:app --host 0.0.0.0 --port 8000
 Restart=on-failure
 RestartSec=3

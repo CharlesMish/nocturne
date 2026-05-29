@@ -158,24 +158,48 @@ the sketchbook write surface is hidden as well as removed from the UI.
 ## Configuration (location + weather)
 
 Sky mode pulls current conditions from **Open-Meteo** (no API key required)
-through a small backend cache so it doesn't hammer their API. Configure
-location through environment variables:
+through a small backend cache so it doesn't hammer their API. Configure the
+weather location from **Settings → Location** in the app; changes are saved to
+`config/nocturne.json` and the weather cache is refreshed.
+
+Manual latitude/longitude entry always works. The **Use browser location**
+button is only a convenience; browsers usually allow it on `localhost` or HTTPS,
+and may block it from a phone over plain LAN HTTP.
+
+The default location is:
+
+```json
+{
+  "label": "Chicago",
+  "latitude": 41.8781,
+  "longitude": -87.6298,
+  "timezone": "America/Chicago",
+  "temperature_unit": "fahrenheit"
+}
+```
+
+Environment variables are still available as fallback defaults before a saved
+location exists:
 
 | Variable                 | Default          | Notes                                  |
 |--------------------------|------------------|----------------------------------------|
-| `NOCTURNE_LAT`           | `35.4676`        | Latitude                               |
-| `NOCTURNE_LON`           | `-97.5164`       | Longitude                              |
-| `NOCTURNE_LOCATION_NAME` | `Oklahoma City`  | What the readout shows as "where"      |
+| `NOCTURNE_LAT`           | `41.8781`        | Latitude                               |
+| `NOCTURNE_LON`           | `-87.6298`       | Longitude                              |
+| `NOCTURNE_LOCATION_NAME` | `Chicago`        | What the readout shows as "where"      |
+| `NOCTURNE_TIMEZONE`      | `America/Chicago` | Open-Meteo timezone                  |
+| `NOCTURNE_TEMPERATURE_UNIT` | `fahrenheit`  | `fahrenheit` or `celsius`              |
 | `NOCTURNE_WEATHER_TTL`   | `600`            | Seconds the backend caches a result    |
 
-For systemd, add optional `Environment=` lines like these if you want custom
-lat/lon/location/weather cache settings:
+For systemd, add optional `Environment=` lines like these only if you want to
+change the fallback defaults:
 
 ```ini
 [Service]
-Environment=NOCTURNE_LAT=35.4676
-Environment=NOCTURNE_LON=-97.5164
-Environment=NOCTURNE_LOCATION_NAME=Oklahoma City
+Environment=NOCTURNE_LAT=41.8781
+Environment=NOCTURNE_LON=-87.6298
+Environment=NOCTURNE_LOCATION_NAME=Chicago
+Environment=NOCTURNE_TIMEZONE=America/Chicago
+Environment=NOCTURNE_TEMPERATURE_UNIT=fahrenheit
 ExecStart=/home/<you>/nocturne/.venv/bin/uvicorn main:app --host 0.0.0.0 --port 8000
 ```
 
@@ -279,8 +303,8 @@ animating when not visible.
 
 - `GET /api/radio` — lists `sounds/radio/` tracks
 - `GET /api/weather` — cached current weather from Open-Meteo
-- `GET /api/config` — exposes `latitude`, `longitude`, `location_name`
-- `GET/PUT /api/settings` — reads/saves enabled mode checkboxes in `config/nocturne.json`
+- `GET /api/config` — exposes non-secret location config for the UI
+- `GET/PUT /api/settings` — reads/saves enabled modes and Sky weather location in `config/nocturne.json`
 - `GET /api/songs` — lists saved Utility sketches when Utility is enabled
 - `GET/POST/PUT/DELETE /api/songs/...` — loads, saves, duplicates, and deletes sketches when Utility is enabled
 
@@ -296,17 +320,16 @@ pattern). The sleep timer now lives in the active page and fades the
 shared master bus before pausing both ambient channels and radio. The
 fourth Utility mode was merged from the uploaded Strudel Sketchbook, then
 changed to a code-only handoff workflow that opens sketches on strudel.cc. A
-small Settings GUI now persists mode visibility to `config/nocturne.json` and
-gates Utility's backend write routes when disabled. The old unused `static/app.js`
-file was removed.
+small Settings GUI now persists mode visibility and Sky weather location to
+`config/nocturne.json` and gates Utility's backend write routes when disabled.
+The old unused `static/app.js` file was removed.
 
 ---
 
 ## Make it run on boot
 
-Edit `nocturne.service` first: replace `YOUR_USER` with your Pi username, and
-add optional `Environment=` lines for LAT/LON/timezone/weather config if you
-want local Sky-mode settings.
+Edit `nocturne.service` first: replace `YOUR_USER` with your Pi username.
+Sky weather location can be changed later from the in-app Settings panel.
 
 ```bash
 sudo cp nocturne.service /etc/systemd/system/nocturne.service

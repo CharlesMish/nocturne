@@ -5,5 +5,12 @@
     "radio": true,
     "utility": false,
     "dashboard": true
+  },
+  "location": {
+    "label": "Chicago",
+    "latitude": 41.8781,
+    "longitude": -87.6298,
+    "timezone": "America/Chicago",
+    "temperature_unit": "fahrenheit"
   }
 }

@@ -22,9 +22,11 @@ Endpoints:
   GET  /health        — liveness probe
 
 Configuration (env vars, set in nocturne.service):
-  NOCTURNE_LAT             default 35.4676  (Oklahoma City)
-  NOCTURNE_LON             default -97.5164
-  NOCTURNE_LOCATION_NAME   default "Oklahoma City"
+  NOCTURNE_LAT             fallback/default 41.8781  (Chicago)
+  NOCTURNE_LON             fallback/default -87.6298
+  NOCTURNE_LOCATION_NAME   fallback/default "Chicago"
+  NOCTURNE_TIMEZONE        fallback/default "America/Chicago"
+  NOCTURNE_TEMPERATURE_UNIT fallback/default "fahrenheit"
   NOCTURNE_WEATHER_TTL     default 600  (seconds)
 """
 from __future__ import annotations
@@ -55,9 +57,11 @@ AUDIO_EXTS = {".mp3", ".ogg", ".m4a", ".wav", ".opus", ".webm", ".flac"}
 # --------------------------------------------------------------------------- #
 #  Config (env-driven, with sane defaults).
 # --------------------------------------------------------------------------- #
-LATITUDE = float(os.getenv("NOCTURNE_LAT", "35.4676"))
-LONGITUDE = float(os.getenv("NOCTURNE_LON", "-97.5164"))
-LOCATION_NAME = os.getenv("NOCTURNE_LOCATION_NAME", "Oklahoma City")
+LATITUDE = float(os.getenv("NOCTURNE_LAT", "41.8781"))
+LONGITUDE = float(os.getenv("NOCTURNE_LON", "-87.6298"))
+LOCATION_NAME = os.getenv("NOCTURNE_LOCATION_NAME", "Chicago")
+TIMEZONE = os.getenv("NOCTURNE_TIMEZONE", "America/Chicago")
+TEMPERATURE_UNIT = os.getenv("NOCTURNE_TEMPERATURE_UNIT", "fahrenheit")
 WEATHER_TTL = int(os.getenv("NOCTURNE_WEATHER_TTL", "600"))
 
 # In-memory weather cache (no DB needed for a single-process bedside service).
@@ -70,14 +74,79 @@ DEFAULT_SETTINGS: dict[str, Any] = {
         "radio": True,
         "utility": False,
         "dashboard": True,
+    },
+    "location": {
+        "label": LOCATION_NAME,
+        "latitude": LATITUDE,
+        "longitude": LONGITUDE,
+        "timezone": TIMEZONE,
+        "temperature_unit": TEMPERATURE_UNIT if TEMPERATURE_UNIT in {"fahrenheit", "celsius"} else "fahrenheit",
     }
 }
 VALID_MODE_KEYS = set(DEFAULT_SETTINGS["modes"].keys())
 MAX_SONG_CODE_BYTES = 256 * 1024
+MAX_LOCATION_LABEL_LEN = 80
+MAX_TIMEZONE_LEN = 80
 
 
 def _settings_copy() -> dict[str, Any]:
     return json.loads(json.dumps(DEFAULT_SETTINGS))
+
+
+def _validate_location(raw: Any, *, strict: bool = False) -> dict[str, Any]:
+    fallback = _settings_copy()["location"]
+    if not isinstance(raw, dict):
+        if strict:
+            raise HTTPException(status_code=400, detail="location must be an object")
+        return fallback
+
+    location = dict(fallback)
+
+    label = raw.get("label", fallback["label"])
+    if not isinstance(label, str):
+        if strict:
+            raise HTTPException(status_code=400, detail="location label must be a string")
+    else:
+        label = label.strip()
+        if not label or len(label) > MAX_LOCATION_LABEL_LEN:
+            if strict:
+                raise HTTPException(status_code=400, detail="location label must be 1-80 characters")
+        else:
+            location["label"] = label
+
+    timezone = raw.get("timezone", fallback["timezone"])
+    if not isinstance(timezone, str):
+        if strict:
+            raise HTTPException(status_code=400, detail="timezone must be a string")
+    else:
+        timezone = timezone.strip()
+        if not timezone or len(timezone) > MAX_TIMEZONE_LEN:
+            if strict:
+                raise HTTPException(status_code=400, detail="timezone must be 1-80 characters")
+        else:
+            location["timezone"] = timezone
+
+    for key, low, high in (("latitude", -90, 90), ("longitude", -180, 180)):
+        value = raw.get(key, fallback[key])
+        if isinstance(value, bool) or not isinstance(value, (int, float)):
+            if strict:
+                raise HTTPException(status_code=400, detail=f"{key} must be a number")
+            continue
+        value = float(value)
+        if value < low or value > high:
+            if strict:
+                raise HTTPException(status_code=400, detail=f"{key} must be between {low} and {high}")
+            continue
+        location[key] = value
+
+    unit = raw.get("temperature_unit", fallback["temperature_unit"])
+    if unit not in {"fahrenheit", "celsius"}:
+        if strict:
+            raise HTTPException(status_code=400, detail="temperature_unit must be fahrenheit or celsius")
+    else:
+        location["temperature_unit"] = unit
+
+    return location
 
 
 def _merge_settings(raw: Any) -> dict[str, Any]:
@@ -91,6 +160,7 @@ def _merge_settings(raw: Any) -> dict[str, Any]:
                 settings["modes"][key] = value
     if not any(settings["modes"].values()):
         settings["modes"]["onsen"] = True
+    settings["location"] = _validate_location(raw.get("location"))
     return settings
 
 
@@ -112,6 +182,12 @@ def _save_settings(settings: dict[str, Any]) -> dict[str, Any]:
         encoding="utf-8",
     )
     return settings
+
+
+def _clear_weather_cache() -> None:
+    _weather_cache["data"] = None
+    _weather_cache["fetched_at"] = 0.0
+    _weather_cache["error"] = None
 
 
 def _mode_enabled(mode: str) -> bool:
@@ -139,10 +215,10 @@ def health() -> dict[str, bool]:
 @app.get("/api/config")
 def config() -> dict[str, Any]:
     """Non-secret config the UI needs."""
+    location = _load_settings()["location"]
     return {
-        "latitude": LATITUDE,
-        "longitude": LONGITUDE,
-        "location_name": LOCATION_NAME,
+        **location,
+        "location_name": location["label"],
     }
 
 
@@ -158,6 +234,7 @@ async def put_settings(request: Request) -> dict[str, Any]:
     if not isinstance(payload, dict):
         raise HTTPException(status_code=400, detail="settings object required")
     current = _load_settings()
+    previous_location = dict(current["location"])
     incoming_modes = payload.get("modes")
     if incoming_modes is not None:
         if not isinstance(incoming_modes, dict):
@@ -168,9 +245,15 @@ async def put_settings(request: Request) -> dict[str, Any]:
             if not isinstance(value, bool):
                 raise HTTPException(status_code=400, detail=f"mode {key} must be true or false")
             current["modes"][key] = value
+    incoming_location = payload.get("location")
+    if incoming_location is not None:
+        current["location"] = _validate_location(incoming_location, strict=True)
     if not any(current["modes"].values()):
         raise HTTPException(status_code=400, detail="at least one mode must remain enabled")
-    return _save_settings(current)
+    saved = _save_settings(current)
+    if saved["location"] != previous_location:
+        _clear_weather_cache()
+    return saved
 
 
 # --------------------------------------------------------------------------- #
@@ -351,11 +434,13 @@ OPEN_METEO_URL = "https://api.open-meteo.com/v1/forecast"
 
 
 async def _fetch_weather() -> dict[str, Any]:
+    location = _load_settings()["location"]
     params = {
-        "latitude": LATITUDE,
-        "longitude": LONGITUDE,
+        "latitude": location["latitude"],
+        "longitude": location["longitude"],
         "current": "temperature_2m,weather_code,cloud_cover,is_day,wind_speed_10m",
-        "timezone": "auto",
+        "timezone": location["timezone"],
+        "temperature_unit": location["temperature_unit"],
     }
     async with httpx.AsyncClient(timeout=8.0) as client:
         r = await client.get(OPEN_METEO_URL, params=params)
@@ -370,7 +455,8 @@ async def _fetch_weather() -> dict[str, Any]:
         "is_day": current.get("is_day"),
         "time": current.get("time"),
         "timezone": payload.get("timezone"),
-        "location_name": LOCATION_NAME,
+        "location_name": location["label"],
+        "temperature_unit": location["temperature_unit"],
     }
 
 
@@ -398,7 +484,8 @@ async def get_weather() -> dict[str, Any]:
             return {"ok": True, "cached": True, "stale": True,
                     "age_seconds": int(age), "error": str(exc),
                     **_weather_cache["data"]}
-        return {"ok": False, "error": str(exc), "location_name": LOCATION_NAME}
+        location = _load_settings()["location"]
+        return {"ok": False, "error": str(exc), "location_name": location["label"], "temperature_unit": location["temperature_unit"]}
 
 
 # Order matters: specific paths first.
