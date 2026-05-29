@@ -19,8 +19,8 @@ Media fetching (low-friction):
   - python3 install.py                 → generates pink noise + auto-fetches MP3s
                                           if a manifest with real direct URLs exists
   - python3 install.py --no-fetch-media → skip all third-party downloads
-  - python3 install.py --fetch-media    → force fetch attempt (uses media_sources.json
-                                          or falls back to media_sources.default.json)
+  - python3 install.py --fetch-media    → force fetch attempt (best-effort; install continues
+                                          with pink noise if no usable URLs are present yet)
 
 A committed media_sources.default.json contains the 7 Pixabay source pages.
 Copy it to media_sources.json (gitignored) and fill fresh direct CDN URLs
@@ -50,6 +50,32 @@ def run(cmd: list[str | Path], *, env: dict[str, str] | None = None) -> None:
     printable = " ".join(shlex.quote(str(c)) for c in cmd)
     print(f"\n$ {printable}", flush=True)
     subprocess.run([str(c) for c in cmd], check=True, cwd=ROOT, env=env)
+
+
+def run_fetch_media(cmd: list[str | Path]) -> None:
+    printable = " ".join(shlex.quote(str(c)) for c in cmd)
+    print(f"\n$ {printable}", flush=True)
+    result = subprocess.run([str(c) for c in cmd], cwd=ROOT, text=True, capture_output=True)
+    if result.stdout:
+        print(result.stdout, end="")
+    if result.stderr:
+        print(result.stderr, end="", file=sys.stderr)
+
+    no_usable_urls = result.returncode == 2 and "No downloadable media entries found" in result.stdout
+    if result.returncode == 0:
+        return
+    if no_usable_urls:
+        print("\nAmbient media was not downloaded because no usable direct URLs were found.")
+        print("Nocturne is still installed and will run with generated pink noise.")
+        print("To add the full ambience set later, edit media_sources.json and rerun python3 install.py --fetch-media.")
+        return
+
+    raise subprocess.CalledProcessError(
+        result.returncode,
+        [str(c) for c in cmd],
+        output=result.stdout,
+        stderr=result.stderr,
+    )
 
 
 def ensure_venv() -> Path:
@@ -143,7 +169,7 @@ def main() -> int:
         cmd: list[str | Path] = [python, ROOT / "scripts" / "fetch_media.py", "--yes", "--manifest", chosen_manifest]
         if args.overwrite_media:
             cmd.append("--overwrite")
-        run(cmd)
+        run_fetch_media(cmd)
     elif not args.no_fetch_media:
         # Helpful short guidance when we could not / chose not to fetch
         print("\nSkipping third-party MP3 download (procedural pink noise was generated).")
@@ -164,7 +190,7 @@ def main() -> int:
     else:
         print("Run it with:")
         print("  source .venv/bin/activate")
-        print(f"  uvicorn main:app --host {args.host} --port {args.port}")
+        print(f"  python3 -m uvicorn main:app --host {args.host} --port {args.port}")
     if args.host == "127.0.0.1":
         print("\nFor LAN access from a phone/tablet, run with --host 0.0.0.0 deliberately.")
     return 0

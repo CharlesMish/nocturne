@@ -27,7 +27,7 @@ the current sketch on strudel.cc when you want playback.
 cd ~/nocturne
 python3 install.py
 source .venv/bin/activate
-python -m uvicorn main:app --host 127.0.0.1 --port 8000
+python3 -m uvicorn main:app --host 127.0.0.1 --port 8000
 ```
 
 Open `http://localhost:8000` on the same machine.
