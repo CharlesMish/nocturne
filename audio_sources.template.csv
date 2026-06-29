@@ -1,0 +1,2 @@
+filename,id,name,category,theme,source,source_title,creator,source_url,license,license_url,downloaded_at,screenshot,original_filename,edits,notes
+example-rain.wav,gentle-rain-cc0,Gentle Rain CC0,rain,mist-rain,Freesound,Example rain,example-user,https://freesound.org/s/000000/,CC0 1.0,https://creativecommons.org/publicdomain/zero/1.0/,2026-06-09,provenance/screenshots/gentle-rain-cc0.jpg,example-rain.wav,trimmed; normalized; loop crossfade,Replace this row with real downloaded files.

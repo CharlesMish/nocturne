@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Nocturne — Onsen, Sky, Radio, Utility, Dashboard</title>
-<meta name="description" content="A nightly weather mixer with sky, radio, a local Strudel code sketchbook, and a Raspberry Pi terminal dashboard.">
+<title>Nocturne — Onsen, Sky, Radio</title>
+<meta name="description" content="A local sleep ritual app with an ambient mixer, weather sky, and personal bedtime radio. Optional Utility and Dashboard modes stay behind Settings.">
 <meta name="theme-color" content="#0a0808">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -755,6 +755,223 @@ main { position: relative; z-index: 10; }
 @media (max-width: 1100px) { .mixer-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 520px)  { .mixer-grid { grid-template-columns: 1fr; } }
 
+.mixer-head code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78em;
+  color: var(--lantern-soft);
+}
+.mixer-reset {
+  display: inline-flex;
+  margin-top: 0.75rem;
+  padding: 0.55rem 0.8rem;
+}
+.slot-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.55rem;
+  margin: 0.65rem 0 0.7rem;
+}
+.slot-change, .slot-theme {
+  min-width: 0;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  background: rgba(10, 8, 10, 0.34);
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0.03em;
+  line-height: 1.1;
+  text-transform: none;
+}
+.slot-change {
+  padding: 0.52rem 0.68rem;
+  cursor: pointer;
+}
+.slot-change:hover, .slot-theme:hover, .slot-theme:focus {
+  color: var(--text);
+  border-color: var(--hairline-warm);
+}
+.slot-theme {
+  padding: 0.52rem 0.62rem;
+  appearance: none;
+  cursor: pointer;
+}
+.channel.unavailable .slot-change, .channel.unavailable .slot-theme {
+  cursor: pointer;
+  opacity: 1;
+}
+.sound-picker[hidden] { display: none !important; }
+.sound-picker {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  padding: clamp(1rem, 4vw, 2.5rem);
+}
+.sound-picker-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(6, 5, 7, 0.72);
+  backdrop-filter: blur(14px);
+}
+.sound-picker-panel {
+  position: relative;
+  width: min(880px, 100%);
+  max-height: min(760px, 88vh);
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 18% 0%, rgba(232, 169, 111, 0.16), transparent 38%),
+    radial-gradient(circle at 88% 16%, rgba(120, 145, 195, 0.14), transparent 32%),
+    rgba(16, 13, 16, 0.94);
+  box-shadow: 0 28px 90px rgba(0, 0, 0, 0.58);
+}
+.sound-picker-head {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1rem;
+  align-items: start;
+  padding: clamp(1rem, 3vw, 1.45rem);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.sound-picker-kicker {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--lantern-soft);
+}
+.sound-picker-head h2 {
+  margin-top: 0.25rem;
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-style: italic;
+  font-size: clamp(1.5rem, 3.5vw, 2.15rem);
+  color: var(--text);
+}
+.sound-picker-head p {
+  margin-top: 0.35rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+.sound-picker-tools {
+  display: grid;
+  grid-template-columns: minmax(180px, 0.7fr) 1fr;
+  gap: 0.8rem;
+  align-items: end;
+  padding: 1rem clamp(1rem, 3vw, 1.45rem);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.sound-search { display: grid; gap: 0.35rem; }
+.sound-search span {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.57rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+.sound-search input {
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 999px;
+  background: rgba(8, 7, 9, 0.55);
+  color: var(--text);
+  padding: 0.72rem 0.95rem;
+  outline: none;
+}
+.sound-categories { display: flex; flex-wrap: wrap; gap: 0.45rem; justify-content: flex-end; }
+.sound-chip {
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 999px;
+  background: rgba(255,255,255,0.035);
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.55rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 0.5rem 0.72rem;
+  cursor: pointer;
+}
+.sound-chip.active { color: var(--ink); background: var(--lantern-soft); border-color: transparent; }
+.sound-list {
+  overflow: auto;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+  padding: clamp(1rem, 3vw, 1.45rem);
+}
+.sound-option {
+  text-align: left;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 18px;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.045), rgba(255,255,255,0.012)),
+    rgba(8, 7, 9, 0.28);
+  color: var(--text);
+  padding: 0.9rem;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.8rem;
+  align-items: center;
+}
+.sound-option:hover, .sound-option.selected { border-color: var(--hairline-warm); }
+.sound-option-actions { display: flex; gap: 0.45rem; align-items: center; }
+.sound-option-actions button {
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 999px;
+  background: rgba(255,255,255,0.045);
+  color: var(--text-muted);
+  padding: 0.48rem 0.62rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.52rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.sound-option-actions button:hover,
+.sound-option-actions button:focus {
+  color: var(--ink);
+  background: var(--lantern-soft);
+  border-color: transparent;
+}
+.sound-option-preview.playing { color: var(--ink); background: var(--lantern-soft); border-color: transparent; }
+.sound-option-name {
+  display: block;
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 1.08rem;
+}
+.sound-option-meta, .sound-option-path {
+  display: block;
+  margin-top: 0.3rem;
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.56rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.sound-option-path {
+  color: var(--text-faint);
+  letter-spacing: 0.02em;
+  text-transform: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+@media (max-width: 760px) {
+  .sound-picker-tools { grid-template-columns: 1fr; }
+  .sound-categories { justify-content: flex-start; }
+  .sound-list { grid-template-columns: 1fr; }
+  .sound-option { grid-template-columns: 1fr; }
+  .sound-option-actions { justify-content: flex-start; }
+}
+@media (max-width: 520px) {
+  .slot-actions { grid-template-columns: 1fr; }
+}
+
 /* ============================================================
    CHANNEL PANEL — one slider card
    ============================================================ */
@@ -792,6 +1009,32 @@ main { position: relative; z-index: 10; }
 }
 .channel.active {
   border-color: var(--hairline-warm);
+}
+.channel.unavailable {
+  opacity: 0.58;
+  cursor: not-allowed;
+  filter: saturate(0.6);
+}
+.channel.unavailable.active {
+  border-color: rgba(255, 255, 255, 0.04);
+}
+.channel.unavailable::after {
+  content: "audio missing";
+  position: absolute;
+  top: 0.75rem;
+  left: 0.85rem;
+  z-index: 12;
+  padding: 0.22rem 0.5rem;
+  border-radius: 999px;
+  background: rgba(10, 8, 10, 0.72);
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.52rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.channel.unavailable input[type="range"] {
+  cursor: not-allowed;
 }
 .channel:hover {
   box-shadow:
@@ -3446,7 +3689,7 @@ body.radio-playing .reel-inner { animation-play-state: running; }
   opacity: 0.55;
 }
 
-/* Sliders — broadcast (volume) + warmth (lowpass) */
+/* Sliders — broadcast, warmth, drift, and space */
 .deck-slider {
   display: grid;
   grid-template-columns: 5em 1fr 3em;
@@ -3752,7 +3995,7 @@ body[data-mode="dashboard"] .topbar {
         │                                                             │
         │  Example:                                                   │
         │    <video … >                                               │
-        │      <source src="/video/onsen-rain.mp4" type="video/mp4">  │
+        │      <source src="/rain.mp4" type="video/mp4">  │
         │    </video>                                                 │
         ╰─────────────────────────────────────────────────────────────╯
       -->
@@ -3797,7 +4040,7 @@ body[data-mode="dashboard"] .topbar {
           playsinline
           preload="auto"
           aria-hidden="true">
-          <source src="/rain1.mp4?v=20260503-182100" type="video/mp4">
+          <source src="/rain.mp4?v=20260503-182100" type="video/mp4">
         </video>
 
         <div class="scene-bloom" aria-hidden="true"></div>
@@ -3932,6 +4175,22 @@ body[data-mode="dashboard"] .topbar {
                    aria-label="Lo-fi warmth (lowpass)">
             <span class="deck-slider-value" id="deck-warmth-value">0%</span>
           </div>
+
+          <div class="deck-slider">
+            <span class="deck-slider-label">drift</span>
+            <input type="range" id="deck-drift"
+                   min="0" max="100" step="1" value="0"
+                   aria-label="Slowed playback drift">
+            <span class="deck-slider-value" id="deck-drift-value">1.00×</span>
+          </div>
+
+          <div class="deck-slider">
+            <span class="deck-slider-label">space</span>
+            <input type="range" id="deck-reverb"
+                   min="0" max="100" step="1" value="0"
+                   aria-label="Radio reverb space">
+            <span class="deck-slider-value" id="deck-reverb-value">0%</span>
+          </div>
         </div>
 
         <!-- Playlist -->
@@ -4045,7 +4304,7 @@ body[data-mode="dashboard"] .topbar {
       <div class="dashboard-stage" id="dashboard-stage" data-tilt>
         <iframe class="dashboard-frame" id="dashboard-frame"
                 title="Raspberry Pi terminal dashboard"
-                data-src="/Dashboard_v4.html"
+                data-src="/dashboard.html"
                 loading="lazy"
                 referrerpolicy="no-referrer"></iframe>
         <div class="dashboard-caption" aria-hidden="true">
@@ -4057,6 +4316,16 @@ body[data-mode="dashboard"] .topbar {
 
     <!-- ─────────────────────  MIXER  ───────────────────── -->
     <section class="mixer-section" aria-label="Sound mixer">
+      <div class="mixer-head">
+        <div>
+          <span class="eyebrow">ambient library</span>
+          <h2>Choose eight sounds for tonight.</h2>
+        </div>
+        <div class="help">
+          Drop AI-generated loops into <code>sounds/library/</code>, list them in <code>sounds/sound_library.json</code>, then assign any eight here.
+          <button class="btn mixer-reset" id="reset-mixer-slots" type="button">restore core slots</button>
+        </div>
+      </div>
       <div class="mixer-grid" id="mixer-grid">
 
         <!-- 01 · CALMING RAIN -->
@@ -4230,7 +4499,7 @@ body[data-mode="dashboard"] .topbar {
           </div>
         </article>
 
-        <!-- 08 · PINK NOISE -->
+        <!-- 08 · DARK RAIN RUMBLE -->
         <article class="channel p-pine" data-tilt data-sound-id="pink-noise" data-category="noise"
                  style="--glow-color: rgba(255, 150, 75, 0.5);">
           <div class="stage" aria-hidden="true">
@@ -4247,13 +4516,35 @@ body[data-mode="dashboard"] .topbar {
               <span>ch · 08</span>
             </div>
             <div class="info-row">
-              <span class="name">Pink Noise</span>
+              <span class="name">Dark Rain Rumble</span>
               <span class="value">0%</span>
             </div>
-            <input type="range" min="0" max="100" step="1" value="0" aria-label="Pink Noise volume">
+            <input type="range" min="0" max="100" step="1" value="0" aria-label="Dark Rain Rumble volume">
           </div>
         </article>
 
+      </div>
+
+      <div class="sound-picker" id="sound-picker" hidden aria-hidden="true">
+        <div class="sound-picker-backdrop" data-close-picker></div>
+        <section class="sound-picker-panel" role="dialog" aria-modal="true" aria-labelledby="sound-picker-title">
+          <div class="sound-picker-head">
+            <div>
+              <span class="sound-picker-kicker" id="sound-picker-slot">slot</span>
+              <h2 id="sound-picker-title">Choose a sound</h2>
+              <p id="sound-picker-current">Select one loop for this mixer slot.</p>
+            </div>
+            <button class="btn" id="sound-picker-close" type="button" data-close-picker>close</button>
+          </div>
+          <div class="sound-picker-tools">
+            <label class="sound-search">
+              <span>search</span>
+              <input id="sound-picker-search" type="search" placeholder="rain, fire, wind, noise..." autocomplete="off">
+            </label>
+            <div class="sound-categories" id="sound-picker-categories" aria-label="Sound categories"></div>
+          </div>
+          <div class="sound-list" id="sound-picker-list" role="list"></div>
+        </section>
       </div>
 
     </section>
@@ -4290,9 +4581,9 @@ body[data-mode="dashboard"] .topbar {
 
     <!-- ─────────────────────  FOOTER  ───────────────────── -->
     <footer>
-      <div>Nocturne · Vol. 02</div>
-      <div>Eight channels · all weather original</div>
-      <div>Spring 2026 · 008 / 008</div>
+      <div id="build-label-footer">Nocturne · v0.1.0-alpha.8-candidate</div>
+      <div>Eight channels · local weather · personal radio</div>
+      <div id="build-date-footer">Build 2026-06-09</div>
     </footer>
 
   </div>
@@ -4308,6 +4599,11 @@ body[data-mode="dashboard"] .topbar {
       <button class="settings-close" id="settings-close" type="button" aria-label="Close settings">×</button>
     </div>
     <p class="settings-copy">Choose which Nocturne modes appear in the top bar. Changes are saved on this device in <code>config/nocturne.json</code>.</p>
+    <section class="settings-section" aria-labelledby="settings-build-title">
+      <h3 id="settings-build-title">Build</h3>
+      <p class="settings-note" id="settings-build-label">v0.1.0-alpha.8-candidate · 2026-06-09 · unknown</p>
+      <p class="settings-note" id="settings-build-details">Share this label with alpha feedback. Full JSON is available at <code>/api/version</code>.</p>
+    </section>
     <form class="settings-form" id="settings-form">
       <label class="settings-check">
         <input type="checkbox" data-setting-mode="onsen">
@@ -4393,59 +4689,578 @@ body[data-mode="dashboard"] .topbar {
   const TIMER_FADE_MS = 60 * 1000;
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  /* Sound channel registry. Edit `src` to attach real audio files —
-     anything the browser can play (mp3, ogg, m4a, wav, opus, webm, flac).
-     The `id` is the sound-id used in localStorage and the DOM. */
-  const CHANNELS = [
-    {
-      id: 'calming-rain',
-      name: 'Calming Rain',
-      category: 'soft rain',
-      src: '/sounds/calming_rain.mp3'
+  /* Sound library registry. The mixer keeps eight live slots, but each slot
+     can be assigned from a larger local library. Drop curated CC0 / user-owned
+     loops into sounds/library/ and list them in sounds/sound_library.json. */
+  const VISUAL_THEMES = {
+    'mist-rain': {
+      label: 'Mist rain', panel: 'p-whisper', glow: 'rgba(247, 224, 232, 0.32)',
+      layers: ['l-mist:6', 'l-rain:14', 'l-petals:22', 'l-bloom:3']
     },
-    {
-      id: 'gentle-rain',
-      name: 'Gentle Rain',
-      category: 'soft rain',
-      src: '/sounds/gentle_rain.mp3'
+    'garden-rain': {
+      label: 'Garden rain', panel: 'p-garden', glow: 'rgba(180, 200, 220, 0.35)',
+      layers: ['l-stone-bg:4', 'l-mist:8', 'l-rain-far:14', 'l-stones:22', 'l-rain-near:28', 'l-puddle:12']
     },
-    {
-      id: 'heavy-rain',
-      name: 'Heavy Rain',
-      category: 'heavy rain',
-      src: '/sounds/heavy_rain.mp3'
+    'distant-storm': {
+      label: 'Distant storm', panel: 'p-distant', glow: 'rgba(120, 145, 195, 0.38)',
+      layers: ['l-clouds-far:10', 'l-flash:6', 'l-horizon:18', 'l-mountains:26', 'l-bloom:4']
     },
-    {
-      id: 'rainstorm',
-      name: 'Rainstorm',
-      category: 'rainstorm',
-      src: '/sounds/rainstorm.mp3'
+    'mountain-storm': {
+      label: 'Mountain storm', panel: 'p-mountain', glow: 'rgba(140, 165, 215, 0.4)',
+      layers: ['l-clouds:8', 'l-clouds-2:14', 'l-flash:6', 'l-rain:20', 'l-mountain-bg:22', 'l-mountain:28', 'l-mountain-rim:28']
     },
-    {
-      id: 'heavy-storm',
-      name: 'Heavy Storm',
-      category: 'rain & thunder',
-      src: '/sounds/heavy_storm.mp3'
+    'squall': {
+      label: 'Squall', panel: 'p-squall', glow: 'rgba(244, 216, 160, 0.4)',
+      layers: ['l-clouds:8', 'l-flash:6', 'l-bolt:16', 'l-rain-far:14', 'l-rain:26']
     },
-    {
-      id: 'thunder',
-      name: 'Thunder',
-      category: 'thunder',
-      src: '/sounds/thunder.mp3'
+    'tempest': {
+      label: 'Tempest', panel: 'p-tempest', glow: 'rgba(232, 238, 248, 0.38)',
+      layers: ['l-clouds-deep:6', 'l-clouds-mid:10', 'l-flash:6', 'l-bolt-a:16', 'l-bolt-b:14', 'l-rain-far:14', 'l-rain-near:28']
     },
-    {
-      id: 'fireplace',
-      name: 'Fireplace',
-      category: 'fireplace',
-      src: '/sounds/fireplace.mp3'
+    'hearth': {
+      label: 'Hearth', panel: 'p-hearth', glow: 'rgba(255, 170, 90, 0.45)',
+      layers: ['l-glow:6', 'l-haze:10', 'l-flames:18', 'l-sparks:24']
     },
-    {
-      id: 'pink-noise',
-      name: 'Pink Noise',
-      category: 'noise',
-      src: '/sounds/pinknoise.wav'
-    },
-  ];
+    'ember-noise': {
+      label: 'Ember/noise', panel: 'p-pine', glow: 'rgba(255, 150, 75, 0.5)',
+      layers: ['l-glow:6', 'l-haze:10', 'l-flames:18', 'l-flames-2:22', 'l-sparks:28']
+    }
+  };
+  const THEME_CLASS_NAMES = Object.values(VISUAL_THEMES).map(t => t.panel);
+
+  const DEFAULT_SOUND_LIBRARY = {
+    "version": 4,
+    "notes": "Local ambience library for the Nocturne alpha.8 sound picker. Entries are split by source_type: recorded_cc0 for bundled Freesound CC0 recordings, generated for procedural beds created during install. alpha.7 added the expanded honestly-named procedural set (low-rumble-bed, distant-train-bed, soft-traffic-bed, fan-room-bed, rain-on-glass-noise, deep-water-bed, ember-crackle-bed). alpha.8 adds distant-thunder-bed and soft-thunderstorm-bed as generated audition candidates, not defaults. Generated beds are synthetic texture beds, never presented as field recordings.",
+    "default_slots": [
+      "rain-heavy-open-window",
+      "rain-balcony-peaceful",
+      "rain-tent-heavy",
+      "fire-crackling-loop",
+      "crickets-at-night-clean",
+      "waves-on-shore",
+      "fan-room-bed",
+      "low-rumble-bed"
+    ],
+    "sounds": [
+      {
+        "id": "soft-rain-noise",
+        "name": "Soft Rain Noise",
+        "category": "rain",
+        "theme": "mist-rain",
+        "src": "/sounds/soft-rain-noise.wav",
+        "description": "Procedural rain-like starter bed generated locally during install. Replace with a curated CC0 field recording when ready.",
+        "license_note": "Generated by Nocturne scripts/generate_noise.py.",
+        "source_type": "generated",
+        "source_label": "Generated"
+      },
+      {
+        "id": "window-rain-noise",
+        "name": "Window Rain Noise",
+        "category": "rain",
+        "theme": "garden-rain",
+        "src": "/sounds/window-rain-noise.wav",
+        "description": "Procedural close rain/window-like starter bed generated locally during install.",
+        "license_note": "Generated by Nocturne scripts/generate_noise.py.",
+        "source_type": "generated",
+        "source_label": "Generated"
+      },
+      {
+        "id": "heavy-rain-noise",
+        "name": "Heavy Rain Noise",
+        "category": "rain",
+        "theme": "distant-storm",
+        "src": "/sounds/heavy-rain-noise.wav",
+        "description": "Procedural heavy rain-like starter bed generated locally during install.",
+        "license_note": "Generated by Nocturne scripts/generate_noise.py.",
+        "source_type": "generated",
+        "source_label": "Generated"
+      },
+      {
+        "id": "distant-storm-noise",
+        "name": "Soft Pink Rain Noise",
+        "category": "noise",
+        "theme": "ember-noise",
+        "src": "/sounds/distant-storm-noise.wav",
+        "description": "Procedural rain/noise bed generated locally during install. Alpha.8 audition found this reads closer to soft pink-noise-like wash than to a convincing dark rain rumble.",
+        "license_note": "Generated by Nocturne scripts/generate_noise.py.",
+        "source_type": "generated",
+        "source_label": "Generated",
+        "notes": "Alpha.8 metadata correction only: ID and file preserved for compatibility; display name/description changed after audition. Generated entirely by scripts/generate_noise.py."
+      },
+      {
+        "id": "soft-wind-noise",
+        "name": "Soft Air Noise",
+        "category": "noise",
+        "theme": "mist-rain",
+        "src": "/sounds/soft-wind-noise.wav",
+        "description": "Procedural soft air/wind-like bed generated locally during install.",
+        "license_note": "Generated by Nocturne scripts/generate_noise.py.",
+        "source_type": "generated",
+        "source_label": "Generated"
+      },
+      {
+        "id": "pink-noise",
+        "name": "Dark Rain Rumble Noise",
+        "category": "noise",
+        "theme": "mountain-storm",
+        "src": "/sounds/pinknoise.wav",
+        "description": "Procedural pink-spectrum noise generated locally during install. Alpha.8 audition found this slot reads more like a dark rain/rumble bed in the mixer than the previous plain Pink Noise label.",
+        "license_note": "Generated by Nocturne scripts/generate_noise.py.",
+        "source_type": "generated",
+        "source_label": "Generated",
+        "notes": "Alpha.8 metadata correction only: ID and file preserved for compatibility; display name/description changed after audition. Generated entirely by scripts/generate_noise.py."
+      },
+      {
+        "id": "brown-noise",
+        "name": "Brown Noise (Deep/Subtle)",
+        "category": "noise",
+        "theme": "ember-noise",
+        "src": "/sounds/brown-noise.wav",
+        "description": "Procedural low-frequency brown noise. Best on headphones or speakers with bass response.",
+        "license_note": "Generated by Nocturne scripts/generate_noise.py.",
+        "source_type": "generated",
+        "source_label": "Generated",
+        "notes": "Low-frequency brown noise may sound very quiet on small laptop/phone speakers."
+      },
+      {
+        "id": "white-noise",
+        "name": "White Noise",
+        "category": "noise",
+        "theme": "ember-noise",
+        "src": "/sounds/white-noise.wav",
+        "description": "Generated locally by scripts/generate_noise.py during install.",
+        "license_note": "Generated by Nocturne scripts/generate_noise.py.",
+        "source_type": "generated",
+        "source_label": "Generated"
+      },
+      {
+        "id": "low-rumble-bed",
+        "name": "Low Rumble Bed",
+        "category": "noise",
+        "theme": "mountain-storm",
+        "src": "/sounds/low-rumble-bed.wav",
+        "description": "Procedural low/sub rumble bed with slow swells in the 22–130 Hz region. Thunder-adjacent texture, not a recording of real thunder; no sharp peaks.",
+        "license_note": "Generated by Nocturne scripts/generate_noise.py.",
+        "source_type": "generated",
+        "source_label": "Generated",
+        "notes": "Best on headphones or speakers with bass response; very low frequencies may be quiet on small laptop/phone speakers."
+      },
+      {
+        "id": "distant-train-bed",
+        "name": "Distant Train Bed",
+        "category": "noise",
+        "theme": "distant-storm",
+        "src": "/sounds/distant-train-bed.wav",
+        "description": "Procedural soft low rolling rail texture with a gentle rhythmic cadence. Synthetic bed — no horn, no metallic screech, no identifiable train events.",
+        "license_note": "Generated by Nocturne scripts/generate_noise.py.",
+        "source_type": "generated",
+        "source_label": "Generated"
+      },
+      {
+        "id": "soft-traffic-bed",
+        "name": "Soft Traffic Bed",
+        "category": "noise",
+        "theme": "garden-rain",
+        "src": "/sounds/soft-traffic-bed.wav",
+        "description": "Procedural distant-city traffic wash, very low and smooth. Anonymous wash only — no honks, sirens, or identifiable vehicles.",
+        "license_note": "Generated by Nocturne scripts/generate_noise.py.",
+        "source_type": "generated",
+        "source_label": "Generated"
+      },
+      {
+        "id": "fan-room-bed",
+        "name": "Fan / Room Bed",
+        "category": "noise",
+        "theme": "ember-noise",
+        "src": "/sounds/fan-room-bed.wav",
+        "description": "Procedural steady fan / air-conditioner style bed. Smoother and warmer than white noise; steady with no pure tone.",
+        "license_note": "Generated by Nocturne scripts/generate_noise.py.",
+        "source_type": "generated",
+        "source_label": "Generated"
+      },
+      {
+        "id": "rain-on-glass-noise",
+        "name": "Rain on Glass Noise",
+        "category": "rain",
+        "theme": "garden-rain",
+        "src": "/sounds/rain-on-glass-noise.wav",
+        "description": "Procedural light rain taps over a soft rain bed, tuned to sit closer to a windowpane character than plain filtered noise. Synthetic bed, not a field recording.",
+        "license_note": "Generated by Nocturne scripts/generate_noise.py.",
+        "source_type": "generated",
+        "source_label": "Generated"
+      },
+      {
+        "id": "deep-water-bed",
+        "name": "Deep Water Bed",
+        "category": "water",
+        "theme": "mist-rain",
+        "src": "/sounds/deep-water-bed.wav",
+        "description": "Procedural low filtered water-like movement with gentle surges. No animal sounds, no sudden splashes.",
+        "license_note": "Generated by Nocturne scripts/generate_noise.py.",
+        "source_type": "generated",
+        "source_label": "Generated"
+      },
+      {
+        "id": "ember-crackle-bed",
+        "name": "Ember Crackle Bed",
+        "category": "fire",
+        "theme": "hearth",
+        "src": "/sounds/ember-crackle-bed.wav",
+        "description": "Procedural warm noise bed with sparse soft crackles. Rounded crackles (not bright clicks); a texture bed, not a recording of a real fire.",
+        "license_note": "Generated by Nocturne scripts/generate_noise.py.",
+        "source_type": "generated",
+        "source_label": "Generated",
+        "notes": "Weakest of the generated set; the crackles are deliberately subtle to stay sleep-safe. Treat as 'maybe' — review against the CC0 fireplace loops before featuring it."
+      },
+      {
+        "id": "distant-thunder-bed",
+        "name": "Distant Thunder Bed",
+        "category": "thunder",
+        "theme": "mountain-storm",
+        "src": "/sounds/distant-thunder-bed.wav",
+        "description": "Procedural audition candidate: sparse distant low thunder rolls over a very quiet rumble floor. No rain, no sharp cracks, no field recording.",
+        "license_note": "Generated by Nocturne scripts/generate_noise.py from the local alpha.8 thunder design; no third-party source audio.",
+        "source_type": "generated",
+        "source_label": "Generated",
+        "notes": "Audition candidate only; intentionally not a default slot until human sleep-safety review."
+      },
+      {
+        "id": "soft-thunderstorm-bed",
+        "name": "Soft Thunderstorm Bed",
+        "category": "thunder",
+        "theme": "distant-storm",
+        "src": "/sounds/soft-thunderstorm-bed.wav",
+        "description": "Procedural audition candidate: soft low thunder rolls with a faint rain hush. No bright thunder cracks, no field recording.",
+        "license_note": "Generated by Nocturne scripts/generate_noise.py from the local alpha.8 thunder design; no third-party source audio.",
+        "source_type": "generated",
+        "source_label": "Generated",
+        "notes": "Audition candidate only; intentionally not a default slot until human sleep-safety review."
+      },
+      {
+        "id": "rain-balcony-peaceful",
+        "name": "Gentle Rain",
+        "category": "rain",
+        "theme": "mist-rain",
+        "src": "/sounds/library/rain-balcony-peaceful.mp3",
+        "description": "Priority default. Peaceful balcony rain; popular candidate.",
+        "source": "Freesound",
+        "source_title": "Rain.wav",
+        "creator": "idomusics",
+        "source_url": "https://freesound.org/people/idomusics/sounds/518863/",
+        "license": "CC0 1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "license_note": "Curated from Freesound as CC0 1.0; verify page screenshot before public release.",
+        "downloaded_at": "2026-06-18",
+        "screenshot": "provenance/screenshots/rain-balcony-peaceful.jpg",
+        "original_filename": "rain-balcony-peaceful.wav",
+        "processed_filename": "rain-balcony-peaceful.mp3",
+        "original_sha256": "5f4c278ddca1212aeaee950db7626b3b3202b284b1713135f8ad354e41127e57",
+        "sha256": "869c44321952548d3c35d8b712d97975d5af169a745f48dc96c124b6f00e68a0",
+        "file_size_bytes": 865218,
+        "edits": "Trimmed/converted for Nocturne; embedded metadata stripped; loudness-normalized for alpha.7; SHA-256 is for bundled MP3.",
+        "notes": "Priority default. Peaceful balcony rain; popular candidate.",
+        "source_type": "recorded_cc0",
+        "source_label": "Recorded CC0"
+      },
+      {
+        "id": "rain-heavy-open-window",
+        "name": "Rain on Open Window",
+        "category": "rain",
+        "theme": "garden-rain",
+        "src": "/sounds/library/rain-heavy-open-window.mp3",
+        "description": "Priority default. Heavy indoor rain from open window.",
+        "source": "Freesound",
+        "source_title": "Rain (Heavy)_From open window.wav",
+        "creator": "Mar.Sounds",
+        "source_url": "https://freesound.org/people/Mar.Sounds/sounds/630424/",
+        "license": "CC0 1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "license_note": "Curated from Freesound as CC0 1.0; verify page screenshot before public release.",
+        "downloaded_at": "2026-06-18",
+        "screenshot": "provenance/screenshots/rain-heavy-open-window.jpg",
+        "original_filename": "rain-heavy-open-window.wav",
+        "processed_filename": "rain-heavy-open-window.mp3",
+        "original_sha256": "62b969909aa4e6bd79d55d124b4640b66dee8fcd6f4c1b2125d865ff4a4d8acd",
+        "sha256": "4e6f30fe3542c708eea0320978d73af1eea45d5a0e90bccc38e1638be5249214",
+        "file_size_bytes": 1250576,
+        "edits": "Trimmed/converted for Nocturne; embedded metadata stripped; loudness-normalized for alpha.7; SHA-256 is for bundled MP3.",
+        "notes": "Priority default. Heavy indoor rain from open window.",
+        "source_type": "recorded_cc0",
+        "source_label": "Recorded CC0"
+      },
+      {
+        "id": "indoor-raining-loop",
+        "name": "Indoor Raining Loop",
+        "category": "rain",
+        "theme": "mist-rain",
+        "src": "/sounds/library/indoor-raining-loop.mp3",
+        "description": "Short loop; good for testing but may feel repetitive.",
+        "source": "Freesound",
+        "source_title": "Indoor raining loop",
+        "creator": "Rvgerxini",
+        "source_url": "https://freesound.org/people/Rvgerxini/sounds/527658/",
+        "license": "CC0 1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "license_note": "Curated from Freesound as CC0 1.0; verify page screenshot before public release.",
+        "downloaded_at": "2026-06-18",
+        "screenshot": "provenance/screenshots/indoor-raining-loop.jpg",
+        "original_filename": "indoor-raining-loop.mp3",
+        "processed_filename": "indoor-raining-loop.mp3",
+        "original_sha256": "3b85b1fffb1e15cd4fbd6dc8dd0d925898d8b0972201f7df1aa21179912af5b6",
+        "sha256": "937f3f0106a4c8ae0151a5a8d64f51d09f66ca7ff7ccb366252f4205b415251c",
+        "file_size_bytes": 527925,
+        "edits": "Trimmed/converted for Nocturne; embedded metadata stripped; loudness-normalized for alpha.7; SHA-256 is for bundled MP3.",
+        "notes": "Short loop; good for testing but may feel repetitive.",
+        "source_type": "recorded_cc0",
+        "source_label": "Recorded CC0"
+      },
+      {
+        "id": "rain-tent-heavy",
+        "name": "Heavy Rain on Tent",
+        "category": "rain",
+        "theme": "tempest",
+        "src": "/sounds/library/rain-tent-heavy.mp3",
+        "description": "Camping/tent texture; good rain variety.",
+        "source": "Freesound",
+        "source_title": "Heavy Rain on a tent",
+        "creator": "Breviceps",
+        "source_url": "https://freesound.org/people/Breviceps/sounds/484724/",
+        "license": "CC0 1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "license_note": "Curated from Freesound as CC0 1.0; verify page screenshot before public release.",
+        "downloaded_at": "2026-06-18",
+        "screenshot": "provenance/screenshots/rain-tent-heavy.jpg",
+        "original_filename": "rain-tent-heavy.wav",
+        "processed_filename": "rain-tent-heavy.mp3",
+        "original_sha256": "d98e00be135d2679aff35e7d12520b7176608da9f70da21ee435e3bbae64914e",
+        "sha256": "01f7b1e3bbd5f674976bd7356b749008fd93cb27910b98c499afca8bc6102c63",
+        "file_size_bytes": 794165,
+        "edits": "Trimmed/converted for Nocturne; embedded metadata stripped; loudness-normalized for alpha.7; SHA-256 is for bundled MP3.",
+        "notes": "Camping/tent texture; good rain variety.",
+        "source_type": "recorded_cc0",
+        "source_label": "Recorded CC0"
+      },
+      {
+        "id": "rain-inside-house",
+        "name": "Rain from Inside House",
+        "category": "rain",
+        "theme": "garden-rain",
+        "src": "/sounds/library/rain-inside-house.mp3",
+        "description": "Attic/inside-house rain; keep only if it auditions warm.",
+        "source": "Freesound",
+        "source_title": "Rain from Inside House.wav",
+        "creator": "phillyfan972",
+        "source_url": "https://freesound.org/people/phillyfan972/sounds/519297/",
+        "license": "CC0 1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "license_note": "Curated from Freesound as CC0 1.0; verify page screenshot before public release.",
+        "downloaded_at": "2026-06-18",
+        "screenshot": "provenance/screenshots/rain-inside-house.jpg",
+        "original_filename": "rain-inside-house.wav",
+        "processed_filename": "rain-inside-house.mp3",
+        "original_sha256": "9037ae9fa98b86c041147caf643dace5f8a6c41a390fa303541c65747a23e10d",
+        "sha256": "03de0ee85dc758c1d542e413db715a96eae5322b1c27205b677ab8d1e57c2c65",
+        "file_size_bytes": 1692777,
+        "edits": "Trimmed/converted for Nocturne; embedded metadata stripped; loudness-normalized for alpha.7; SHA-256 is for bundled MP3.",
+        "notes": "Attic/inside-house rain; keep only if it auditions warm.",
+        "source_type": "recorded_cc0",
+        "source_label": "Recorded CC0"
+      },
+      {
+        "id": "rain-city-pooling",
+        "name": "City Rain Pooling",
+        "category": "rain",
+        "theme": "squall",
+        "src": "/sounds/library/rain-city-pooling.mp3",
+        "description": "Short city rain texture; likely not a default.",
+        "source": "Freesound",
+        "source_title": "raining in the city - rain pooling up - 1",
+        "creator": "FOSSarts",
+        "source_url": "https://freesound.org/people/FOSSarts/sounds/789162/",
+        "license": "CC0 1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "license_note": "Curated from Freesound as CC0 1.0; verify page screenshot before public release.",
+        "downloaded_at": "2026-06-18",
+        "screenshot": "provenance/screenshots/rain-city-pooling.jpg",
+        "original_filename": "rain-city-pooling.wav",
+        "processed_filename": "rain-city-pooling.mp3",
+        "original_sha256": "9785a8192cebb8f7603f09190da10586d7f4949f3f038b6b09ed4e55ef867aab",
+        "sha256": "2cc7b080ca413751cd037625ce90c54d4a91cb0632dfcdea1f1eaf728449e148",
+        "file_size_bytes": 169734,
+        "edits": "Trimmed/converted for Nocturne; embedded metadata stripped; loudness-normalized for alpha.7; SHA-256 is for bundled MP3.",
+        "notes": "Short city rain texture; likely not a default.",
+        "source_type": "recorded_cc0",
+        "source_label": "Recorded CC0"
+      },
+      {
+        "id": "fire-crackling-loop",
+        "name": "Fireplace",
+        "category": "fire",
+        "theme": "hearth",
+        "src": "/sounds/library/fire-crackling-loop.mp3",
+        "description": "Priority default. Compare against Nox_Sound and keep the warmer one.",
+        "source": "Freesound",
+        "source_title": "fire crackling loop.wav",
+        "creator": "soundofsong",
+        "source_url": "https://freesound.org/people/soundofsong/sounds/650574/",
+        "license": "CC0 1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "license_note": "Curated from Freesound as CC0 1.0; verify page screenshot before public release.",
+        "downloaded_at": "2026-06-18",
+        "screenshot": "provenance/screenshots/fire-crackling-loop.jpg",
+        "original_filename": "fire-crackling-loop.wav",
+        "processed_filename": "fire-crackling-loop.mp3",
+        "original_sha256": "40d19da3fd9fa1f5d04dc2b9c1bce3bd8c64ab636953112d45ec7cbe97b631c4",
+        "sha256": "855cd56f2f74559eff1bc7dedbf6c189f5a5545c23e8913f8538c7ab872d2ae1",
+        "file_size_bytes": 81545,
+        "edits": "Trimmed/converted for Nocturne; embedded metadata stripped; loudness-normalized for alpha.7; SHA-256 is for bundled MP3.",
+        "notes": "Priority default. Compare against Nox_Sound and keep the warmer one.",
+        "source_type": "recorded_cc0",
+        "source_label": "Recorded CC0"
+      },
+      {
+        "id": "campfire-loop-stereo",
+        "name": "Campfire",
+        "category": "fire",
+        "theme": "hearth",
+        "src": "/sounds/library/campfire-loop-stereo.mp3",
+        "description": "Alternate fire default candidate.",
+        "source": "Freesound",
+        "source_title": "Ambiance_Campfire_Loop_Stereo.wav",
+        "creator": "Nox_Sound",
+        "source_url": "https://freesound.org/people/Nox_Sound/sounds/558967/",
+        "license": "CC0 1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "license_note": "Curated from Freesound as CC0 1.0; verify page screenshot before public release.",
+        "downloaded_at": "2026-06-18",
+        "screenshot": "provenance/screenshots/campfire-loop-stereo.jpg",
+        "original_filename": "campfire-loop-stereo.wav",
+        "processed_filename": "campfire-loop-stereo.mp3",
+        "original_sha256": "ac533432f35aed4e4a1375c42f1dad505cfc4026d67ae38f37720ba1f56801b6",
+        "sha256": "b5f9bac0883ff14eedc8765322eff1d90e95ad2f6593db61ecd89395afeb9cd5",
+        "file_size_bytes": 204843,
+        "edits": "Trimmed/converted for Nocturne; embedded metadata stripped; loudness-normalized for alpha.7; SHA-256 is for bundled MP3.",
+        "notes": "Alternate fire default candidate.",
+        "source_type": "recorded_cc0",
+        "source_label": "Recorded CC0"
+      },
+      {
+        "id": "crickets-at-night-clean",
+        "name": "Night Crickets",
+        "category": "night",
+        "theme": "distant-storm",
+        "src": "/sounds/library/crickets-at-night-clean.mp3",
+        "description": "Priority default. Strong wide-audience night ambience.",
+        "source": "Freesound",
+        "source_title": "Crickets At Night - Clean sound",
+        "creator": "Defelozedd94",
+        "source_url": "https://freesound.org/people/Defelozedd94/sounds/522298/",
+        "license": "CC0 1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "license_note": "Curated from Freesound as CC0 1.0; verify page screenshot before public release.",
+        "downloaded_at": "2026-06-18",
+        "screenshot": "provenance/screenshots/crickets-at-night-clean.jpg",
+        "original_filename": "crickets-at-night-clean.wav",
+        "processed_filename": "crickets-at-night-clean.mp3",
+        "original_sha256": "d1fbaae90af7a23aa9ccedea87fec21a3b2bb81e290f17a4c4aaa1fae9fece64",
+        "sha256": "8a95afbe1bd13a07539b25429ac7b34176464a6210fee99b242c40d02aedbb55",
+        "file_size_bytes": 2705074,
+        "edits": "Trimmed/converted for Nocturne; embedded metadata stripped; loudness-normalized for alpha.7; SHA-256 is for bundled MP3.",
+        "notes": "Priority default. Strong wide-audience night ambience.",
+        "source_type": "recorded_cc0",
+        "source_label": "Recorded CC0"
+      },
+      {
+        "id": "bavaria-meadow-loop",
+        "name": "Bavaria Meadow",
+        "category": "night",
+        "theme": "garden-rain",
+        "src": "/sounds/library/bavaria-meadow-loop.mp3",
+        "description": "Lovely meadow/crickets/wind; review birds before defaulting.",
+        "source": "Freesound",
+        "source_title": "Bayerwald Wiesn - Bavaria Meadow",
+        "creator": "myLoop",
+        "source_url": "https://freesound.org/people/myLoop/sounds/857809/",
+        "license": "CC0 1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "license_note": "Curated from Freesound as CC0 1.0; verify page screenshot before public release.",
+        "downloaded_at": "2026-06-18",
+        "screenshot": "provenance/screenshots/bavaria-meadow-loop.jpg",
+        "original_filename": "bavaria-meadow-loop.wav",
+        "processed_filename": "bavaria-meadow-loop.mp3",
+        "original_sha256": "6c032e775a6764fff0b54ae8dcc9ee088aa8cc444da92f68445338fe8cb68d64",
+        "sha256": "49e5e3e6b27515caef2788fb249538e07202ce293677ad420615fa17b7518d4a",
+        "file_size_bytes": 508699,
+        "edits": "Trimmed/converted for Nocturne; embedded metadata stripped; loudness-normalized for alpha.7; SHA-256 is for bundled MP3.",
+        "notes": "Lovely meadow/crickets/wind; review birds before defaulting.",
+        "source_type": "recorded_cc0",
+        "source_label": "Recorded CC0"
+      },
+      {
+        "id": "waves-on-shore",
+        "name": "Gentle Waves",
+        "category": "water",
+        "theme": "garden-rain",
+        "src": "/sounds/library/waves-on-shore.mp3",
+        "description": "Priority default if loop is clean.",
+        "source": "Freesound",
+        "source_title": "WavesOnTheShore.wav",
+        "creator": "richardemoore",
+        "source_url": "https://freesound.org/people/richardemoore/sounds/260263/",
+        "license": "CC0 1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "license_note": "Curated from Freesound as CC0 1.0; verify page screenshot before public release.",
+        "downloaded_at": "2026-06-18",
+        "screenshot": "provenance/screenshots/waves-on-shore.jpg",
+        "original_filename": "waves-on-shore.wav",
+        "processed_filename": "waves-on-shore.mp3",
+        "original_sha256": "7d2cbde3420405cef078e7243c59521f0bfa9aa2d9445ea377e58d87ca8e64bb",
+        "sha256": "666948be7ab37174c764a556db3c4059627031d55359903b80dbd7e9a966d2a4",
+        "file_size_bytes": 721022,
+        "edits": "Trimmed/converted for Nocturne; embedded metadata stripped; loudness-normalized for alpha.7; SHA-256 is for bundled MP3.",
+        "notes": "Priority default if loop is clean.",
+        "source_type": "recorded_cc0",
+        "source_label": "Recorded CC0"
+      },
+      {
+        "id": "flowing-water",
+        "name": "Flowing Water",
+        "category": "water",
+        "theme": "garden-rain",
+        "src": "/sounds/library/flowing-water.mp3",
+        "description": "Synthetic but potentially pleasant stream/water wash.",
+        "source": "Freesound",
+        "source_title": "Flowing water",
+        "creator": "cabled_mess",
+        "source_url": "https://freesound.org/people/cabled_mess/sounds/332250/",
+        "license": "CC0 1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "license_note": "Curated from Freesound as CC0 1.0; verify page screenshot before public release.",
+        "downloaded_at": "2026-06-18",
+        "screenshot": "provenance/screenshots/flowing-water.jpg",
+        "original_filename": "flowing-water.wav",
+        "processed_filename": "flowing-water.mp3",
+        "original_sha256": "1fb2344c31b00688fcdaff7727c546f72b697067c7676e348923a5df1569923e",
+        "sha256": "949b02921ae9de813c4ae937c84040f85bbe6f768bc33674f6fbca9ee0f35067",
+        "file_size_bytes": 558436,
+        "edits": "Trimmed/converted for Nocturne; embedded metadata stripped; loudness-normalized for alpha.7; SHA-256 is for bundled MP3.",
+        "notes": "Synthetic but potentially pleasant stream/water wash.",
+        "source_type": "recorded_cc0",
+        "source_label": "Recorded CC0"
+      }
+    ]
+  };
+
+  let soundLibrary = DEFAULT_SOUND_LIBRARY;
+  let soundById = new Map();
+  const SLOT_COUNT = 8;
+  const CATEGORY_ALL = 'all';
+  const CATEGORY_RECORDED = '__recorded';
+  const CATEGORY_GENERATED = '__generated';
+  let pickerState = { slotIndex: 0, query: '', category: CATEGORY_ALL };
+  let pickerPreviewAudio = null;
+  let pickerPreviewId = '';
+
 
   /* ─────────────────────────────────────────────
      PERSISTENCE
@@ -4460,6 +5275,16 @@ body[data-mode="dashboard"] .topbar {
       if (raw === null) return fallback;
       const n = parseFloat(raw);
       return isNaN(n) ? fallback : n;
+    } catch (e) { return fallback; }
+  };
+  const saveText = (key, value) => {
+    try { localStorage.setItem(STORAGE_PREFIX + key, String(value)); }
+    catch (e) { /* private mode, ignore */ }
+  };
+  const loadText = (key, fallback = '') => {
+    try {
+      const raw = localStorage.getItem(STORAGE_PREFIX + key);
+      return raw === null ? fallback : raw;
     } catch (e) { return fallback; }
   };
   const clamp = (n) => Math.max(0, Math.min(100, Number(n) || 0));
@@ -4508,9 +5333,166 @@ body[data-mode="dashboard"] .topbar {
   /* ─────────────────────────────────────────────
      CHANNEL SETUP
      ───────────────────────────────────────────── */
-  function setChannelVolume(channel, percent) {
+  function slotKey(slotIndex, name) {
+    return `slot:${slotIndex + 1}:${name}`;
+  }
+
+  function normaliseSoundEntry(entry) {
+    const src = String(entry.src || entry.file || '').trim();
+    const id = String(entry.id || src.split('/').pop() || '').replace(/\.[^.]+$/, '').trim();
+    const inferredGenerated = !src.includes('/sounds/library/');
+    const sourceType = String(entry.source_type || (inferredGenerated ? 'generated' : 'recorded_cc0'));
+    const sourceLabel = String(entry.source_label || (sourceType === 'generated' ? 'Generated' : 'Recorded CC0'));
+    return {
+      id,
+      name: String(entry.name || entry.title || id || 'Untitled Sound'),
+      category: String(entry.category || 'ambient'),
+      source_type: sourceType,
+      source_label: sourceLabel,
+      theme: VISUAL_THEMES[entry.theme] ? entry.theme : 'mist-rain',
+      src,
+      description: String(entry.description || ''),
+      prompt: String(entry.prompt || ''),
+      license_note: String(entry.license_note || '')
+    };
+  }
+
+  function normaliseSoundLibrary(data) {
+    const merged = {
+      version: data && data.version ? data.version : 1,
+      default_slots: Array.isArray(data && data.default_slots) ? data.default_slots.slice(0, SLOT_COUNT) : DEFAULT_SOUND_LIBRARY.default_slots.slice(),
+      sounds: []
+    };
+    const seen = new Set();
+    const addEntry = (entry) => {
+      const sound = normaliseSoundEntry(entry);
+      if (!sound.id || seen.has(sound.id)) return;
+      seen.add(sound.id);
+      merged.sounds.push(sound);
+    };
+    (Array.isArray(data && data.sounds) ? data.sounds : []).forEach(addEntry);
+    DEFAULT_SOUND_LIBRARY.sounds.forEach(addEntry);
+    while (merged.default_slots.length < SLOT_COUNT) {
+      const fallback = DEFAULT_SOUND_LIBRARY.default_slots[merged.default_slots.length] || 'pink-noise';
+      merged.default_slots.push(fallback);
+    }
+    return merged;
+  }
+
+  function rebuildSoundIndex() {
+    soundById = new Map();
+    soundLibrary.sounds.forEach(sound => soundById.set(sound.id, sound));
+  }
+
+  function getSoundById(id) {
+    return soundById.get(id) || soundById.get('pink-noise') || soundLibrary.sounds[0] || normaliseSoundEntry({ id: 'empty', name: 'Empty Slot', src: '' });
+  }
+
+  async function loadSoundLibraryManifest() {
+    rebuildSoundIndex();
+    try {
+      const res = await fetch('/sounds/sound_library.json', { cache: 'no-store' });
+      if (!res.ok) return;
+      const data = await res.json();
+      soundLibrary = normaliseSoundLibrary(data);
+      rebuildSoundIndex();
+      refreshMixerSlots();
+    } catch (e) {
+      console.warn('Nocturne mixer: using built-in sound library fallback', e);
+    }
+  }
+
+  function defaultSlotSoundId(slotIndex) {
+    return soundLibrary.default_slots[slotIndex] || DEFAULT_SOUND_LIBRARY.default_slots[slotIndex] || 'pink-noise';
+  }
+
+  function selectedSlotSoundId(slotIndex) {
+    return loadText(slotKey(slotIndex, 'sound'), defaultSlotSoundId(slotIndex));
+  }
+
+  function applyVisualTheme(channel, themeId) {
+    const theme = VISUAL_THEMES[themeId] || VISUAL_THEMES['mist-rain'];
+    const el = channel.el;
+    THEME_CLASS_NAMES.forEach(cls => el.classList.remove(cls));
+    el.classList.add(theme.panel);
+    el.style.setProperty('--glow-color', theme.glow);
+    el.dataset.visualTheme = themeId;
+    const stage = el.querySelector('.stage');
+    if (stage) {
+      const idx = String(channel.slotIndex + 1).padStart(2, '0');
+      stage.innerHTML = theme.layers.map(spec => {
+        const [cls, depth] = spec.split(':');
+        return `<div class="layer ${cls}" data-depth="${depth || 8}"></div>`;
+      }).join('') + `<span class="panel-index">${idx}</span>`;
+    }
+  }
+
+  function effectiveThemeForSlot(channel) {
+    const override = loadText(slotKey(channel.slotIndex, 'theme'), 'auto');
+    return VISUAL_THEMES[override] ? override : (channel.config.theme || 'mist-rain');
+  }
+
+  function tearDownChannelAudio(channel) {
+    if (!channel) return;
+    try { if (channel.source) channel.source.disconnect(); } catch (e) {}
+    try { if (channel.gain) channel.gain.disconnect(); } catch (e) {}
+    if (channel.audio) {
+      try { channel.audio.pause(); } catch (e) {}
+      channel.audio.removeAttribute('src');
+      try { channel.audio.load(); } catch (e) {}
+    }
+    channel.audio = null;
+    channel.source = null;
+    channel.gain = null;
+  }
+
+  function markChannelUnavailable(channel, reason = 'audio file unavailable') {
+    if (!channel || channel.unavailable) return;
+    channel.unavailable = true;
+    channel.el.classList.add('unavailable');
+    channel.el.title = `${channel.config.name}: ${reason}`;
+    channel.slider.disabled = true;
+    channel.slider.setAttribute('aria-disabled', 'true');
+    if (channel.categoryEl) channel.categoryEl.textContent = 'unavailable';
+    if (channel.audio) {
+      channel.audio.pause();
+      channel.audio.removeAttribute('src');
+      channel.audio.load();
+    }
+    setChannelVolume(channel, 0, { persist: false });
+  }
+
+  function checkChannelAvailability(channel) {
+    if (!channel || !channel.config.src || !channel.audio) return;
+    channel.audio.addEventListener('error', () => {
+      markChannelUnavailable(channel, 'audio file missing or unreadable');
+    }, { once: true });
+
+    if (!window.fetch) return;
+    fetch(channel.config.src, { method: 'HEAD', cache: 'no-store' })
+      .then((response) => {
+        if (!response.ok) {
+          markChannelUnavailable(channel, `missing file (${response.status})`);
+        }
+      })
+      .catch(() => {
+        /* Some browsers/servers dislike HEAD; the audio error listener remains the fallback. */
+      });
+  }
+
+  function setChannelVolume(channel, percent, options = {}) {
+    const { persist = true } = options;
     percent = clamp(percent);
     const value = percent / 100;
+
+    if (channel.unavailable) {
+      channel.el.style.setProperty('--vol', '0.000');
+      channel.el.classList.remove('active');
+      channel.valueEl.textContent = 'missing';
+      channel.slider.value = 0;
+      channel.slider.style.setProperty('--pct', '0%');
+      return;
+    }
 
     /* Visual updates always happen */
     channel.el.style.setProperty('--vol', value.toFixed(3));
@@ -4526,64 +5508,312 @@ body[data-mode="dashboard"] .topbar {
       if (channel.gain && ctx) {
         channel.gain.gain.setTargetAtTime(value, ctx.currentTime, 0.05);
       }
-      if (percent > 0 && channel.audio.paused) {
+      if (percent > 0 && channel.audio && channel.audio.paused) {
         channel.audio.play().catch(() => { /* awaiting gesture */ });
       }
     }
 
-    saveVol(`vol:${channel.config.id}`, percent);
+    if (persist) {
+      saveVol(slotKey(channel.slotIndex, 'volume'), percent);
+      /* Keep the old per-sound key as a friendly migration path for existing users. */
+      saveVol(`vol:${channel.config.id}`, percent);
+    }
   }
 
-  function buildChannel(config) {
-    /* Find the existing markup for this channel by data-sound-id */
-    const el = document.querySelector(`.channel[data-sound-id="${config.id}"]`);
+  function ensureSlotControls(channel) {
+    if (channel.actionRow) return;
+    const infoRow = channel.el.querySelector('.info-row');
+    const actionRow = document.createElement('div');
+    actionRow.className = 'slot-actions';
+
+    const change = document.createElement('button');
+    change.className = 'slot-change';
+    change.type = 'button';
+    change.textContent = 'Change';
+    change.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openSoundPicker(channel.slotIndex);
+    });
+
+    const select = document.createElement('select');
+    select.className = 'slot-theme';
+    select.setAttribute('aria-label', `Visual theme for slot ${channel.slotIndex + 1}`);
+    const auto = document.createElement('option');
+    auto.value = 'auto';
+    auto.textContent = 'Auto look';
+    select.appendChild(auto);
+    Object.entries(VISUAL_THEMES).forEach(([id, theme]) => {
+      const opt = document.createElement('option');
+      opt.value = id;
+      opt.textContent = theme.label;
+      select.appendChild(opt);
+    });
+    select.addEventListener('change', (e) => {
+      e.stopPropagation();
+      const next = select.value;
+      saveText(slotKey(channel.slotIndex, 'theme'), next);
+      applyVisualTheme(channel, next === 'auto' ? (channel.config.theme || 'mist-rain') : next);
+      select.value = next;
+    });
+
+    actionRow.appendChild(change);
+    actionRow.appendChild(select);
+    if (infoRow) infoRow.insertAdjacentElement('afterend', actionRow);
+    channel.actionRow = actionRow;
+    channel.changeButton = change;
+    channel.themeSelect = select;
+  }
+
+  function updateSlotSound(channel, sound, options = {}) {
+    const { persist = true, restoreSavedVolume = false } = options;
+    const previousPercent = restoreSavedVolume
+      ? clamp(loadVol(slotKey(channel.slotIndex, 'volume'), loadVol(`vol:${sound.id}`, 0)))
+      : clamp(parseInt(channel.slider.value, 10));
+
+    tearDownChannelAudio(channel);
+    channel.config = sound;
+    channel.unavailable = false;
+    channel.el.classList.remove('unavailable');
+    channel.el.title = '';
+    channel.el.dataset.soundId = sound.id;
+    channel.el.dataset.category = sound.category;
+    channel.slider.disabled = false;
+    channel.slider.removeAttribute('aria-disabled');
+
+    const nameEl = channel.el.querySelector('.info-row .name');
+    const categoryEl = channel.el.querySelector('.meta-row .category');
+    if (nameEl) nameEl.textContent = sound.name;
+    if (categoryEl) categoryEl.textContent = sound.category;
+    channel.categoryEl = categoryEl;
+    channel.slider.setAttribute('aria-label', `${sound.name} volume`);
+
+    if (sound.src) {
+      channel.audio = new Audio(sound.src);
+      channel.audio.loop = true;
+      channel.audio.preload = 'auto';
+      channel.audio.crossOrigin = 'anonymous';
+    }
+
+    applyVisualTheme(channel, effectiveThemeForSlot(channel));
+    if (channel.themeSelect) {
+      const override = loadText(slotKey(channel.slotIndex, 'theme'), 'auto');
+      channel.themeSelect.value = VISUAL_THEMES[override] ? override : 'auto';
+    }
+    setChannelVolume(channel, previousPercent, { persist: false });
+    checkChannelAvailability(channel);
+    if (persist) saveText(slotKey(channel.slotIndex, 'sound'), sound.id);
+  }
+
+  function buildChannel(slotIndex, sound) {
+    const el = document.querySelectorAll('#mixer-grid .channel')[slotIndex];
     if (!el) {
-      console.warn("No mixer card found for channel", config.id);
+      console.warn('No mixer card found for slot', slotIndex + 1);
       return null;
     }
-    /* Sync visible card labels from CHANNELS so the markup and audio map stay together. */
-    const nameEl = el.querySelector('.info-row .name');
-    const categoryEl = el.querySelector('.meta-row .category');
-    if (nameEl) nameEl.textContent = config.name;
-    if (categoryEl) categoryEl.textContent = config.category;
-    el.dataset.category = config.category;
     const slider   = el.querySelector('input[type="range"]');
     const valueEl  = el.querySelector('.value');
-    if (slider) slider.setAttribute('aria-label', `${config.name} volume`);
-    const audio    = config.src ? new Audio(config.src) : null;
-    if (audio) {
-      audio.loop = true;
-      audio.preload = 'auto';
-      audio.crossOrigin = 'anonymous';
-    }
+    const channel = {
+      slotIndex, config: sound, el, slider, valueEl,
+      categoryEl: el.querySelector('.meta-row .category'),
+      audio: null, source: null, gain: null, unavailable: false,
+      actionRow: null, changeButton: null, themeSelect: null
+    };
+    ensureSlotControls(channel);
+    const savedSound = getSoundById(selectedSlotSoundId(slotIndex));
+    updateSlotSound(channel, savedSound, { persist: false, restoreSavedVolume: true });
 
-    const channel = { config, el, slider, valueEl, audio, source: null, gain: null };
-
-    /* Restore saved volume */
-    const saved = clamp(loadVol(`vol:${config.id}`, 0));
-    slider.value = saved;
-    el.style.setProperty('--vol', (saved / 100).toFixed(3));
-    el.classList.toggle('active', saved > 0);
-    valueEl.textContent = `${Math.round(saved)}%`;
-    slider.style.setProperty('--pct', `${saved}%`);
-
-    /* Slider input → set volume */
     slider.addEventListener('input', () => {
       setChannelVolume(channel, parseInt(slider.value, 10));
     });
 
-    /* Card tap (outside the slider) wakes the channel softly */
+    /* Card tap (outside the slider/buttons) wakes the channel softly */
     el.addEventListener('click', (e) => {
-      if (e.target.closest('input')) return;
+      if (e.target.closest('input, button, select') || channel.unavailable) return;
       const current = clamp(parseInt(slider.value, 10));
-      if (current === 0) {
-        setChannelVolume(channel, 35);
-      }
+      if (current === 0) setChannelVolume(channel, 35);
     });
 
-    channelMap.set(config.id, channel);
+    channelMap.set(slotIndex, channel);
     return channel;
   }
+
+  function buildMixerSlots() {
+    for (let i = 0; i < SLOT_COUNT; i += 1) {
+      buildChannel(i, getSoundById(selectedSlotSoundId(i)));
+    }
+  }
+
+  function refreshMixerSlots() {
+    for (let i = 0; i < SLOT_COUNT; i += 1) {
+      const channel = channelMap.get(i);
+      if (!channel) continue;
+      updateSlotSound(channel, getSoundById(selectedSlotSoundId(i)), { persist: false, restoreSavedVolume: true });
+    }
+  }
+
+  function restoreCoreSlots() {
+    for (let i = 0; i < SLOT_COUNT; i += 1) {
+      const sound = getSoundById(defaultSlotSoundId(i));
+      saveText(slotKey(i, 'sound'), sound.id);
+      saveText(slotKey(i, 'theme'), 'auto');
+      const channel = channelMap.get(i);
+      if (channel) updateSlotSound(channel, sound, { persist: false, restoreSavedVolume: true });
+    }
+  }
+
+  function sourceTypeLabel(sound) {
+    return sound.source_label || (sound.source_type === 'generated' ? 'Generated' : 'Recorded CC0');
+  }
+
+  function filterChipLabel(category) {
+    if (category === CATEGORY_ALL) return 'all';
+    if (category === CATEGORY_RECORDED) return 'recorded';
+    if (category === CATEGORY_GENERATED) return 'generated';
+    return category;
+  }
+
+  function stopSoundPreview({ rerender = false } = {}) {
+    if (pickerPreviewAudio) {
+      try { pickerPreviewAudio.pause(); pickerPreviewAudio.currentTime = 0; }
+      catch (e) { /* ignore */ }
+    }
+    pickerPreviewAudio = null;
+    pickerPreviewId = '';
+    if (rerender) renderSoundPicker();
+  }
+
+  function previewSound(sound) {
+    if (!sound || !sound.src) return;
+    if (pickerPreviewId === sound.id && pickerPreviewAudio && !pickerPreviewAudio.paused) {
+      stopSoundPreview({ rerender: true });
+      return;
+    }
+    stopSoundPreview();
+    pickerPreviewId = sound.id;
+    pickerPreviewAudio = new Audio(sound.src);
+    pickerPreviewAudio.volume = 0.72;
+    pickerPreviewAudio.addEventListener('ended', () => stopSoundPreview({ rerender: true }), { once: true });
+    pickerPreviewAudio.addEventListener('error', () => stopSoundPreview({ rerender: true }), { once: true });
+    pickerPreviewAudio.play().catch(() => stopSoundPreview({ rerender: true }));
+    renderSoundPicker();
+  }
+
+  function soundCategories() {
+    const cats = Array.from(new Set(soundLibrary.sounds.map(s => s.category).filter(Boolean)));
+    return [CATEGORY_ALL, CATEGORY_RECORDED, CATEGORY_GENERATED].concat(cats.sort((a, b) => a.localeCompare(b)));
+  }
+
+  function renderSoundPickerCategories() {
+    const wrap = document.getElementById('sound-picker-categories');
+    if (!wrap) return;
+    wrap.innerHTML = '';
+    soundCategories().forEach(category => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'sound-chip' + (pickerState.category === category ? ' active' : '');
+      btn.textContent = filterChipLabel(category);
+      btn.addEventListener('click', () => {
+        pickerState.category = category;
+        renderSoundPicker();
+      });
+      wrap.appendChild(btn);
+    });
+  }
+
+  function renderSoundPicker() {
+    renderSoundPickerCategories();
+    const list = document.getElementById('sound-picker-list');
+    if (!list) return;
+    const channel = channelMap.get(pickerState.slotIndex);
+    const currentId = channel && channel.config ? channel.config.id : '';
+    const q = pickerState.query.trim().toLowerCase();
+    const sounds = soundLibrary.sounds.filter(sound => {
+      if (pickerState.category === CATEGORY_RECORDED && sound.source_type !== 'recorded_cc0') return false;
+      if (pickerState.category === CATEGORY_GENERATED && sound.source_type !== 'generated') return false;
+      if (![CATEGORY_ALL, CATEGORY_RECORDED, CATEGORY_GENERATED].includes(pickerState.category) && sound.category !== pickerState.category) return false;
+      if (!q) return true;
+      const hay = `${sound.name} ${sound.category} ${sound.source_label} ${sound.id} ${sound.description} ${sound.prompt}`.toLowerCase();
+      return hay.includes(q);
+    });
+    list.innerHTML = '';
+    if (!sounds.length) {
+      const empty = document.createElement('p');
+      empty.className = 'sound-option-meta';
+      empty.textContent = 'No matching sounds yet.';
+      list.appendChild(empty);
+      return;
+    }
+    sounds.forEach(sound => {
+      const item = document.createElement('article');
+      item.className = 'sound-option' + (sound.id === currentId ? ' selected' : '');
+      item.setAttribute('role', 'listitem');
+      item.innerHTML =
+        `<div class="sound-option-copy">` +
+          `<span class="sound-option-name">${escapeHtml(sound.name)}</span>` +
+          `<span class="sound-option-meta">${escapeHtml(sourceTypeLabel(sound))} · ${escapeHtml(sound.category)} · ${escapeHtml((VISUAL_THEMES[sound.theme] || VISUAL_THEMES['mist-rain']).label)}</span>` +
+          `<span class="sound-option-path">${escapeHtml(sound.src || 'no file assigned')}</span>` +
+        `</div>` +
+        `<div class="sound-option-actions">` +
+          `<button type="button" class="sound-option-preview${pickerPreviewId === sound.id ? ' playing' : ''}">${pickerPreviewId === sound.id ? 'stop' : 'preview'}</button>` +
+          `<button type="button" class="sound-option-select">use</button>` +
+        `</div>`;
+      item.querySelector('.sound-option-preview')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        previewSound(sound);
+      });
+      item.querySelector('.sound-option-select')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        stopSoundPreview();
+        const channel = channelMap.get(pickerState.slotIndex);
+        if (channel) updateSlotSound(channel, sound, { persist: true });
+        closeSoundPicker();
+      });
+      list.appendChild(item);
+    });
+  }
+
+  function openSoundPicker(slotIndex) {
+    pickerState = { slotIndex, query: '', category: CATEGORY_ALL };
+    const picker = document.getElementById('sound-picker');
+    const slot = document.getElementById('sound-picker-slot');
+    const current = document.getElementById('sound-picker-current');
+    const search = document.getElementById('sound-picker-search');
+    const channel = channelMap.get(slotIndex);
+    if (slot) slot.textContent = `slot ${String(slotIndex + 1).padStart(2, '0')}`;
+    if (current && channel && channel.config) {
+      current.textContent = `Current: ${channel.config.name}. Changing sound keeps this slot's volume.`;
+    }
+    if (search) search.value = '';
+    renderSoundPicker();
+    if (picker) {
+      picker.hidden = false;
+      picker.setAttribute('aria-hidden', 'false');
+    }
+    if (search) setTimeout(() => search.focus(), 0);
+  }
+
+  function closeSoundPicker() {
+    stopSoundPreview();
+    const picker = document.getElementById('sound-picker');
+    if (!picker) return;
+    picker.hidden = true;
+    picker.setAttribute('aria-hidden', 'true');
+  }
+
+  function wireSoundPickerControls() {
+    document.querySelectorAll('[data-close-picker]').forEach(el => el.addEventListener('click', closeSoundPicker));
+    const search = document.getElementById('sound-picker-search');
+    if (search) search.addEventListener('input', () => {
+      pickerState.query = search.value;
+      renderSoundPicker();
+    });
+    const reset = document.getElementById('reset-mixer-slots');
+    if (reset) reset.addEventListener('click', restoreCoreSlots);
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeSoundPicker();
+    });
+  }
+
 
   /* ─────────────────────────────────────────────
      MASTER VOLUME
@@ -4863,7 +6093,7 @@ body[data-mode="dashboard"] .topbar {
   const VALID_MODES = ['onsen', 'sky', 'radio', 'utility', 'dashboard'];
   const MODE_KEY = 'mode';
   const DEFAULT_APP_SETTINGS = {
-    modes: { onsen: true, sky: true, radio: true, utility: false, dashboard: true },
+    modes: { onsen: true, sky: true, radio: true, utility: false, dashboard: false },
     location: {
       label: 'Chicago',
       latitude: 41.8781,
@@ -4873,6 +6103,14 @@ body[data-mode="dashboard"] .topbar {
     }
   };
   let appSettings = mergeSettings(DEFAULT_APP_SETTINGS);
+  let buildInfo = {
+    version: '0.1.0-alpha.8-candidate',
+    channel: 'alpha',
+    build_date_utc: '2026-06-09',
+    commit: 'unknown',
+    commit_date_utc: '2026-06-09',
+    feedback_label: 'v0.1.0-alpha.8-candidate · 2026-06-09 · unknown'
+  };
 
   function mergeSettings(raw) {
     const next = {
@@ -4915,6 +6153,39 @@ body[data-mode="dashboard"] .topbar {
     if (!el) return;
     el.textContent = message;
     el.className = 'settings-status' + (cls ? ' ' + cls : '');
+  }
+
+  function buildFeedbackLabel(info = buildInfo) {
+    if (info && info.feedback_label) return info.feedback_label;
+    const version = (info && info.version) || '0.1.0-alpha.8-candidate';
+    const commit = (info && info.commit) || 'unknown';
+    const day = ((info && (info.commit_date_utc || info.build_date_utc)) || '2026-06-09').slice(0, 10);
+    return `v${version} · ${day} · ${commit}`;
+  }
+
+  function applyBuildInfo(info = buildInfo) {
+    const label = buildFeedbackLabel(info);
+    const footerLabel = document.getElementById('build-label-footer');
+    const footerDate = document.getElementById('build-date-footer');
+    const settingsLabel = document.getElementById('settings-build-label');
+    const settingsDetails = document.getElementById('settings-build-details');
+    if (footerLabel) footerLabel.textContent = `Nocturne · ${label}`;
+    if (footerDate) footerDate.textContent = `Build ${((info && info.build_date_utc) || '').slice(0, 10) || '2026-06-09'}`;
+    if (settingsLabel) settingsLabel.textContent = label;
+    if (settingsDetails) settingsDetails.textContent = `Channel: ${(info && info.channel) || 'alpha'} · Commit date: ${((info && info.commit_date_utc) || '').slice(0, 10) || 'unknown'} · API: /api/version`;
+  }
+
+  async function loadBuildInfo() {
+    try {
+      const res = await fetch('/api/version', { cache: 'no-store' });
+      if (!res.ok) throw new Error('version unavailable');
+      const data = await res.json();
+      buildInfo = { ...buildInfo, ...data };
+    } catch (e) {
+      console.warn('Nocturne build info: using packaged defaults', e);
+    }
+    applyBuildInfo(buildInfo);
+    return buildInfo;
   }
 
   function applySettingsToUI() {
@@ -5231,7 +6502,7 @@ body[data-mode="dashboard"] .topbar {
     if (dashboardFrame) {
       if (mode === 'dashboard') {
         if (!dashboardFrame.dataset.loaded) {
-          dashboardFrame.src = dashboardFrame.dataset.src || '/Dashboard_v4.html';
+          dashboardFrame.src = dashboardFrame.dataset.src || '/dashboard.html';
           dashboardFrame.dataset.loaded = 'true';
         }
       } else if (dashboardFrame.dataset.loaded) {
@@ -5395,7 +6666,7 @@ body[data-mode="dashboard"] .topbar {
 
   /* ─────────────────────────────────────────────
      RADIO
-     A single audio element wired through filter→gain→analyser→masterGain,
+     A single audio element wired through warmth→dry/space→gain→analyser→masterGain,
      so the master volume still trims it. Sleep-friendly behavior:
        - auto-advances on track end
        - shuffle on by default
@@ -5410,10 +6681,15 @@ body[data-mode="dashboard"] .topbar {
     audio: null,
     source: null,
     filter: null,
+    dryGain: null,
+    convolver: null,
+    reverbGain: null,
     gain: null,
     analyser: null,
     volume: 0.6,
     warmth: 0,
+    drift: 0,
+    reverb: 0,
     shuffle: true,
     history: [],
     meterRaf: null,
@@ -5485,20 +6761,88 @@ body[data-mode="dashboard"] .topbar {
       radioState.filter.type = 'lowpass';
       radioState.filter.frequency.value = 22050;  /* off by default */
       radioState.filter.Q.value = 0.7;
+      radioState.dryGain = ctx.createGain();
+      radioState.dryGain.gain.value = 1;
+      radioState.convolver = ctx.createConvolver();
+      radioState.convolver.buffer = createRadioReverbImpulse(ctx);
+      radioState.reverbGain = ctx.createGain();
+      radioState.reverbGain.gain.value = 0;
       radioState.gain     = ctx.createGain();
       radioState.gain.gain.value = radioState.volume;
       radioState.analyser = ctx.createAnalyser();
       radioState.analyser.fftSize = 256;
 
       radioState.source.connect(radioState.filter);
-      radioState.filter.connect(radioState.gain);
+      radioState.filter.connect(radioState.dryGain);
+      radioState.filter.connect(radioState.convolver);
+      radioState.dryGain.connect(radioState.gain);
+      radioState.convolver.connect(radioState.reverbGain);
+      radioState.reverbGain.connect(radioState.gain);
       radioState.gain.connect(radioState.analyser);
       radioState.analyser.connect(masterGain);
+
+      applyRadioPlaybackRate();
+      setRadioReverb(radioState.reverb * 100, false);
+      setRadioWarmth(radioState.warmth * 100, false);
       return true;
     } catch (e) {
       console.warn('Nocturne radio: could not build audio graph', e);
       return false;
     }
+  }
+
+  function seededRadioNoise() {
+    /* Deterministic tiny PRNG keeps the generated room impulse stable between reloads. */
+    let seed = 0x4e6f6374; // "Noct"
+    return () => {
+      seed = (seed * 1664525 + 1013904223) >>> 0;
+      return seed / 4294967296;
+    };
+  }
+
+  function createRadioReverbImpulse(audioCtx) {
+    /* A short synthetic room/plate impulse: no external asset, no extra network
+       request, and neutral when the Space slider is at 0%. */
+    const sampleRate = audioCtx.sampleRate || 44100;
+    const duration = 1.65;
+    const length = Math.max(1, Math.floor(sampleRate * duration));
+    const impulse = audioCtx.createBuffer(2, length, sampleRate);
+    const rand = seededRadioNoise();
+
+    for (let ch = 0; ch < impulse.numberOfChannels; ch++) {
+      const data = impulse.getChannelData(ch);
+      for (let i = 0; i < length; i++) {
+        const t = i / length;
+        const decay = Math.pow(1 - t, 2.8);
+        const early = i < sampleRate * 0.035 ? 0.55 : 1;
+        data[i] = (rand() * 2 - 1) * decay * early * 0.45;
+      }
+    }
+    return impulse;
+  }
+
+  function setRadioPreservesPitch(audio, shouldPreserve) {
+    /* Most browsers pitch-correct playbackRate by default. For the classic
+       slowed-down remix sound, explicitly ask the browser NOT to preserve pitch. */
+    ['preservesPitch', 'mozPreservesPitch', 'webkitPreservesPitch'].forEach(prop => {
+      if (prop in audio) {
+        try { audio[prop] = shouldPreserve; }
+        catch (e) { /* Some browser implementations expose read-only variants. */ }
+      }
+    });
+  }
+
+  function radioPlaybackRateFromDrift() {
+    /* 0% = original speed; 100% = a mellow 0.75x. Any slower gets gummy fast. */
+    return 1 - radioState.drift * 0.25;
+  }
+
+  function applyRadioPlaybackRate() {
+    if (!radioState.audio) return;
+    const rate = radioPlaybackRateFromDrift();
+    setRadioPreservesPitch(radioState.audio, false);
+    try { radioState.audio.playbackRate = rate; }
+    catch (e) { console.warn('Nocturne radio: could not set playback rate', e); }
   }
 
   function setRadioVolume(percent, persist) {
@@ -5537,6 +6881,41 @@ body[data-mode="dashboard"] .topbar {
     if (persist !== false) saveVol('radio:warmth', percent);
   }
 
+  function setRadioDrift(percent, persist) {
+    percent = clamp(percent);
+    radioState.drift = percent / 100;
+    applyRadioPlaybackRate();
+    const slider = document.getElementById('deck-drift');
+    const valEl  = document.getElementById('deck-drift-value');
+    if (slider) {
+      slider.value = percent;
+      slider.style.setProperty('--pct', percent + '%');
+    }
+    if (valEl) valEl.textContent = radioPlaybackRateFromDrift().toFixed(2) + '×';
+    if (persist !== false) saveVol('radio:drift', percent);
+  }
+
+  function setRadioReverb(percent, persist) {
+    percent = clamp(percent);
+    radioState.reverb = percent / 100;
+    if (radioState.reverbGain && radioState.dryGain && ctx) {
+      /* Tasteful by design: Space adds a small room around the deck instead of
+         washing the track into a cathedral. */
+      const wet = radioState.reverb * 0.42;
+      const dry = 1 - radioState.reverb * 0.12;
+      radioState.reverbGain.gain.setTargetAtTime(wet, ctx.currentTime, 0.08);
+      radioState.dryGain.gain.setTargetAtTime(dry, ctx.currentTime, 0.08);
+    }
+    const slider = document.getElementById('deck-reverb');
+    const valEl  = document.getElementById('deck-reverb-value');
+    if (slider) {
+      slider.value = percent;
+      slider.style.setProperty('--pct', percent + '%');
+    }
+    if (valEl) valEl.textContent = Math.round(percent) + '%';
+    if (persist !== false) saveVol('radio:reverb', percent);
+  }
+
   function updateDeckDisplay() {
     const title = document.getElementById('deck-title');
     const meta  = document.getElementById('deck-meta');
@@ -5570,6 +6949,7 @@ body[data-mode="dashboard"] .topbar {
     radioState.current = index;
     const track = radioState.tracks[index];
     radioState.audio.src = track.url;
+    applyRadioPlaybackRate();
     const p = radioState.audio.play();
     if (p && typeof p.catch === 'function') {
       p.catch(e => console.warn('Nocturne radio: play() failed', e));
@@ -5614,6 +6994,7 @@ body[data-mode="dashboard"] .topbar {
     }
     if (radioState.audio.paused) {
       ensureContext();
+      applyRadioPlaybackRate();
       const p = radioState.audio.play();
       if (p && typeof p.catch === 'function') p.catch(() => {});
       startMeter();
@@ -5694,6 +7075,8 @@ body[data-mode="dashboard"] .topbar {
   const _shufBtn  = document.getElementById('deck-shuffle');
   const _volEl    = document.getElementById('deck-volume');
   const _warmEl   = document.getElementById('deck-warmth');
+  const _driftEl  = document.getElementById('deck-drift');
+  const _reverbEl = document.getElementById('deck-reverb');
   if (_playBtn) _playBtn.addEventListener('click', togglePlayPause);
   if (_nextBtn) _nextBtn.addEventListener('click', nextTrack);
   if (_prevBtn) _prevBtn.addEventListener('click', prevTrack);
@@ -5702,8 +7085,10 @@ body[data-mode="dashboard"] .topbar {
     _shufBtn.setAttribute('aria-pressed', String(radioState.shuffle));
     updateDeckDisplay();
   });
-  if (_volEl)  _volEl.addEventListener('input', e => setRadioVolume(parseInt(e.target.value, 10)));
-  if (_warmEl) _warmEl.addEventListener('input', e => setRadioWarmth(parseInt(e.target.value, 10)));
+  if (_volEl)    _volEl.addEventListener('input', e => setRadioVolume(parseInt(e.target.value, 10)));
+  if (_warmEl)   _warmEl.addEventListener('input', e => setRadioWarmth(parseInt(e.target.value, 10)));
+  if (_driftEl)  _driftEl.addEventListener('input', e => setRadioDrift(parseInt(e.target.value, 10)));
+  if (_reverbEl) _reverbEl.addEventListener('input', e => setRadioReverb(parseInt(e.target.value, 10)));
 
 
 
@@ -6062,10 +7447,14 @@ arrange(
     wireSettingsControls();
     wireUtilityControls();
     applySettingsToUI();
+    applyBuildInfo(buildInfo);
+    loadBuildInfo();
 
     /* Restore radio levels from storage */
     setRadioVolume(loadVol('radio:volume', 60), false);
     setRadioWarmth(loadVol('radio:warmth', 0),  false);
+    setRadioDrift(loadVol('radio:drift', 0),    false);
+    setRadioReverb(loadVol('radio:reverb', 0),  false);
 
     /* Restore mode (drives initial layout & calls refreshSky/ensureRadioLoaded).
        Settings are server-persisted, so we also refresh after they arrive. */
@@ -6097,10 +7486,11 @@ arrange(
     const savedMaster = clamp(loadVol('master', 70));
     setMaster(savedMaster, false);
 
-    /* Build channels */
-    for (const cfg of CHANNELS) {
-      buildChannel(cfg);
-    }
+    /* Build assignable mixer slots */
+    rebuildSoundIndex();
+    buildMixerSlots();
+    wireSoundPickerControls();
+    loadSoundLibraryManifest();
 
     /* Tilt */
     document.querySelectorAll('.channel[data-tilt]').forEach(el => attachTilt(el, { maxTilt: 4.5 }));

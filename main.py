@@ -44,14 +44,29 @@ from typing import Any
 import httpx
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.staticfiles import StaticFiles
+from starlette.responses import PlainTextResponse
 
 ROOT = Path(__file__).parent
+BUILD_INFO_PATH = ROOT / "nocturne_build.json"
 STATIC_DIR = ROOT / "static"
 SOUNDS_DIR = ROOT / "sounds"
 RADIO_DIR = SOUNDS_DIR / "radio"
 SONGS_DIR = ROOT / "songs"
 CONFIG_DIR = ROOT / "config"
 SETTINGS_PATH = CONFIG_DIR / "nocturne.json"
+
+
+class NocturneSoundsStaticFiles(StaticFiles):
+    """Static sound serving that hides curation intake from /sounds/*.
+
+    The public app should serve generated/library/radio audio, not raw
+    Freesound intake files staged in sounds/inbox/.
+    """
+
+    async def get_response(self, path: str, scope):  # type: ignore[override]
+        if Path(path).parts[:1] == ("inbox",):
+            return PlainTextResponse("Not found", status_code=404)
+        return await super().get_response(path, scope)
 
 AUDIO_EXTS = {".mp3", ".ogg", ".m4a", ".wav", ".opus", ".webm", ".flac"}
 
@@ -74,7 +89,7 @@ DEFAULT_SETTINGS: dict[str, Any] = {
         "sky": True,
         "radio": True,
         "utility": False,
-        "dashboard": True,
+        "dashboard": False,
     },
     "location": {
         "label": LOCATION_NAME,
@@ -205,12 +220,69 @@ def _require_utility_enabled() -> None:
 app = FastAPI(title="Nocturne")
 
 
+DEFAULT_BUILD_INFO: dict[str, str] = {
+    "version": "unknown",
+    "channel": "alpha",
+    "build_date_utc": "2026-06-09",
+    "commit": "unknown",
+    "commit_date_utc": "2026-06-09",
+    "feedback_label": "unknown build · unknown date · unknown commit",
+}
+
+
+def _load_build_info() -> dict[str, str]:
+    """Build identity for alpha feedback and tester bug reports."""
+    data: dict[str, Any] = {}
+    if BUILD_INFO_PATH.exists():
+        try:
+            loaded = json.loads(BUILD_INFO_PATH.read_text(encoding="utf-8"))
+            if isinstance(loaded, dict):
+                data = loaded
+        except Exception:
+            # Build metadata is helpful, not critical. Fall back quietly.
+            data = {}
+
+    info = {**DEFAULT_BUILD_INFO, **{k: str(v) for k, v in data.items() if isinstance(v, (str, int, float))}}
+    if os.getenv("NOCTURNE_VERSION"):
+        info["version"] = os.environ["NOCTURNE_VERSION"]
+    if os.getenv("NOCTURNE_COMMIT"):
+        info["commit"] = os.environ["NOCTURNE_COMMIT"]
+    if os.getenv("NOCTURNE_BUILD_DATE"):
+        info["build_date_utc"] = os.environ["NOCTURNE_BUILD_DATE"]
+    if os.getenv("NOCTURNE_COMMIT_DATE"):
+        info["commit_date_utc"] = os.environ["NOCTURNE_COMMIT_DATE"]
+
+    commit_day = info.get("commit_date_utc", "")[:10] or info.get("build_date_utc", "")[:10]
+    info["feedback_label"] = info.get("feedback_label") or f"v{info['version']} · {commit_day} · {info['commit']}"
+    return {k: str(v) for k, v in info.items()}
+
+
+def _local_ready_url() -> str:
+    host = os.getenv("NOCTURNE_HOST", "127.0.0.1")
+    port = os.getenv("NOCTURNE_PORT", "8000")
+    open_host = "127.0.0.1" if host in {"0.0.0.0", "::"} else host
+    return f"http://{open_host}:{port}/"
+
+
+@app.on_event("startup")
+def print_ready_message() -> None:
+    # Uvicorn already prints bind details; this adds a friendlier copy/paste line
+    # for non-technical alpha testers and Windows launcher users.
+    print(f"Nocturne is ready at {_local_ready_url()}", flush=True)
+
+
 # --------------------------------------------------------------------------- #
 #  Health & config
 # --------------------------------------------------------------------------- #
 @app.get("/health")
 def health() -> dict[str, bool]:
     return {"ok": True}
+
+
+@app.get("/api/version")
+def version() -> dict[str, str]:
+    """Copyable build identity for alpha feedback reports."""
+    return _load_build_info()
 
 
 @app.get("/api/config")
@@ -543,5 +615,5 @@ async def get_weather() -> dict[str, Any]:
 
 
 # Order matters: specific paths first.
-app.mount("/sounds", StaticFiles(directory=SOUNDS_DIR), name="sounds")
+app.mount("/sounds", NocturneSoundsStaticFiles(directory=SOUNDS_DIR), name="sounds")
 app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="static")

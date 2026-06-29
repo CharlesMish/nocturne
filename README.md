@@ -1,40 +1,98 @@
 # 🌙 Nocturne
 
-**A tiny, beautiful sleep web app for Raspberry Pi.**
+[![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
+![Self-hosted](https://img.shields.io/badge/self--hosted-local%20LAN-6b8e7a)
+![No accounts](https://img.shields.io/badge/accounts-none-8b6f7a)
+![Version](https://img.shields.io/badge/version-v0.1.0--alpha.8--candidate-f0c987)
 
-Five modes share the same bedside-friendly aesthetic:
 
-- **Onsen** — the original rainy-onsen video + 8-channel ambient mixer
-- **Sky** — the ambient mixer plus a quiet moon-phase + local-weather visual
-- **Radio** — a late-night personal broadcast that plays tracks from `sounds/radio/`
-- **Utility** — a local Strudel code sketchbook with a handoff link to strudel.cc
-- **Dashboard** — the uploaded Raspberry Pi terminal/weather screen from `static/Dashboard_v4.html`
+> **Alpha.8 candidate note:** this package includes the expanded generated-bed set for auditioning. Treat generated sounds as review candidates until you decide which ones to keep.
 
-The Pi serves files. The browser does all the mixing and playback locally on
-whatever device you're holding. Volumes and the last selected mode persist in
-the browser. A small in-app **Settings** panel lets non-technical users choose
-which modes appear; those feature gates are saved on the server in
-`config/nocturne.json`. Works offline after first load for the sleep/radio
-pieces (the Sky visual just falls back to a calm "weather offline" view).
-Utility mode does not serve or embed Strudel; it stores code locally and opens
-the current sketch on strudel.cc when you want playback.
+**A local sleep ritual web app you run yourself.**
+
+Nocturne is a small Python server for a Raspberry Pi, Mac, Windows PC, or Linux box. It serves a bedside web UI over your local network with rain mixing, a live-weather sky scene, and a personal tape-deck radio. No accounts. No cloud. No subscriptions.
+
+<p align="center">
+  <img src="docs/screenshots/sky-phone.png" alt="Nocturne Sky mode on a phone-sized screen, showing moon phase, weather readout, mixer cards, master volume, and sleep timer" width="420">
+</p>
 
 ---
 
-## Quick Start
+## What it is
+
+Nocturne is a **self-hosted web server**, not an app-store mobile app. You run it on a Pi or computer, then open the web UI from a phone, tablet, or laptop on the same trusted LAN.
+
+| Mode | What it does |
+|---|---|
+| **Onsen** | Rainy onsen visual plus an 8-channel ambient mixer. |
+| **Sky** | Same mixer, but with moon phase, live local weather, reactive clouds/rain/snow/fog, and a weather readout. |
+| **Radio** | A tape-deck interface for audio files you drop into `sounds/radio/`, with warmth, slowed-playback Drift, and subtle Space reverb controls. It is a local jukebox, not Spotify or internet radio. |
+| **Utility** | Optional full-mode Strudel sketchbook that saves code under `songs/` and opens strudel.cc for playback. It is off by default. |
+| **Dashboard** | Optional full-mode CRT-style Raspberry Pi terminal/weather dashboard. It is off by default in the public alpha profile. |
+
+Nocturne is **offline-tolerant**, not offline-first: the sleep/radio core works after first load, Sky falls back gracefully if weather is unavailable, and weather-backed optional views use Open-Meteo when the network is available.
+
+---
+
+## Gallery
+
+| Radio | Dashboard |
+|---|---|
+| ![Nocturne Radio mode tape-deck preview](docs/screenshots/radio-desktop.png) | ![Nocturne Dashboard CRT preview](docs/screenshots/dashboard-desktop.png) |
+
+---
+
+## Quick start
 
 ```bash
-cd ~/nocturne
+cd <unzipped-nocturne-folder>
 python3 install.py
-source .venv/bin/activate
-python3 -m uvicorn main:app --host 127.0.0.1 --port 8000
+.venv/bin/python run_nocturne.py
 ```
 
-Open `http://localhost:8000` on the same machine.
+Open `http://127.0.0.1:8000/` on the same machine. The launcher prints a copyable ready line:
 
-`python3 install.py` creates the virtualenv, installs Python dependencies, creates the local folders, and generates `pinknoise.wav`. Nocturne works with that generated pink noise before the optional rain/fire/thunder MP3 files are installed.
+```text
+Nocturne is ready at http://127.0.0.1:8000/
+```
 
-For phone/tablet access on your trusted LAN, run deliberately with `--host 0.0.0.0` and open `http://<pi-ip>:8000/` or `http://<hostname>.local:8000/`. Use the topbar mode switcher to jump between enabled modes. Click **Settings** to show/hide Onsen, Sky, Radio, Utility, and Dashboard without editing JSON by hand.
+`python3 install.py` creates the virtualenv, installs Python dependencies, creates local folders, writes a default config, and generates the procedural starter pack. The pack now has 17 beds: the original `soft-rain-noise.wav`, `window-rain-noise.wav`, `heavy-rain-noise.wav`, `distant-storm-noise.wav` (shown as Soft Pink Rain Noise after alpha.8 audition), `soft-wind-noise.wav` (shown as Soft Air Noise), and pink/brown/white noise; plus `low-rumble-bed.wav`, `distant-train-bed.wav`, `soft-traffic-bed.wav`, `fan-room-bed.wav`, `rain-on-glass-noise.wav`, `deep-water-bed.wav`, `ember-crackle-bed.wav`, and the alpha.8 thunder audition candidates `distant-thunder-bed.wav` and `soft-thunderstorm-bed.wav`. That means Nocturne works immediately before any curated third-party files are installed.
+
+Dependencies use broad minimum version bounds in `requirements.txt` for compatibility across Pi/macOS/Windows/Linux. For a fully reproducible deployment, pin or lock the resolved environment you test.
+
+For phone/tablet access on your trusted LAN, run deliberately with:
+
+```bash
+.venv/bin/python run_nocturne.py --host 0.0.0.0 --port 8000
+```
+
+Then open:
+
+```text
+http://<pi-ip>:8000/
+# or
+http://<hostname>.local:8000/
+```
+
+Use the topbar mode switcher to jump between enabled modes. Click **Settings** to show/hide modes and configure Sky location without editing JSON by hand.
+
+### Alpha feedback build label
+
+For alpha testing, Nocturne exposes a copyable build label in **Settings → Build**, the page footer, and `/api/version`.
+
+Current packaged alpha label:
+
+```text
+v0.1.0-alpha.8-candidate · 2026-06-09 · unknown
+```
+
+Before creating a new alpha zip from a Git checkout, stamp the build metadata so feedback includes the version, commit, and commit date:
+
+```bash
+python scripts/stamp_build.py --version 0.1.0-alpha.8-candidate
+```
+
+Use `ALPHA_FEEDBACK.md` as the lightweight tester template.
 
 ### Launchers
 
@@ -46,53 +104,103 @@ On Windows:
 
 For LAN access from another device, double-click `Start Nocturne LAN.bat` and allow Python through Windows Firewall for **private networks** only.
 
-On macOS, double-click `Install Nocturne.command`; if Gatekeeper blocks it, right-click the file and choose **Open** the first time.
+On macOS, double-click `Install Nocturne.command`. If Gatekeeper blocks it, right-click the file and choose **Open** the first time. If a downloaded zip drops the execute bit, run `chmod +x "Install Nocturne.command"` once.
 
 ---
 
-## Optional: full ambience media
+## Settings first
 
-The ambient mixer has eight channels. The app can start with generated `pinknoise.wav`, and the seven MP3 channels can be added later.
+Most first-time configuration should happen in the app:
 
-To verify which files are present:
+- **Modes:** show/hide Onsen, Sky, Radio, and optional Utility/Dashboard.
+- **Location:** search for a city, use browser location when supported, or enter latitude/longitude manually.
+- **Temperature unit:** Fahrenheit or Celsius.
 
-```bash
-python3 check_audio_contract.py
+Settings are saved on the server in:
+
+```text
+config/nocturne.json
 ```
 
-To install the optional MP3 ambience from source pages:
+`config/nocturne.example.json` is committed as a reference. The live `config/nocturne.json` file is ignored by Git because it is per-device state.
 
-1. `cp media_sources.default.json media_sources.json`
-2. Open the 7 Pixabay source pages listed inside the file.
-3. In DevTools → Network tab, capture the current `cdn.pixabay.com/audio/...` direct URL for each.
-4. Paste the seven URLs into the `url` fields and save.
-5. Re-run `python3 install.py --fetch-media` (or just `python3 install.py`).
+Utility is off by default because it is the only mode that writes user files under `songs/`. When Utility is off, its `/api/songs` routes return `404`, so the sketchbook write surface is hidden as well as removed from the UI.
 
-On Windows, `Fetch Ambient Media.bat` creates `media_sources.json` from the default manifest and opens it in Notepad the first time. After you fill the URL fields, run it again.
-
-Useful flags:
-
-```bash
-python3 install.py --no-fetch-media
-python3 install.py --fetch-media
-```
-
-The fetcher writes `sounds/MEDIA_MANIFEST.generated.json` with full provenance: source URLs, hashes, and timestamps. This keeps the public repo clean while making every file auditable.
-
-You can also just drop your own loop-friendly files into `sounds/` using the exact filenames below — no manifest needed. Run `python3 check_audio_contract.py` afterward to see what the mixer sees.
+Dashboard is also off by default in the public alpha profile. Enable it in Settings when you want the full-mode Raspberry Pi terminal/weather screen.
 
 ---
 
-## Where audio files go
+## Ambient sound library
 
-| Path                  | What it's for                                       |
-|-----------------------|-----------------------------------------------------|
-| `sounds/`             | Files for the **ambient mixer** (8 hardcoded slots) |
-| `sounds/radio/`       | Files for **Radio mode** (any number; auto-listed)  |
-| `songs/`              | Local **Utility mode** Strudel sketches             |
+The Onsen/Sky mixer now has **eight active slots** backed by a larger local sound library. Each slot can choose a sound and a visual look, so the interface stays simple while you can later ship a bigger Core Sound Pack.
 
-The ambient mixer UI is styled around eight named slots. Drop your real loop-friendly
-files into `sounds/` with these exact filenames:
+This alpha bundles 12 verified Freesound CC0 loops plus 17 generated procedural beds. The sound picker separates **recorded** and **generated** entries and includes a preview button so you can audition loops before assigning them to a slot. Generated beds are named honestly as synthetic texture beds — never dressed up as field recordings — so a bed is renamed rather than pretending if its synthesis does not convincingly match the name. The two generated thunder beds are audition candidates, not defaults. Four questionable or unverified candidates were excluded after metadata, source, or audition checks did not match their intended provenance cleanly enough for release.
+
+| Works immediately after `install.py` | Add later by dropping files in |
+|---|---|
+| Web UI, Settings, Onsen/Sky/Radio core, optional Dashboard/Utility when enabled, and generated beds: soft/window/heavy rain noise, soft pink rain noise, soft air noise, dark rain rumble noise, brown/white noise, low rumble bed, distant train bed, soft traffic bed, fan/room bed, rain on glass noise, deep water bed, ember crackle bed, and two thunder audition candidates | Finished CC0/user-owned rain/fire/night/water loops in `sounds/library/` plus provenance entries in `sounds/sound_library.json` |
+
+Open Onsen or Sky, click **change sound** on any mixer card, and pick from the local library. Click the small **look** selector on a card to override its animation/color theme without changing the audio.
+
+The manifest lives here:
+
+```text
+sounds/sound_library.json
+```
+
+A sound entry looks like this:
+
+```json
+{
+  "id": "window-rain",
+  "name": "Window Rain",
+  "category": "rain",
+  "theme": "mist-rain",
+  "src": "/sounds/library/window-rain.mp3",
+  "prompt": "Seamless loop of soft rain against a bedroom window at night, no voices, no music."
+}
+```
+
+Supported visual themes:
+
+```text
+mist-rain · garden-rain · distant-storm · mountain-storm · squall · tempest · hearth · ember-noise
+```
+
+When you generate the ElevenLabs/Core Pack files, put the final mastered loops in:
+
+```text
+sounds/library/
+```
+
+Then either edit `sounds/sound_library.json` directly or import a folder automatically:
+
+```bash
+python scripts/import_sound_pack.py ~/Downloads/nocturne-core-pack --set-defaults
+```
+
+That script copies supported audio files into `sounds/library/`, adds/upserts manifest entries, infers category/theme from filenames, and can make the first eight imported files the default slots.
+
+
+### Freesound CC0 curation workflow
+
+Nocturne now has a curation-first path for replacing the procedural starter beds with real CC0 field recordings:
+
+```bash
+cp audio_sources.template.csv audio_sources.csv
+# Put downloaded CC0 candidates in sounds/inbox/ and screenshots in provenance/screenshots/
+python scripts/import_sound_pack.py sounds/inbox --metadata-csv audio_sources.csv --generate-credits
+```
+
+Useful docs:
+
+- `docs/FREESOUND_CC0_WORKFLOW.md` — exact workflow and folders.
+- `docs/FREESOUND_RAIN_STARTER.md` — starter rain candidate board.
+- `docs/SOUND_LIBRARY.md` — manifest fields and visual themes.
+
+### Legacy optional Pixabay fetcher
+
+The older fixed ambience filenames are still supported for compatibility:
 
 ```text
 calming_rain.mp3
@@ -105,69 +213,62 @@ fireplace.mp3
 pinknoise.wav
 ```
 
-The visible mixer labels are Calming Rain, Gentle Rain, Heavy Rain, Rainstorm,
-Heavy Storm, Thunder, Fireplace, and Pink Noise.
+`fetch_media.py` can still try to populate those legacy files from Pixabay source pages, but it is best-effort and no longer the preferred release path. For a polished alpha, ship your own generated or curated loops in `sounds/library/` instead of asking testers to scrape media.
 
-`python scripts/generate_noise.py` creates three optional WAV beds (brown, pink, white).
-Only `pinknoise.wav` is a visible mixer channel in v0.1.
+To inspect the old fixed-file contract, run:
 
-After adding or changing files, run `python3 check_audio_contract.py` — it will
-tell you exactly which of the 8 required channels are present and their sizes.
+```bash
+python3 check_audio_contract.py
+```
 
-`python scripts/fetch_media.py` (or the automatic path inside `install.py`) downloads
-the seven MP3s from a local manifest when you provide current direct URLs.
+To try the legacy fetcher manually:
 
-Radio tracks are dynamic. Anything in `sounds/radio/` is served via `/api/radio`
-and reached at `/sounds/radio/<filename>`. Supported extensions: `mp3 · ogg ·
-m4a · wav · opus · webm · flac`. Filenames become track titles —
-`night-drive.mp3` → "Night Drive". No restart required when adding or removing
-radio files; just refresh the browser.
+```bash
+python scripts/fetch_media.py --init
+python scripts/fetch_media.py --yes
+```
+
+If optional media fetching fails during install, installation still completes with generated noise.
+
+## Where audio files go
+
+| Path | What it is for | Notes |
+|---|---|---|
+| `sounds/library/` | Assignable Onsen/Sky ambience library. | Preferred home for generated Core Sound Pack loops. Listed in `sounds/sound_library.json`. |
+| `sounds/` | Legacy fixed ambience filenames plus generated noise. | Still supported for compatibility. |
+| `sounds/radio/` | Radio mode tracks. | Dynamic personal library; any number of supported files. Refresh the browser after changes. |
+| `songs/` | Local Utility mode Strudel sketches. | Only used when Utility is enabled in Settings. |
+
+`python scripts/generate_noise.py` creates 17 WAV beds locally: soft rain noise, window rain noise, heavy rain noise, soft pink rain noise, soft air noise, dark rain rumble noise, brown noise, white noise, low rumble bed, distant train bed, soft traffic bed, fan/room bed, rain on glass noise, deep water bed, ember crackle bed, distant thunder bed, and soft thunderstorm bed. Each is deterministic (seeded NumPy), 44.1 kHz, conservatively normalized, and tail-to-head crossfaded so it loops cleanly. The thunder beds are audition candidates only and are not default slots.
+
+The optional media fetcher only manages the old fixed ambience files in `sounds/`. It does not fetch radio tracks and it does not manage the new sound library manifest.
+
+Radio mode is dynamic. Anything in `sounds/radio/` is served via `/api/radio` and reached at `/sounds/radio/<filename>`. Supported extensions: `mp3 · ogg · m4a · wav · opus · webm · flac`. Filenames become track titles: `night-drive.mp3` → “Night Drive”. Bedtime-story MP3s use the same path: drop them into `sounds/radio/`, refresh, and they appear in Radio without code changes.
+
+Story provenance should be tracked separately from CC0 ambience. Use honest notes such as "user-authored text" and "user-owned or user-licensed generated narration." Do not label story narration CC0 unless the text, voice/narration output, and license terms are separately proven.
+
+### Radio sound controls
+
+Radio has four deck sliders:
+
+| Control | What it does | Default |
+|---|---|---:|
+| `broadcast` | Radio volume before the global master. | `60%` |
+| `warmth` | Lo-fi lowpass filter, from clear to muffled. | `0%` |
+| `drift` | Slows playback from `1.00×` down to `0.75×` and asks the browser to drop pitch with speed for the classic “slowed” sound. | `1.00×` |
+| `space` | Adds a short synthetic room/plate reverb around the radio signal. No extra audio asset is required. | `0%` |
+
+All four controls persist in browser `localStorage`. With `drift` and `space` at zero, radio behaves like the original v0.1 deck.
 
 ---
 
-## Settings GUI
+## Weather and location
 
-Click **Settings** in the top bar to choose which modes are visible. The app
-saves those checkboxes to:
+Sky mode pulls current conditions from **Open-Meteo** through a small backend cache so it does not hammer their API. Open-Meteo does not require an API key.
 
-```text
-config/nocturne.json
-```
+Configure the weather location from **Settings → Location** in the app. Manual latitude/longitude always works. The **Use browser location** button is only a convenience; browsers usually allow it on `localhost` or HTTPS, and may block it from a phone over plain LAN HTTP.
 
-The default server setting is:
-
-```json
-{
-  "modes": {
-    "onsen": true,
-    "sky": true,
-    "radio": true,
-    "utility": false,
-    "dashboard": true
-  }
-}
-```
-
-Utility is off by default because it is the only mode that writes user files
-under `songs/`. When Utility is off, its `/api/songs` routes return `404`, so
-the sketchbook write surface is hidden as well as removed from the UI.
-
-`config/nocturne.example.json` is committed as a reference. The live
-`config/nocturne.json` file is ignored by Git because it is per-device state.
-
-## Configuration (location + weather)
-
-Sky mode pulls current conditions from **Open-Meteo** (no API key required)
-through a small backend cache so it doesn't hammer their API. Configure the
-weather location from **Settings → Location** in the app by city search or
-manual coordinates; changes are saved to `config/nocturne.json` and the weather
-cache is refreshed.
-
-Manual latitude/longitude entry always works. The **Use browser location**
-button is only a convenience; browsers usually allow it on `localhost` or HTTPS,
-and may block it from a phone over plain LAN HTTP.
-
-The default location is:
+Default fallback location:
 
 ```json
 {
@@ -179,163 +280,79 @@ The default location is:
 }
 ```
 
-Environment variables are still available as fallback defaults before a saved
-location exists:
+Environment variables are available as fallback defaults before a saved location exists:
 
-| Variable                 | Default          | Notes                                  |
-|--------------------------|------------------|----------------------------------------|
-| `NOCTURNE_LAT`           | `41.8781`        | Latitude                               |
-| `NOCTURNE_LON`           | `-87.6298`       | Longitude                              |
-| `NOCTURNE_LOCATION_NAME` | `Chicago`        | What the readout shows as "where"      |
-| `NOCTURNE_TIMEZONE`      | `America/Chicago` | Open-Meteo timezone                  |
-| `NOCTURNE_TEMPERATURE_UNIT` | `fahrenheit`  | `fahrenheit` or `celsius`              |
-| `NOCTURNE_WEATHER_TTL`   | `600`            | Seconds the backend caches a result    |
+| Variable | Default | Notes |
+|---|---:|---|
+| `NOCTURNE_LAT` | `41.8781` | Latitude |
+| `NOCTURNE_LON` | `-87.6298` | Longitude |
+| `NOCTURNE_LOCATION_NAME` | `Chicago` | What the readout shows as “where” |
+| `NOCTURNE_TIMEZONE` | `America/Chicago` | Open-Meteo timezone |
+| `NOCTURNE_TEMPERATURE_UNIT` | `fahrenheit` | `fahrenheit` or `celsius` |
+| `NOCTURNE_WEATHER_TTL` | `600` | Seconds the backend caches a result |
 
-For systemd, add optional `Environment=` lines like these only if you want to
-change the fallback defaults:
+If Open-Meteo is unreachable, the API returns the last cached result tagged `stale: true`. If there is no cached result at all, Sky mode falls back to a calm clear-night render with `weather offline` in the readout.
+
+---
+
+## Running as a Raspberry Pi service
+
+Copy or adapt `nocturne.service`, then update paths for your user and checkout location.
+
+Example service command:
 
 ```ini
 [Service]
-Environment=NOCTURNE_LAT=41.8781
-Environment=NOCTURNE_LON=-87.6298
-Environment=NOCTURNE_LOCATION_NAME=Chicago
-Environment=NOCTURNE_TIMEZONE=America/Chicago
-Environment=NOCTURNE_TEMPERATURE_UNIT=fahrenheit
-ExecStart=/home/<you>/nocturne/.venv/bin/uvicorn main:app --host 0.0.0.0 --port 8000
+WorkingDirectory=/home/<you>/nocturne
+ExecStart=/home/<you>/nocturne/.venv/bin/python run_nocturne.py --host 0.0.0.0 --port 8000
+Restart=on-failure
 ```
 
-then run `sudo systemctl daemon-reload && sudo systemctl restart nocturne`
-after installing the service.
-
-### Graceful degradation
-
-If Open-Meteo is unreachable, the API returns the last cached result tagged
-`stale: true`, and the UI shows a slightly desaturated scene with
-`(stale)` appended to the condition line. If there's no cached result at all
-(first boot, no network), the UI falls back to a calm clear-night render
-with `weather offline` in the readout. No errors, no broken state.
-
----
-
-## The five modes
-
-### Onsen
-Untouched. The looping rain video and 8-channel mixer behave exactly as
-before.
-
-### Sky
-Mixer still visible and functional. The video stage is replaced by a wide
-night-sky scene rendered with the same layer-and-parallax system as the
-onsen scene. The moon is an SVG whose terminator is computed client-side
-from the synodic month (no API needed). Cloud, rain, snow, fog, and
-lightning layers are toggled by weather class (`w-clear`, `w-rain`, etc.)
-when the backend returns a current WMO weather code. A small monospace
-readout at the bottom-left shows condition + temperature, moon name +
-illumination, and location.
-
-### Radio
-A tape-deck on the left, a playlist on the right. Tracks are loaded from
-`sounds/radio/` and played through a Web Audio graph that lands at the
-same master gain node as the mixer, so:
-
-- The **master volume** still trims the radio (existing global control).
-- A separate **broadcast** slider on the deck controls the radio's own gain.
-- A **warmth** slider applies an optional low-pass (22050 → 2500 Hz,
-  logarithmic) for a lo-fi tilt — left at 0% for full fidelity by default.
-
-Sleep-friendly behavior:
-- Shuffle on by default; toggleable.
-- Auto-advance on track end.
-- Errors auto-skip after 1.5 s.
-- The "silence all" button on the main control row stops the mixer *and*
-  the radio in one tap.
-
-The deck reels rotate only while a track is playing. A VU-style segmented
-meter is driven by an `AnalyserNode` and only animates while radio mode is
-visible (saves Pi CPU when it's not on screen).
-
-
-### Dashboard
-The uploaded `Dashboard_v4.html` is served from `static/Dashboard_v4.html` and embedded as a fifth Nocturne mode. It stays self-contained inside an iframe so its fixed full-screen CRT layout, canvas animations, keyboard preset switching, and CSS variables do not conflict with the main Nocturne interface. The iframe loads only when Dashboard mode is selected and unloads when you leave that mode to avoid extra background rendering on the Pi.
-
-
-### Utility
-A workbench-style Strudel code sketchbook lives inside the fourth topbar mode. It is
-intentionally more "tool" than sleep scene, but it uses Nocturne's stone,
-lantern, sakura, and paper colors so it still belongs in the same app. Nocturne
-only saves the code and metadata locally; the **open in strudel** button creates
-a long `https://strudel.cc/#...` URL for the current code and opens it in a new tab.
-
-Sketches are stored on disk as:
-
-```text
-songs/<slug>/meta.json
-songs/<slug>/code.js
-```
-
-The bundled starter sketch is `songs/evening-loop/`. Utility mode can create, save,
-duplicate, and delete sketches through the FastAPI backend. The visible editor
-is a plain textarea, so it works over ordinary LAN HTTP and does not require
-`AudioWorklet`, HTTPS, CDN scripts, or Strudel runtime code inside Nocturne.
-
----
-
-## How modes interact with audio
-
-Audio state is **independent of view mode** for Onsen / Sky / Radio / Dashboard. Switching
-those tabs only changes what's visible; it doesn't pause or resume anything.
-Utility mode is separate: it does not play audio inside Nocturne; playback happens after opening the sketch on strudel.cc.
-This means:
-
-- You can leave ambient rain playing and switch to Radio to add music on top.
-- Coming back to Onsen or Sky shows the mixer with its current volumes.
-- Dashboard is visual-only; switching to it does not change ambient or radio playback.
-- "Silence all" is the single panic button that stops everything.
-
-To save CPU on the Pi, the rain video is paused when not visible (it's
-muted, so this only saves rendering cost), and the radio VU meter stops
-animating when not visible.
-
----
-
-## What changed in this update
-
-**New endpoints** (`main.py`):
-
-- `GET /api/radio` — lists `sounds/radio/` tracks
-- `GET /api/weather` — cached current weather from Open-Meteo
-- `GET /api/geocode` — city/place search for Sky weather location settings
-- `GET /api/config` — exposes non-secret location config for the UI
-- `GET/PUT /api/settings` — reads/saves enabled modes and Sky weather location in `config/nocturne.json`
-- `GET /api/songs` — lists saved Utility sketches when Utility is enabled
-- `GET/POST/PUT/DELETE /api/songs/...` — loads, saves, duplicates, and deletes sketches when Utility is enabled
-
-**New dependency:** `httpx` (added to `requirements.txt`).
-
-**Sleep timer:** 15 / 30 / 60 / 90 minute buttons now fade the master
-volume during the final minute, then pause the mixer and radio without
-overwriting your saved mix.
-
-**Frontend:** the existing `static/index.html` was extended in-place
-(everything still in one self-contained file, matching the existing
-pattern). The sleep timer now lives in the active page and fades the
-shared master bus before pausing both ambient channels and radio. The
-fourth Utility mode was merged from the uploaded Strudel Sketchbook, then
-changed to a code-only handoff workflow that opens sketches on strudel.cc. A
-small Settings GUI now persists mode visibility and Sky weather location to
-`config/nocturne.json` and gates Utility's backend write routes when disabled.
-The old unused `static/app.js` file was removed.
-
----
-
-## Make it run on boot
-
-Edit `nocturne.service` first: replace `YOUR_USER` with your Pi username.
-Sky weather location can be changed later from the in-app Settings panel.
+Direct Uvicorn still works if you prefer it:
 
 ```bash
-sudo cp nocturne.service /etc/systemd/system/nocturne.service
+python3 -m uvicorn main:app --host 0.0.0.0 --port 8000
+```
+
+After installing the service:
+
+```bash
 sudo systemctl daemon-reload
 sudo systemctl enable --now nocturne
-journalctl -u nocturne -f
 ```
+
+Add optional `Environment=` lines only if you want to change fallback weather defaults outside the Settings UI.
+
+---
+
+## Architecture
+
+The deliberately simple version:
+
+- `main.py` — FastAPI backend, roughly one file of local routes and weather caching.
+- `static/index.html` — self-contained frontend; no React, no build step.
+- Browser Web Audio API — handles mixing, gain, radio routing, analyser/VU meter, and sleep fade.
+- `config/nocturne.json` — local server-side app settings.
+- `sounds/library/`, `sounds/`, and `sounds/radio/` — local audio folders.
+- `sounds/sound_library.json` — assignable mixer sound manifest.
+- `songs/` — local Utility/Strudel sketch files.
+
+No database. No accounts. No frontend build pipeline. The Pi serves files; the browser does the audio work.
+
+---
+
+## Safety and LAN expectations
+
+Nocturne is intended for a trusted home LAN. It does not implement account login or public-internet hardening.
+
+Use `--host 127.0.0.1` for same-machine use. Use `--host 0.0.0.0` only when you deliberately want other devices on your private network to connect.
+
+Do **not** expose Nocturne directly to the public internet.
+
+---
+
+## License
+
+Nocturne source code is released under the [Apache License 2.0](LICENSE).
+
+Generated or curated ambience media should be documented before release. Use `MEDIA_LICENSES.md`, `sounds/sound_library.json`, and any generated receipts to track provenance, prompts, hashes, and license notes for bundled sounds.

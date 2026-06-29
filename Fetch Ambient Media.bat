@@ -7,55 +7,45 @@ echo Nocturne ambient media fetcher
 echo ===============================
 echo.
 
-if not exist "media_sources.json" (
-  if exist "media_sources.default.json" (
-    copy "media_sources.default.json" "media_sources.json" >nul
-    echo Created media_sources.json from media_sources.default.json (recommended).
-    echo.
-    echo Fill the 7 'url' fields with fresh direct CDN links (see instructions inside the file),
-    echo save, then double-click this fetcher again.
-    echo.
-    start "" notepad "media_sources.json"
-    pause
-    exit /b 0
-  ) else if exist "media_sources.example.json" (
-    copy "media_sources.example.json" "media_sources.json" >nul
-    echo Created media_sources.json from media_sources.example.json.
-    echo.
-    echo (Better: use media_sources.default.json as your starting point.)
-    start "" notepad "media_sources.json"
-    pause
-    exit /b 0
-  ) else (
-    echo Neither media_sources.default.json nor .example.json found.
-    pause
-    exit /b 1
-  )
-)
-
 where py >nul 2>nul
-if %errorlevel%==0 (
-  set "PY=py -3"
-) else (
+if errorlevel 1 (
   where python >nul 2>nul
-  if %errorlevel%==0 (
-    set "PY=python"
-  ) else (
+  if errorlevel 1 (
     echo Python 3 was not found.
     echo Install Python 3 and enable "Add python.exe to PATH".
     pause
     exit /b 1
   )
+  set "PY=python"
+) else (
+  set "PY=py -3"
 )
 
-%PY% install.py --fetch-media %*
+if not exist "media_sources.json" (
+  %PY% scripts\fetch_media.py --init
+  if errorlevel 1 (
+    echo.
+    echo Could not prepare media_sources.json.
+    pause
+    exit /b %errorlevel%
+  )
+)
+
+%PY% scripts\fetch_media.py --yes %*
 if errorlevel 1 (
   echo.
-  echo Media fetch failed.
-  echo Check media_sources.json, then try again.
+  echo Automatic media fetch failed or found no downloadable files.
+  echo Fallback: opening source pages and media_sources.json for manual URLs.
+  echo.
+  %PY% scripts\fetch_media.py --init --open-source-pages
+  start "" notepad "media_sources.json"
+  echo.
+  echo In each Pixabay page, open DevTools ^> Network, play/download the sound,
+  echo copy the cdn.pixabay.com/audio/...mp3 or cdn.pixabay.com/download/audio/...mp3 URL,
+  echo paste it into download_url, save media_sources.json, then run this fetcher again.
   echo.
   pause
-  exit /b %errorlevel%
+  exit /b 1
 )
 
 echo.

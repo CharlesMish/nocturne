@@ -23,3 +23,10 @@ sounds/radio/*.webm
 # Local user manifest override (committed defaults live in media_sources.default.json)
 media_sources.json
 config/nocturne.json
+
+# Curation intake/originals can contain large or unprocessed source files
+sounds/inbox/*
+!sounds/inbox/.gitkeep
+!sounds/inbox/README.md
+provenance/originals/*
+!provenance/originals/.gitkeep

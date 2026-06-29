@@ -4,7 +4,7 @@
     "sky": true,
     "radio": true,
     "utility": false,
-    "dashboard": true
+    "dashboard": false
   },
   "location": {
     "label": "Chicago",

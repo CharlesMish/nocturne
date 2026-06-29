@@ -1,66 +1,60 @@
-# sounds/
+# Nocturne sounds folder
 
-This folder is for the **Onsen/Sky ambient mixer**.
+Nocturne has three audio areas:
 
-The current Nocturne UI uses eight styled, hardcoded mixer slots. Drop your real
-loop-friendly audio files directly into this folder with these exact filenames:
-
-- `calming_rain.mp3`
-- `gentle_rain.mp3`
-- `heavy_rain.mp3`
-- `rainstorm.mp3`
-- `heavy_storm.mp3`
-- `thunder.mp3`
-- `fireplace.mp3`
-- `pinknoise.wav`
-
-The visible mixer labels are:
-
-- Calming Rain
-- Gentle Rain
-- Heavy Rain
-- Rainstorm
-- Heavy Storm
-- Thunder
-- Fireplace
-- Pink Noise
-
-`python scripts/generate_noise.py` creates three optional WAV beds locally:
-
-- `brown-noise.wav`
-- `pinknoise.wav`
-- `white-noise.wav`
-
-Only `pinknoise.wav` is a visible mixer channel in v0.1. Brown and white are
-available for manual use or future expansion.
-
-For the seven rain/fire/thunder MP3s the easiest path is:
-
-```bash
-cp media_sources.default.json media_sources.json
-# (fill the 7 'url' fields with fresh direct CDN links from the Pixabay pages)
-python3 install.py --fetch-media
+```text
+sounds/
+  soft-rain-noise.wav      # generated during install
+  window-rain-noise.wav    # generated during install
+  heavy-rain-noise.wav     # generated during install
+  distant-storm-noise.wav  # generated during install
+  soft-wind-noise.wav      # generated during install
+  pinknoise.wav            # generated during install
+  brown-noise.wav          # generated during install
+  white-noise.wav          # generated during install
+  low-rumble-bed.wav       # generated during install
+  distant-train-bed.wav    # generated during install
+  soft-traffic-bed.wav     # generated during install
+  fan-room-bed.wav         # generated during install
+  rain-on-glass-noise.wav  # generated during install
+  deep-water-bed.wav       # generated during install
+  ember-crackle-bed.wav    # generated during install
+  distant-thunder-bed.wav  # generated during install; audition candidate
+  soft-thunderstorm-bed.wav # generated during install; audition candidate
+  sound_library.json       # assignable mixer library manifest
+  inbox/                   # temporary curation/download intake
+  library/                 # finished curated CC0/user-owned loops
+  radio/                   # personal radio tracks
 ```
 
-After adding/changing any files, run:
+## Mixer sounds
+
+The Onsen/Sky mixer has eight live slots. Each slot can choose any entry in `sound_library.json`.
+
+Fresh install generates the procedural starter beds above. The public alpha defaults can point to bundled recorded loops in `sounds/library/` plus selected generated beds, all through `sound_library.json`.
+
+Real curated ambience loops should go in `sounds/library/` and be imported with:
 
 ```bash
-python3 check_audio_contract.py
+python scripts/import_sound_pack.py sounds/inbox --metadata-csv audio_sources.csv --generate-credits
 ```
 
-It will show you the exact status of all 8 required mixer channels.
+## Radio sounds
 
-`python3 scripts/generate_noise.py` is available for quick synthetic placeholders.
+Radio mode is separate. Drop personal tracks or bedtime-story MP3s into `sounds/radio/` and refresh the browser.
 
-## Radio mode
+For stories, keep provenance honest: user-authored text, user-owned or user-licensed generated narration, and not CC0 unless separately proven.
 
-Radio tracks live in `sounds/radio/`, not here. Radio mode is dynamic: any
-`.mp3`, `.ogg`, `.m4a`, `.wav`, `.opus`, `.webm`, or `.flac` file in
-`sounds/radio/` appears in the Radio tab after a browser refresh.
+## Legacy fixed names
 
-## Tips
+The old Pixabay/fetcher filenames are still supported for compatibility/archive use, but are no longer the preferred release path:
 
-- OGG/Opus/WebM are often best for seamless loops.
-- MP3 is fine for long recordings, but it can have tiny loop seams.
-- Aim for 60+ second loops.
-- Match loudness across files so slider values feel comparable.
+```text
+calming_rain.mp3
+gentle_rain.mp3
+heavy_rain.mp3
+rainstorm.mp3
+heavy_storm.mp3
+thunder.mp3
+fireplace.mp3
+```

@@ -8,13 +8,9 @@ echo ===================
 echo.
 
 where py >nul 2>nul
-if %errorlevel%==0 (
-  set "PY=py -3"
-) else (
+if errorlevel 1 (
   where python >nul 2>nul
-  if %errorlevel%==0 (
-    set "PY=python"
-  ) else (
+  if errorlevel 1 (
     echo Python 3 was not found.
     echo.
     echo Install Python 3 from https://www.python.org/downloads/windows/
@@ -24,6 +20,9 @@ if %errorlevel%==0 (
     pause
     exit /b 1
   )
+  set "PY=python"
+) else (
+  set "PY=py -3"
 )
 
 %PY% install.py %*

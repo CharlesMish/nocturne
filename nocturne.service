@@ -31,7 +31,7 @@ WorkingDirectory=/home/YOUR_USER/nocturne
 # Environment=NOCTURNE_LOCATION_NAME=Chicago
 # Environment=NOCTURNE_TIMEZONE=America/Chicago
 # Environment=NOCTURNE_TEMPERATURE_UNIT=fahrenheit
-ExecStart=/home/YOUR_USER/nocturne/.venv/bin/uvicorn main:app --host 0.0.0.0 --port 8000
+ExecStart=/home/YOUR_USER/nocturne/.venv/bin/python run_nocturne.py --host 0.0.0.0 --port 8000
 Restart=on-failure
 RestartSec=3
 

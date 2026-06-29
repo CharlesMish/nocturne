@@ -19,12 +19,13 @@ set "OPEN_HOST=%HOST%"
 if "%HOST%"=="0.0.0.0" set "OPEN_HOST=127.0.0.1"
 
 echo.
-echo Starting Nocturne on http://%OPEN_HOST%:%PORT%/
+echo Starting Nocturne...
+echo Nocturne is ready at http://%OPEN_HOST%:%PORT%/
 echo Close this window or press Ctrl+C to stop the server.
 echo.
 
 start "" powershell -NoProfile -ExecutionPolicy Bypass -Command "Start-Sleep -Seconds 2; Start-Process 'http://%OPEN_HOST%:%PORT%/'"
-".venv\Scripts\python.exe" -m uvicorn main:app --host %HOST% --port %PORT%
+".venv\Scripts\python.exe" run_nocturne.py --host %HOST% --port %PORT%
 
 echo.
 echo Nocturne stopped.
