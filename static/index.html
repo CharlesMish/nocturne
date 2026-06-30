@@ -4581,9 +4581,9 @@ body[data-mode="dashboard"] .topbar {
 
     <!-- ─────────────────────  FOOTER  ───────────────────── -->
     <footer>
-      <div id="build-label-footer">Nocturne · v0.1.0-alpha.8-candidate</div>
+      <div id="build-label-footer">Nocturne · v0.1.0-alpha.8</div>
       <div>Eight channels · local weather · personal radio</div>
-      <div id="build-date-footer">Build 2026-06-09</div>
+      <div id="build-date-footer">Build 2026-06-29</div>
     </footer>
 
   </div>
@@ -4601,7 +4601,7 @@ body[data-mode="dashboard"] .topbar {
     <p class="settings-copy">Choose which Nocturne modes appear in the top bar. Changes are saved on this device in <code>config/nocturne.json</code>.</p>
     <section class="settings-section" aria-labelledby="settings-build-title">
       <h3 id="settings-build-title">Build</h3>
-      <p class="settings-note" id="settings-build-label">v0.1.0-alpha.8-candidate · 2026-06-09 · unknown</p>
+      <p class="settings-note" id="settings-build-label">v0.1.0-alpha.8 · 2026-06-29 · 7c9dba3</p>
       <p class="settings-note" id="settings-build-details">Share this label with alpha feedback. Full JSON is available at <code>/api/version</code>.</p>
     </section>
     <form class="settings-form" id="settings-form">
@@ -6104,12 +6104,12 @@ body[data-mode="dashboard"] .topbar {
   };
   let appSettings = mergeSettings(DEFAULT_APP_SETTINGS);
   let buildInfo = {
-    version: '0.1.0-alpha.8-candidate',
+    version: '0.1.0-alpha.8',
     channel: 'alpha',
-    build_date_utc: '2026-06-09',
-    commit: 'unknown',
-    commit_date_utc: '2026-06-09',
-    feedback_label: 'v0.1.0-alpha.8-candidate · 2026-06-09 · unknown'
+    build_date_utc: '2026-06-29',
+    commit: '7c9dba3',
+    commit_date_utc: '2026-06-29',
+    feedback_label: 'v0.1.0-alpha.8 · 2026-06-29 · 7c9dba3'
   };
 
   function mergeSettings(raw) {
@@ -6157,9 +6157,9 @@ body[data-mode="dashboard"] .topbar {
 
   function buildFeedbackLabel(info = buildInfo) {
     if (info && info.feedback_label) return info.feedback_label;
-    const version = (info && info.version) || '0.1.0-alpha.8-candidate';
-    const commit = (info && info.commit) || 'unknown';
-    const day = ((info && (info.commit_date_utc || info.build_date_utc)) || '2026-06-09').slice(0, 10);
+    const version = (info && info.version) || '0.1.0-alpha.8';
+    const commit = (info && info.commit) || '7c9dba3';
+    const day = ((info && (info.commit_date_utc || info.build_date_utc)) || '2026-06-29').slice(0, 10);
     return `v${version} · ${day} · ${commit}`;
   }
 

@@ -13,13 +13,13 @@ The app exposes build information in three places:
 Current packaged alpha label:
 
 ```text
-v0.1.0-alpha.8-candidate · 2026-06-09 · unknown
+v0.1.0-alpha.8 · 2026-06-29 · 7c9dba3
 ```
 
 Before making a new zip from a git checkout, stamp the build metadata:
 
 ```bash
-python scripts/stamp_build.py --version 0.1.0-alpha.8-candidate
+python scripts/stamp_build.py --version 0.1.0-alpha.8
 ```
 
 That updates `nocturne_build.json` with the version, UTC build time, git commit, and git commit date.

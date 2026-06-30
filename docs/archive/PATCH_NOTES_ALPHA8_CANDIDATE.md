@@ -1,3 +1,7 @@
+# Historical pre-release notes: Nocturne alpha.8 candidate
+
+This file is retained for audit/history only. It describes a pre-release alpha.8 candidate and is not the current v0.1.0-alpha.8 release note. For current release-facing information, use `README.md` and `CHANGELOG.md`.
+
 # Nocturne alpha.8 candidate — expanded generated beds
 
 This is an audition candidate, not the final alpha.8 release.

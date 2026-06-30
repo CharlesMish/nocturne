@@ -3,10 +3,10 @@
 [![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 ![Self-hosted](https://img.shields.io/badge/self--hosted-local%20LAN-6b8e7a)
 ![No accounts](https://img.shields.io/badge/accounts-none-8b6f7a)
-![Version](https://img.shields.io/badge/version-v0.1.0--alpha.8--candidate-f0c987)
+![Version](https://img.shields.io/badge/version-v0.1.0--alpha.8-f0c987)
 
 
-> **Alpha.8 candidate note:** this package includes the expanded generated-bed set for auditioning. Treat generated sounds as review candidates until you decide which ones to keep.
+> **Alpha.8 release note:** this package includes the expanded generated-bed set for auditioning. Treat generated sounds as review candidates until you decide which ones to keep.
 
 **A local sleep ritual web app you run yourself.**
 
@@ -83,13 +83,13 @@ For alpha testing, Nocturne exposes a copyable build label in **Settings → Bui
 Current packaged alpha label:
 
 ```text
-v0.1.0-alpha.8-candidate · 2026-06-09 · unknown
+v0.1.0-alpha.8 · 2026-06-29 · 7c9dba3
 ```
 
 Before creating a new alpha zip from a Git checkout, stamp the build metadata so feedback includes the version, commit, and commit date:
 
 ```bash
-python scripts/stamp_build.py --version 0.1.0-alpha.8-candidate
+python scripts/stamp_build.py --version 0.1.0-alpha.8
 ```
 
 Use `ALPHA_FEEDBACK.md` as the lightweight tester template.

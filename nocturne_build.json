@@ -1,8 +1,8 @@
 {
-  "version": "0.1.0-alpha.8-candidate",
+  "version": "0.1.0-alpha.8",
   "channel": "alpha",
-  "build_date_utc": "2026-06-29T15:55:26Z",
-  "commit": "7153183",
-  "commit_date_utc": "2026-05-28T22:46:18-05:00",
-  "feedback_label": "v0.1.0-alpha.8-candidate · 2026-05-28 · 7153183"
+  "build_date_utc": "2026-06-29T16:05:53Z",
+  "commit": "7c9dba3",
+  "commit_date_utc": "2026-06-29T11:05:44-05:00",
+  "feedback_label": "v0.1.0-alpha.8 · 2026-06-29 · 7c9dba3"
 }
