@@ -6,11 +6,11 @@
 ![Version](https://img.shields.io/badge/version-v0.1.0--alpha.8-f0c987)
 
 
-> **Alpha.8 release note:** this package includes the expanded generated-bed set for auditioning. Treat generated sounds as review candidates until you decide which ones to keep.
+> **Alpha.8 release note:** the public alpha core is **Onsen / Sky / Radio**. Utility and Dashboard remain available as optional full-mode extras, but they are disabled by default.
 
 **A local sleep ritual web app you run yourself.**
 
-Nocturne is a small Python server for a Raspberry Pi, Mac, Windows PC, or Linux box. It serves a bedside web UI over your local network with rain mixing, a live-weather sky scene, and a personal tape-deck radio. No accounts. No cloud. No subscriptions.
+Nocturne is a small Python server for a Raspberry Pi, Mac, Windows PC, or Linux box. It serves a bedside web UI over your local network with Onsen rain mixing, a live-weather Sky scene, and a personal tape-deck Radio. No accounts. No cloud. No subscriptions.
 
 <p align="center">
   <img src="docs/screenshots/sky-phone.png" alt="Nocturne Sky mode on a phone-sized screen, showing moon phase, weather readout, mixer cards, master volume, and sleep timer" width="420">
@@ -22,13 +22,18 @@ Nocturne is a small Python server for a Raspberry Pi, Mac, Windows PC, or Linux 
 
 Nocturne is a **self-hosted web server**, not an app-store mobile app. You run it on a Pi or computer, then open the web UI from a phone, tablet, or laptop on the same trusted LAN.
 
-| Mode | What it does |
+| Public alpha mode | What it does |
 |---|---|
 | **Onsen** | Rainy onsen visual plus an 8-channel ambient mixer. |
 | **Sky** | Same mixer, but with moon phase, live local weather, reactive clouds/rain/snow/fog, and a weather readout. |
 | **Radio** | A tape-deck interface for audio files you drop into `sounds/radio/`, with warmth, slowed-playback Drift, and subtle Space reverb controls. It is a local jukebox, not Spotify or internet radio. |
-| **Utility** | Optional full-mode Strudel sketchbook that saves code under `songs/` and opens strudel.cc for playback. It is off by default. |
-| **Dashboard** | Optional full-mode CRT-style Raspberry Pi terminal/weather dashboard. It is off by default in the public alpha profile. |
+
+Optional full-mode extras stay behind Settings:
+
+| Optional mode | Status |
+|---|---|
+| **Utility** | Strudel sketchbook that saves code under `songs/` and opens strudel.cc for playback. Off by default. |
+| **Dashboard** | CRT-style Raspberry Pi terminal/weather dashboard. Off by default in the public alpha profile. |
 
 Nocturne is **offline-tolerant**, not offline-first: the sleep/radio core works after first load, Sky falls back gracefully if weather is unavailable, and weather-backed optional views use Open-Meteo when the network is available.
 
@@ -36,9 +41,9 @@ Nocturne is **offline-tolerant**, not offline-first: the sleep/radio core works 
 
 ## Gallery
 
-| Radio | Dashboard |
-|---|---|
-| ![Nocturne Radio mode tape-deck preview](docs/screenshots/radio-desktop.png) | ![Nocturne Dashboard CRT preview](docs/screenshots/dashboard-desktop.png) |
+| Sky | Radio | Dashboard (optional) |
+|---|---|---|
+| ![Nocturne Sky mode on a phone-sized screen, showing moon phase, weather readout, mixer cards, master volume, and sleep timer](docs/screenshots/sky-phone.png) | ![Nocturne Radio mode tape-deck preview](docs/screenshots/radio-desktop.png) | ![Nocturne Dashboard CRT preview](docs/screenshots/dashboard-desktop.png) |
 
 ---
 
@@ -132,13 +137,13 @@ Dashboard is also off by default in the public alpha profile. Enable it in Setti
 
 ## Ambient sound library
 
-The Onsen/Sky mixer now has **eight active slots** backed by a larger local sound library. Each slot can choose a sound and a visual look, so the interface stays simple while you can later ship a bigger Core Sound Pack.
+The Onsen/Sky mixer now has **eight active slots** backed by a larger local sound library. Each slot can choose a sound and a visual look, so the public alpha stays simple while still carrying the full 29-sound review library.
 
-This alpha bundles 12 verified Freesound CC0 loops plus 17 generated procedural beds. The sound picker separates **recorded** and **generated** entries and includes a preview button so you can audition loops before assigning them to a slot. Generated beds are named honestly as synthetic texture beds — never dressed up as field recordings — so a bed is renamed rather than pretending if its synthesis does not convincingly match the name. The two generated thunder beds are audition candidates, not defaults. Four questionable or unverified candidates were excluded after metadata, source, or audition checks did not match their intended provenance cleanly enough for release.
+This alpha bundles **29 total sounds**: 12 verified Freesound CC0 loops plus 17 generated procedural beds. The sound picker separates **recorded** and **generated** entries and includes a preview button so you can audition loops before assigning them to a slot. Generated beds are named honestly as synthetic texture beds — never dressed up as field recordings — so a bed is renamed rather than pretending if its synthesis does not convincingly match the name. The two generated thunder beds are audition candidates, not defaults. Four questionable or unverified candidates were excluded after metadata, source, or audition checks did not match their intended provenance cleanly enough for release.
 
 | Works immediately after `install.py` | Add later by dropping files in |
 |---|---|
-| Web UI, Settings, Onsen/Sky/Radio core, optional Dashboard/Utility when enabled, and generated beds: soft/window/heavy rain noise, soft pink rain noise, soft air noise, dark rain rumble noise, brown/white noise, low rumble bed, distant train bed, soft traffic bed, fan/room bed, rain on glass noise, deep water bed, ember crackle bed, and two thunder audition candidates | Finished CC0/user-owned rain/fire/night/water loops in `sounds/library/` plus provenance entries in `sounds/sound_library.json` |
+| Web UI, Settings, Onsen/Sky/Radio core, optional Dashboard/Utility when enabled, 12 bundled CC0 recordings, and 17 generated beds: soft/window/heavy rain noise, soft pink rain noise, soft air noise, dark rain rumble noise, brown/white noise, low rumble bed, distant train bed, soft traffic bed, fan/room bed, rain on glass noise, deep water bed, ember crackle bed, and two thunder audition candidates | Additional user-owned rain/fire/night/water loops in `sounds/library/` plus provenance entries in `sounds/sound_library.json` |
 
 Open Onsen or Sky, click **change sound** on any mixer card, and pick from the local library. Click the small **look** selector on a card to override its animation/color theme without changing the audio.
 
@@ -243,9 +248,9 @@ If optional media fetching fails during install, installation still completes wi
 
 The optional media fetcher only manages the old fixed ambience files in `sounds/`. It does not fetch radio tracks and it does not manage the new sound library manifest.
 
-Radio mode is dynamic. Anything in `sounds/radio/` is served via `/api/radio` and reached at `/sounds/radio/<filename>`. Supported extensions: `mp3 · ogg · m4a · wav · opus · webm · flac`. Filenames become track titles: `night-drive.mp3` → “Night Drive”. Bedtime-story MP3s use the same path: drop them into `sounds/radio/`, refresh, and they appear in Radio without code changes.
+Radio mode is dynamic. Anything in `sounds/radio/` is served via `/api/radio` and reached at `/sounds/radio/<filename>`. Supported extensions: `mp3 · ogg · m4a · wav · opus · webm · flac`. Filenames become track titles: `night-drive.mp3` → “Night Drive”. Spoken-word or other personal audio uses the same path: drop files into `sounds/radio/`, refresh, and they appear in Radio without code changes.
 
-Story provenance should be tracked separately from CC0 ambience. Use honest notes such as "user-authored text" and "user-owned or user-licensed generated narration." Do not label story narration CC0 unless the text, voice/narration output, and license terms are separately proven.
+Personal narration provenance should be tracked separately from CC0 ambience. Use honest notes such as "user-authored text" and "user-owned or user-licensed generated narration." Do not label narration CC0 unless the text, voice/narration output, and license terms are separately proven.
 
 ### Radio sound controls
 
