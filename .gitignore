@@ -2,6 +2,11 @@
 __pycache__/
 .DS_Store
 
+# Generated release/review bundles
+dist/
+review_bundles/
+/*.zip
+
 sounds/*.mp3
 sounds/*.wav
 sounds/*.flac

@@ -162,6 +162,8 @@ def main() -> int:
     parser.add_argument("--host", default="127.0.0.1", help="host printed in the final run command")
     parser.add_argument("--port", default="8000", help="port printed in the final run command")
     args = parser.parse_args()
+    if args.noise_seconds < 1:
+        parser.error("--noise-seconds must be at least 1")
 
     (ROOT / "sounds").mkdir(exist_ok=True)
     (ROOT / "sounds" / "library").mkdir(exist_ok=True)

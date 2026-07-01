@@ -109,6 +109,13 @@ def _settings_copy() -> dict[str, Any]:
     return json.loads(json.dumps(DEFAULT_SETTINGS))
 
 
+async def _json_body(request: Request) -> Any:
+    try:
+        return await request.json()
+    except json.JSONDecodeError as exc:
+        raise HTTPException(status_code=400, detail="invalid JSON body") from exc
+
+
 def _validate_location(raw: Any, *, strict: bool = False) -> dict[str, Any]:
     fallback = _settings_copy()["location"]
     if not isinstance(raw, dict):
@@ -303,7 +310,7 @@ def get_settings() -> dict[str, Any]:
 
 @app.put("/api/settings")
 async def put_settings(request: Request) -> dict[str, Any]:
-    payload = await request.json()
+    payload = await _json_body(request)
     if not isinstance(payload, dict):
         raise HTTPException(status_code=400, detail="settings object required")
     current = _load_settings()
@@ -443,7 +450,7 @@ def get_song(slug: str) -> dict[str, Any]:
 @app.post("/api/songs")
 async def create_song(request: Request) -> dict[str, str]:
     _require_utility_enabled()
-    payload = await request.json()
+    payload = await _json_body(request)
     slug = payload.get("slug", "")
     _check_slug(slug)
     folder = SONGS_DIR / slug
@@ -462,7 +469,7 @@ async def update_song(slug: str, request: Request) -> dict[str, str]:
     _require_utility_enabled()
     _check_slug(slug)
     existing = _read_song(slug)
-    payload = await request.json()
+    payload = await _json_body(request)
     meta = payload.get("meta")
     code = payload.get("code")
     if not isinstance(meta, dict) or not isinstance(code, str):
@@ -478,7 +485,7 @@ async def update_song(slug: str, request: Request) -> dict[str, str]:
 async def duplicate_song(slug: str, request: Request) -> dict[str, str]:
     _require_utility_enabled()
     src = _read_song(slug)
-    payload = await request.json()
+    payload = await _json_body(request)
     new_slug = payload.get("newSlug", "")
     _check_slug(new_slug)
     if (SONGS_DIR / new_slug).exists():
