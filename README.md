@@ -41,9 +41,9 @@ Nocturne is **offline-tolerant**, not offline-first: the sleep/radio core works 
 
 ## Gallery
 
-| Sky | Radio | Dashboard (optional) |
-|---|---|---|
-| ![Nocturne Sky mode on a phone-sized screen, showing moon phase, weather readout, mixer cards, master volume, and sleep timer](docs/screenshots/sky-phone.png) | ![Nocturne Radio mode tape-deck preview](docs/screenshots/radio-desktop.png) | ![Nocturne Dashboard CRT preview](docs/screenshots/dashboard-desktop.png) |
+| Sky | Radio |
+|---|---|
+| ![Nocturne Sky mode on a phone-sized screen, showing moon phase, weather readout, mixer cards, master volume, and sleep timer](docs/screenshots/sky-phone.png) | ![Nocturne Radio mode tape-deck preview](docs/screenshots/radio-desktop.png) |
 
 ---
 

@@ -4,6 +4,5 @@ These images exist so the repository shows Nocturne visually above the fold inst
 
 - `sky-phone.png` — primary README hero image, captured from Sky mode at phone size.
 - `radio-desktop.png` — Radio mode tape deck capture with sample local track names.
-- `dashboard-desktop.png` — CRT dashboard-style launch preview.
 
 For the strongest public launch, replace the hero with a real phone/tablet photo on a nightstand and add a short looping GIF of Onsen → Sky → Radio.
