@@ -1,9 +1,10 @@
 {
-  "schema": "nocturne.evidence-branch-seed.v1",
-  "prepared_for": "v0.1.0-alpha.12-dev \u00b7 2026-07-12 \u00b7 codex-profile-split-v0.4.0-dev",
+  "schema": "nocturne.evidence-branch.v2",
+  "prepared_for": "v0.1.0-alpha.12 · 2026-07-12 · v0.1.0-alpha.12",
   "historical_release_preserved": "alpha11-v0.3.1",
-  "working_release": "alpha12-v0.4.0-dev",
-  "file_count": 57,
+  "release": "alpha12-v0.1.0-alpha.12",
+  "working_history_preserved": "alpha12-v0.4.0-dev",
+  "file_count": 82,
   "files": [
     {
       "path": "BRANCH_SETUP.md",
@@ -12,8 +13,8 @@
     },
     {
       "path": "README.md",
-      "size_bytes": 884,
-      "sha256": "d90b75b47e5155d892c82819e3ab5d8b453d94733a26a69fa45d203f993cf567"
+      "size_bytes": 942,
+      "sha256": "b3c934e37ed64e9e09f8acf4e3715727a66b137bed42848c6d4fc72e20356a52"
     },
     {
       "path": "protocol/HOPEFUL_SKEPTIC_CORE_v0_4_1_FULL.md",
@@ -269,6 +270,131 @@
       "path": "releases/alpha11-v0.3.1/retained/media/rain-transform.json",
       "size_bytes": 2229,
       "sha256": "59c835ec85808cb84181dfce1c45340e5732928ddc7f41f3dd130bded124f50c"
+    },
+    {
+      "path": "releases/alpha12-v0.1.0-alpha.12/FINAL_VERIFICATION.md",
+      "size_bytes": 2033,
+      "sha256": "1d4b2cb5a9284947ae31b30144522e196fd17d990e317fef3fb0c83894e3479e"
+    },
+    {
+      "path": "releases/alpha12-v0.1.0-alpha.12/INITIAL_BUILD.json",
+      "size_bytes": 939,
+      "sha256": "763092ea5af065f43660d507d5636285b8713771f67e34823505dbb7cfdee5b4"
+    },
+    {
+      "path": "releases/alpha12-v0.1.0-alpha.12/MACOS_INSTALL_REPORT.md",
+      "size_bytes": 1124,
+      "sha256": "f92631437785cd890e657bb9273e46569168295393bfd18ec01c13c601bd274b"
+    },
+    {
+      "path": "releases/alpha12-v0.1.0-alpha.12/PRODUCT_SHA256S.txt",
+      "size_bytes": 193,
+      "sha256": "edf8770cc24ecba99204a63ea113425844065576f75460e41f5e47db2ba583d9"
+    },
+    {
+      "path": "releases/alpha12-v0.1.0-alpha.12/README.md",
+      "size_bytes": 1409,
+      "sha256": "20b1e039fbb6a3fb7f1b4096432f059d163258a7fbe44cd70a94d825a775c58f"
+    },
+    {
+      "path": "releases/alpha12-v0.1.0-alpha.12/browser/package/nocturne/browser-smoke.json",
+      "size_bytes": 1954,
+      "sha256": "e6080f9669d74f833bb814a7ec2257d6f64075b240e7970454cd86f34acdae41"
+    },
+    {
+      "path": "releases/alpha12-v0.1.0-alpha.12/browser/package/nocturne/desktop-onsen.png",
+      "size_bytes": 2092443,
+      "sha256": "16d6a7d0300db59f3e5707b269d5d740f46ece80236ae2ba21c55bc3e8b4cab7"
+    },
+    {
+      "path": "releases/alpha12-v0.1.0-alpha.12/browser/package/nocturne/desktop-platform-settings.png",
+      "size_bytes": 499291,
+      "sha256": "ef7198bdbe129b6d2204f8bdf958a423cd4f71ca6b91a6641c5338226028496d"
+    },
+    {
+      "path": "releases/alpha12-v0.1.0-alpha.12/browser/package/nocturne/desktop-tonight-picker.png",
+      "size_bytes": 1576750,
+      "sha256": "9a2361c1a1887682bec3bc05b1ad281901b4ba743a3dd19a74c4764f1cb9fad4"
+    },
+    {
+      "path": "releases/alpha12-v0.1.0-alpha.12/browser/package/nocturne/mobile-mixer.png",
+      "size_bytes": 330874,
+      "sha256": "3ee8af7579bcdcb4d8802e3bfc6080def4726c5b1d5a0ed36d5b886959791763"
+    },
+    {
+      "path": "releases/alpha12-v0.1.0-alpha.12/browser/package/nocturne-pi/browser-smoke.json",
+      "size_bytes": 2020,
+      "sha256": "1ccf8c62a4ff74d7df04cca302a66af3f406cd34b104ae32081ab383b452ea89"
+    },
+    {
+      "path": "releases/alpha12-v0.1.0-alpha.12/browser/package/nocturne-pi/desktop-onsen.png",
+      "size_bytes": 488175,
+      "sha256": "5697829ac6f5915f2649a04946cea55b0d993d1bf36bf9f8f0b855bb554f5c24"
+    },
+    {
+      "path": "releases/alpha12-v0.1.0-alpha.12/browser/package/nocturne-pi/desktop-platform-settings.png",
+      "size_bytes": 240834,
+      "sha256": "3fa17f52313b3ffdea52870e193718833d4d91daae044a5a63750a6565ff0334"
+    },
+    {
+      "path": "releases/alpha12-v0.1.0-alpha.12/browser/package/nocturne-pi/desktop-tonight-picker.png",
+      "size_bytes": 476929,
+      "sha256": "8fce58e768db695d8cd80b5ccab909db8a5c8a44c2e2ed351b9832c5fb892eda"
+    },
+    {
+      "path": "releases/alpha12-v0.1.0-alpha.12/browser/package/nocturne-pi/mobile-mixer.png",
+      "size_bytes": 218731,
+      "sha256": "473263abe0f6a2ea7b40fa292c460728adfeb2e82db2c396fa8a0bed38af7b8b"
+    },
+    {
+      "path": "releases/alpha12-v0.1.0-alpha.12/browser/source/nocturne/browser-smoke.json",
+      "size_bytes": 1954,
+      "sha256": "e6080f9669d74f833bb814a7ec2257d6f64075b240e7970454cd86f34acdae41"
+    },
+    {
+      "path": "releases/alpha12-v0.1.0-alpha.12/browser/source/nocturne/desktop-onsen.png",
+      "size_bytes": 2086978,
+      "sha256": "cab19516b2dae6348ca7d91c9fe9be78af064770bc204b8b43835a0614997d9d"
+    },
+    {
+      "path": "releases/alpha12-v0.1.0-alpha.12/browser/source/nocturne/desktop-platform-settings.png",
+      "size_bytes": 499266,
+      "sha256": "5a965c7a78706f3d28201102ca6b00657d08236aeb29a60605657376390fce01"
+    },
+    {
+      "path": "releases/alpha12-v0.1.0-alpha.12/browser/source/nocturne/desktop-tonight-picker.png",
+      "size_bytes": 1577061,
+      "sha256": "880f8093afa01d22d64276111a471759c2952a836fffb4abb14791bfe0602ad8"
+    },
+    {
+      "path": "releases/alpha12-v0.1.0-alpha.12/browser/source/nocturne/mobile-mixer.png",
+      "size_bytes": 330775,
+      "sha256": "00a3fe8e768992162eb565a223a7828ec87baa2f09aaebac18822d2c8ef323ce"
+    },
+    {
+      "path": "releases/alpha12-v0.1.0-alpha.12/browser/source/nocturne-pi/browser-smoke.json",
+      "size_bytes": 2020,
+      "sha256": "1ccf8c62a4ff74d7df04cca302a66af3f406cd34b104ae32081ab383b452ea89"
+    },
+    {
+      "path": "releases/alpha12-v0.1.0-alpha.12/browser/source/nocturne-pi/desktop-onsen.png",
+      "size_bytes": 488175,
+      "sha256": "5697829ac6f5915f2649a04946cea55b0d993d1bf36bf9f8f0b855bb554f5c24"
+    },
+    {
+      "path": "releases/alpha12-v0.1.0-alpha.12/browser/source/nocturne-pi/desktop-platform-settings.png",
+      "size_bytes": 240834,
+      "sha256": "3fa17f52313b3ffdea52870e193718833d4d91daae044a5a63750a6565ff0334"
+    },
+    {
+      "path": "releases/alpha12-v0.1.0-alpha.12/browser/source/nocturne-pi/desktop-tonight-picker.png",
+      "size_bytes": 476751,
+      "sha256": "b928bc80831c9a4af465ce571d2687bc6596bd0ce3502e35d3699a584a2ab973"
+    },
+    {
+      "path": "releases/alpha12-v0.1.0-alpha.12/browser/source/nocturne-pi/mobile-mixer.png",
+      "size_bytes": 218731,
+      "sha256": "aaf72d5a6783c67afb567cec002cd18c0db98a352ecb6852941932208a22910e"
     },
     {
       "path": "reviews/grok-alpha10-review.md",

@@ -1,0 +1,25 @@
+{
+  "schema": "nocturne.dual-release-build.v1",
+  "build": "v0.1.0-alpha.12 \u00b7 2026-07-12 \u00b7 v0.1.0-alpha.12",
+  "products": {
+    "nocturne": {
+      "package": "nocturne-v0.1.0-alpha.12",
+      "path": "nocturne-v0.1.0-alpha.12.zip",
+      "size_bytes": 11490420,
+      "sha256": "5faf3d22dcc0ea29d6fcf0f97a403c10945922c2c795c8e99031ea4325bb8bd5",
+      "build": "v0.1.0-alpha.12 \u00b7 2026-07-12 \u00b7 v0.1.0-alpha.12"
+    },
+    "nocturne-pi": {
+      "package": "nocturne-pi-v0.1.0-alpha.12",
+      "path": "nocturne-pi-v0.1.0-alpha.12.zip",
+      "size_bytes": 8574374,
+      "sha256": "fa3f94712fc08788a2504511a8e739fa136327ada721981b8a69ab300dde1b36",
+      "build": "v0.1.0-alpha.12 \u00b7 2026-07-12 \u00b7 v0.1.0-alpha.12"
+    }
+  },
+  "evidence": {
+    "path": "nocturne-evidence-v0.1.0-alpha.12.zip",
+    "size_bytes": 21451516,
+    "sha256": "d9b50d8102a537dc2f6be947f81e1f2d47447ea2ad8585d49cd7f09482394783"
+  }
+}

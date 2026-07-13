@@ -19,5 +19,6 @@ Each release folder should record:
 - verification scope and unresolved human tests.
 
 `releases/alpha11-v0.3.1/` preserves the last completed single-product evidence
-bundle. `working/alpha12-v0.4.0-dev/` is the staging record for the dual-profile
-transition and should remain pending until Codex finishes and reruns checks.
+bundle. `releases/alpha12-v0.1.0-alpha.12/` records the first public dual-profile
+field-test alpha. `working/alpha12-v0.4.0-dev/` remains as preliminary history;
+its rehearsal hashes are not Alpha 12 release hashes.

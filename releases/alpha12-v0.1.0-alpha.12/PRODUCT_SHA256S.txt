@@ -1,0 +1,2 @@
+5faf3d22dcc0ea29d6fcf0f97a403c10945922c2c795c8e99031ea4325bb8bd5  nocturne-v0.1.0-alpha.12.zip
+fa3f94712fc08788a2504511a8e739fa136327ada721981b8a69ab300dde1b36  nocturne-pi-v0.1.0-alpha.12.zip
