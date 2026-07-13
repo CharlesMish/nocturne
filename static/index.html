@@ -1,11 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta name="color-scheme" content="dark">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Nocturne — Onsen, Sky, Radio</title>
 <meta name="description" content="A local sleep ritual app with an ambient mixer, weather sky, and personal bedtime radio. Optional Utility and Dashboard modes stay behind Settings.">
 <meta name="theme-color" content="#0a0808">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" type="image/png" href="/icons/favicon.png">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -880,7 +884,6 @@ main { position: relative; z-index: 10; }
   background: rgba(8, 7, 9, 0.55);
   color: var(--text);
   padding: 0.72rem 0.95rem;
-  outline: none;
 }
 .sound-categories { display: flex; flex-wrap: wrap; gap: 0.45rem; justify-content: flex-end; }
 .sound-chip {
@@ -1820,7 +1823,6 @@ input[type="range"] {
   --pct: 0%;
   --slider-fill: var(--glow-color, var(--lantern-soft));
 }
-input[type="range"]:focus { outline: none; }
 
 /* WebKit / Blink */
 input[type="range"]::-webkit-slider-runnable-track {
@@ -3273,7 +3275,6 @@ body[data-mode="dashboard"] .mixer-section { display: none !important; }
   resize: none;
   padding: 18px;
   border: 0;
-  outline: 0;
   background: #08090c;
   color: var(--paper);
   font-family: 'JetBrains Mono', monospace;
@@ -3326,7 +3327,6 @@ body[data-mode="dashboard"] .mixer-section { display: none !important; }
 }
 .utility-field input:focus,
 .utility-field textarea:focus {
-  outline: none;
   border-color: rgba(232, 169, 111, 0.42);
   box-shadow: 0 0 0 2px rgba(232, 169, 111, 0.08);
 }
@@ -3715,7 +3715,6 @@ body.radio-playing .reel-inner { animation-play-state: running; }
     rgba(232, 169, 111, 0.55) var(--pct, 60%),
     rgba(80, 50, 30, 0.45) var(--pct, 60%),
     rgba(80, 50, 30, 0.45) 100%);
-  outline: none;
   cursor: pointer;
 }
 .deck-slider input[type="range"]::-webkit-slider-thumb {
@@ -3917,6 +3916,7 @@ body[data-mode="dashboard"] .topbar {
    Subtle helper text could change here if we wanted; left as-is for now. */
 
 </style>
+<link rel="stylesheet" href="/nocturne-polish.css">
 </head>
 <body>
 
@@ -3993,10 +3993,8 @@ body[data-mode="dashboard"] .topbar {
         │  setting its src (or sources). The painted CSS scene below  │
         │  is shown as a fallback until then.                         │
         │                                                             │
-        │  Example:                                                   │
-        │    <video … >                                               │
-        │      <source src="/rain.mp4" type="video/mp4">  │
-        │    </video>                                                 │
+        │  The full profile adds rain.mp4 after profile resolution;    │
+        │  the Pi profile keeps the still fallback and never requests it.│
         ╰─────────────────────────────────────────────────────────────╯
       -->
       <div class="video-stage" id="video-stage" data-tilt aria-label="Onsen, in the rain">
@@ -4038,9 +4036,11 @@ body[data-mode="dashboard"] .topbar {
           loop
           muted
           playsinline
-          preload="auto"
+          preload="none"
+          poster="/rain-still.webp"
+          data-full-src="/rain.mp4?v=alpha12"
           aria-hidden="true">
-          <source src="/rain.mp4?v=20260503-182100" type="video/mp4">
+
         </video>
 
         <div class="scene-bloom" aria-hidden="true"></div>
@@ -4322,9 +4322,27 @@ body[data-mode="dashboard"] .topbar {
           <h2>Choose eight sounds for tonight.</h2>
         </div>
         <div class="help">
-          Drop AI-generated loops into <code>sounds/library/</code>, list them in <code>sounds/sound_library.json</code>, then assign any eight here.
-          <button class="btn mixer-reset" id="reset-mixer-slots" type="button">restore core slots</button>
+          Tonight begins with eight bundled recordings. Use <em>Change</em> to explore the recorded, generated, and experimental shelves.
+          <button class="btn mixer-reset" id="reset-mixer-slots" type="button">restore Tonight</button>
         </div>
+      </div>
+      <div class="scene-shelf" aria-labelledby="scene-shelf-title">
+        <div class="scene-copy">
+          <span class="eyebrow" id="scene-shelf-title">local scenes</span>
+          <p>Save this mix on this browser—sound choices, levels, looks, and Radio texture. Up to 12 small, versioned scenes stay here only; nothing is uploaded or synced.</p>
+        </div>
+        <label class="scene-field">
+          <span class="visually-hidden">Saved scene</span>
+          <select id="scene-select" aria-label="Saved scene">
+            <option value="">saved scenes…</option>
+          </select>
+        </label>
+        <div class="scene-actions">
+          <button class="btn" id="scene-apply" type="button" disabled>apply</button>
+          <button class="btn" id="scene-save" type="button">save current</button>
+          <button class="btn" id="scene-delete" type="button" disabled>delete</button>
+        </div>
+        <p class="scene-status" id="scene-status" aria-live="polite"></p>
       </div>
       <div class="mixer-grid" id="mixer-grid">
 
@@ -4563,6 +4581,7 @@ body[data-mode="dashboard"] .topbar {
         <button class="btn btn-primary" id="resume-mix" type="button">resume mix</button>
         <button class="btn" id="silence" type="button">silence all</button>
       </div>
+      <p class="session-notice" id="session-notice" aria-live="polite" hidden></p>
       <div class="sleep-timer" aria-label="Sleep timer">
         <div class="label">
           <span class="name">Sleep timer</span>
@@ -4581,9 +4600,9 @@ body[data-mode="dashboard"] .topbar {
 
     <!-- ─────────────────────  FOOTER  ───────────────────── -->
     <footer>
-      <div id="build-label-footer">Nocturne · v0.1.0-alpha.8</div>
+      <div id="build-label-footer">Nocturne · loading build…</div>
       <div>Eight channels · local weather · personal radio</div>
-      <div id="build-date-footer">Build 2026-06-29</div>
+      <div id="build-date-footer">Build details loading…</div>
     </footer>
 
   </div>
@@ -4598,10 +4617,10 @@ body[data-mode="dashboard"] .topbar {
       </div>
       <button class="settings-close" id="settings-close" type="button" aria-label="Close settings">×</button>
     </div>
-    <p class="settings-copy">Choose which Nocturne modes appear in the top bar. Changes are saved on this device in <code>config/nocturne.json</code>.</p>
+    <p class="settings-copy">Choose which Nocturne modes appear in the top bar. Changes are saved on this Nocturne server in <code>config/nocturne.json</code>.</p>
     <section class="settings-section" aria-labelledby="settings-build-title">
       <h3 id="settings-build-title">Build</h3>
-      <p class="settings-note" id="settings-build-label">v0.1.0-alpha.8 · 2026-06-29 · 7c9dba3</p>
+      <p class="settings-note" id="settings-build-label">build details loading…</p>
       <p class="settings-note" id="settings-build-details">Share this label with alpha feedback. Full JSON is available at <code>/api/version</code>.</p>
     </section>
     <form class="settings-form" id="settings-form">
@@ -4668,6 +4687,18 @@ body[data-mode="dashboard"] .topbar {
       <p class="settings-note">Search by city, use browser location, or enter coordinates manually. Used for Sky weather. Moon phase does not require location.</p>
       <p class="settings-note">Manual latitude/longitude always works; browser location usually requires localhost or HTTPS.</p>
     </section>
+    <section class="settings-section" aria-labelledby="settings-platform-title">
+      <h3 id="settings-platform-title">Device integration</h3>
+      <div class="platform-grid">
+        <div class="platform-card" id="platform-context"><strong>Connection</strong><span>checking…</span></div>
+        <div class="platform-card" id="platform-media-session"><strong>Lock-screen controls</strong><span>checking…</span></div>
+        <div class="platform-card" id="platform-install"><strong>Install identity</strong><span>checking…</span></div>
+        <div class="platform-card" id="platform-visibility"><strong>Return check</strong><span>checking…</span></div>
+      </div>
+      <p class="settings-note">HTTPS or localhost unlocks more browser integration. A normal LAN URL over plain HTTP still plays audio, but some platform APIs may be withheld.</p>
+      <p class="settings-note">Nocturne notices a likely interruption and offers a visible resume path. It is not an alarm clock and cannot promise that a phone OS will keep any browser tab alive overnight.</p>
+      <p class="settings-note"><strong>Field status:</strong> device matrix pending. Record real results in <code>docs/DEVICE_TEST_MATRIX.md</code> before describing support for a specific phone or browser.</p>
+    </section>
     <div class="settings-warning">
       Utility exposes local sketch save/edit routes on this Nocturne server. Enable it only on a trusted local network.
     </div>
@@ -4687,7 +4718,52 @@ body[data-mode="dashboard"] .topbar {
      ───────────────────────────────────────────── */
   const STORAGE_PREFIX = 'nocturne:onsen:';
   const TIMER_FADE_MS = 60 * 1000;
+  const SCENE_SCHEMA = 1;
+  const SCENES_KEY = 'scenes:v1';
+  const MAX_LOCAL_SCENES = 12;
+  const MAX_SCENE_STORAGE_BYTES = 64 * 1024;
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const observedMedia = new WeakSet();
+  let activeSceneName = '';
+  let applyingScene = false;
+  let hiddenPlaybackSnapshot = null;
+  let lastPlaybackSurface = 'ambient';
+  let mediaUpdateTimer = null;
+  let activeProfile = {
+    id: 'nocturne',
+    display_name: 'Nocturne',
+    visuals: {
+      rain_video: true, ambient_motion: true, parallax: true,
+      backdrop_blur: true, compact_assets: false, preload_strategy: 'balanced'
+    }
+  };
+
+  function profileFeature(name, fallback = false) {
+    const visuals = activeProfile && activeProfile.visuals;
+    return visuals && typeof visuals[name] === 'boolean' ? visuals[name] : fallback;
+  }
+
+  function applyActiveProfile(profile) {
+    if (profile && typeof profile === 'object') activeProfile = { ...activeProfile, ...profile };
+    const id = activeProfile.id === 'nocturne-pi' ? 'nocturne-pi' : 'nocturne';
+    activeProfile.id = id;
+    document.documentElement.dataset.profile = id;
+    document.body.dataset.profile = id;
+    const brandSub = document.querySelector('.brand-sub');
+    if (brandSub) brandSub.textContent = id === 'nocturne-pi' ? 'Pi · a quiet place' : 'a quiet place';
+  }
+
+  async function loadActiveProfile() {
+    try {
+      const res = await fetch('/api/profile', { cache: 'no-store' });
+      if (!res.ok) throw new Error('profile unavailable');
+      applyActiveProfile(await res.json());
+    } catch (e) {
+      console.warn('Nocturne profile: using full-profile fallback', e);
+      applyActiveProfile(activeProfile);
+    }
+    return activeProfile;
+  }
 
   /* Sound library registry. The mixer keeps eight live slots, but each slot
      can be assigned from a larger local library. Drop curated CC0 / user-owned
@@ -4728,538 +4804,676 @@ body[data-mode="dashboard"] .topbar {
   };
   const THEME_CLASS_NAMES = Object.values(VISUAL_THEMES).map(t => t.panel);
 
-  const DEFAULT_SOUND_LIBRARY = {
-    "version": 4,
-    "notes": "Local ambience library for the Nocturne alpha.8 sound picker. Entries are split by source_type: recorded_cc0 for bundled Freesound CC0 recordings, generated for procedural beds created during install. alpha.7 added the expanded honestly-named procedural set (low-rumble-bed, distant-train-bed, soft-traffic-bed, fan-room-bed, rain-on-glass-noise, deep-water-bed, ember-crackle-bed). alpha.8 adds distant-thunder-bed and soft-thunderstorm-bed as generated audition candidates, not defaults. Generated beds are synthetic texture beds, never presented as field recordings.",
-    "default_slots": [
-      "rain-heavy-open-window",
-      "rain-balcony-peaceful",
-      "rain-tent-heavy",
-      "fire-crackling-loop",
-      "crickets-at-night-clean",
-      "waves-on-shore",
-      "fan-room-bed",
-      "low-rumble-bed"
-    ],
-    "sounds": [
-      {
-        "id": "soft-rain-noise",
-        "name": "Soft Rain Noise",
-        "category": "rain",
-        "theme": "mist-rain",
-        "src": "/sounds/soft-rain-noise.wav",
-        "description": "Procedural rain-like starter bed generated locally during install. Replace with a curated CC0 field recording when ready.",
-        "license_note": "Generated by Nocturne scripts/generate_noise.py.",
-        "source_type": "generated",
-        "source_label": "Generated"
-      },
-      {
-        "id": "window-rain-noise",
-        "name": "Window Rain Noise",
-        "category": "rain",
-        "theme": "garden-rain",
-        "src": "/sounds/window-rain-noise.wav",
-        "description": "Procedural close rain/window-like starter bed generated locally during install.",
-        "license_note": "Generated by Nocturne scripts/generate_noise.py.",
-        "source_type": "generated",
-        "source_label": "Generated"
-      },
-      {
-        "id": "heavy-rain-noise",
-        "name": "Heavy Rain Noise",
-        "category": "rain",
-        "theme": "distant-storm",
-        "src": "/sounds/heavy-rain-noise.wav",
-        "description": "Procedural heavy rain-like starter bed generated locally during install.",
-        "license_note": "Generated by Nocturne scripts/generate_noise.py.",
-        "source_type": "generated",
-        "source_label": "Generated"
-      },
-      {
-        "id": "distant-storm-noise",
-        "name": "Soft Pink Rain Noise",
-        "category": "noise",
-        "theme": "ember-noise",
-        "src": "/sounds/distant-storm-noise.wav",
-        "description": "Procedural rain/noise bed generated locally during install. Alpha.8 audition found this reads closer to soft pink-noise-like wash than to a convincing dark rain rumble.",
-        "license_note": "Generated by Nocturne scripts/generate_noise.py.",
-        "source_type": "generated",
-        "source_label": "Generated",
-        "notes": "Alpha.8 metadata correction only: ID and file preserved for compatibility; display name/description changed after audition. Generated entirely by scripts/generate_noise.py."
-      },
-      {
-        "id": "soft-wind-noise",
-        "name": "Soft Air Noise",
-        "category": "noise",
-        "theme": "mist-rain",
-        "src": "/sounds/soft-wind-noise.wav",
-        "description": "Procedural soft air/wind-like bed generated locally during install.",
-        "license_note": "Generated by Nocturne scripts/generate_noise.py.",
-        "source_type": "generated",
-        "source_label": "Generated"
-      },
-      {
-        "id": "pink-noise",
-        "name": "Dark Rain Rumble Noise",
-        "category": "noise",
-        "theme": "mountain-storm",
-        "src": "/sounds/pinknoise.wav",
-        "description": "Procedural pink-spectrum noise generated locally during install. Alpha.8 audition found this slot reads more like a dark rain/rumble bed in the mixer than the previous plain Pink Noise label.",
-        "license_note": "Generated by Nocturne scripts/generate_noise.py.",
-        "source_type": "generated",
-        "source_label": "Generated",
-        "notes": "Alpha.8 metadata correction only: ID and file preserved for compatibility; display name/description changed after audition. Generated entirely by scripts/generate_noise.py."
-      },
-      {
-        "id": "brown-noise",
-        "name": "Brown Noise (Deep/Subtle)",
-        "category": "noise",
-        "theme": "ember-noise",
-        "src": "/sounds/brown-noise.wav",
-        "description": "Procedural low-frequency brown noise. Best on headphones or speakers with bass response.",
-        "license_note": "Generated by Nocturne scripts/generate_noise.py.",
-        "source_type": "generated",
-        "source_label": "Generated",
-        "notes": "Low-frequency brown noise may sound very quiet on small laptop/phone speakers."
-      },
-      {
-        "id": "white-noise",
-        "name": "White Noise",
-        "category": "noise",
-        "theme": "ember-noise",
-        "src": "/sounds/white-noise.wav",
-        "description": "Generated locally by scripts/generate_noise.py during install.",
-        "license_note": "Generated by Nocturne scripts/generate_noise.py.",
-        "source_type": "generated",
-        "source_label": "Generated"
-      },
-      {
-        "id": "low-rumble-bed",
-        "name": "Low Rumble Bed",
-        "category": "noise",
-        "theme": "mountain-storm",
-        "src": "/sounds/low-rumble-bed.wav",
-        "description": "Procedural low/sub rumble bed with slow swells in the 22–130 Hz region. Thunder-adjacent texture, not a recording of real thunder; no sharp peaks.",
-        "license_note": "Generated by Nocturne scripts/generate_noise.py.",
-        "source_type": "generated",
-        "source_label": "Generated",
-        "notes": "Best on headphones or speakers with bass response; very low frequencies may be quiet on small laptop/phone speakers."
-      },
-      {
-        "id": "distant-train-bed",
-        "name": "Distant Train Bed",
-        "category": "noise",
-        "theme": "distant-storm",
-        "src": "/sounds/distant-train-bed.wav",
-        "description": "Procedural soft low rolling rail texture with a gentle rhythmic cadence. Synthetic bed — no horn, no metallic screech, no identifiable train events.",
-        "license_note": "Generated by Nocturne scripts/generate_noise.py.",
-        "source_type": "generated",
-        "source_label": "Generated"
-      },
-      {
-        "id": "soft-traffic-bed",
-        "name": "Soft Traffic Bed",
-        "category": "noise",
-        "theme": "garden-rain",
-        "src": "/sounds/soft-traffic-bed.wav",
-        "description": "Procedural distant-city traffic wash, very low and smooth. Anonymous wash only — no honks, sirens, or identifiable vehicles.",
-        "license_note": "Generated by Nocturne scripts/generate_noise.py.",
-        "source_type": "generated",
-        "source_label": "Generated"
-      },
-      {
-        "id": "fan-room-bed",
-        "name": "Fan / Room Bed",
-        "category": "noise",
-        "theme": "ember-noise",
-        "src": "/sounds/fan-room-bed.wav",
-        "description": "Procedural steady fan / air-conditioner style bed. Smoother and warmer than white noise; steady with no pure tone.",
-        "license_note": "Generated by Nocturne scripts/generate_noise.py.",
-        "source_type": "generated",
-        "source_label": "Generated"
-      },
-      {
-        "id": "rain-on-glass-noise",
-        "name": "Rain on Glass Noise",
-        "category": "rain",
-        "theme": "garden-rain",
-        "src": "/sounds/rain-on-glass-noise.wav",
-        "description": "Procedural light rain taps over a soft rain bed, tuned to sit closer to a windowpane character than plain filtered noise. Synthetic bed, not a field recording.",
-        "license_note": "Generated by Nocturne scripts/generate_noise.py.",
-        "source_type": "generated",
-        "source_label": "Generated"
-      },
-      {
-        "id": "deep-water-bed",
-        "name": "Deep Water Bed",
-        "category": "water",
-        "theme": "mist-rain",
-        "src": "/sounds/deep-water-bed.wav",
-        "description": "Procedural low filtered water-like movement with gentle surges. No animal sounds, no sudden splashes.",
-        "license_note": "Generated by Nocturne scripts/generate_noise.py.",
-        "source_type": "generated",
-        "source_label": "Generated"
-      },
-      {
-        "id": "ember-crackle-bed",
-        "name": "Ember Crackle Bed",
-        "category": "fire",
-        "theme": "hearth",
-        "src": "/sounds/ember-crackle-bed.wav",
-        "description": "Procedural warm noise bed with sparse soft crackles. Rounded crackles (not bright clicks); a texture bed, not a recording of a real fire.",
-        "license_note": "Generated by Nocturne scripts/generate_noise.py.",
-        "source_type": "generated",
-        "source_label": "Generated",
-        "notes": "Weakest of the generated set; the crackles are deliberately subtle to stay sleep-safe. Treat as 'maybe' — review against the CC0 fireplace loops before featuring it."
-      },
-      {
-        "id": "distant-thunder-bed",
-        "name": "Distant Thunder Bed",
-        "category": "thunder",
-        "theme": "mountain-storm",
-        "src": "/sounds/distant-thunder-bed.wav",
-        "description": "Procedural audition candidate: sparse distant low thunder rolls over a very quiet rumble floor. No rain, no sharp cracks, no field recording.",
-        "license_note": "Generated by Nocturne scripts/generate_noise.py from the local alpha.8 thunder design; no third-party source audio.",
-        "source_type": "generated",
-        "source_label": "Generated",
-        "notes": "Audition candidate only; intentionally not a default slot until human sleep-safety review."
-      },
-      {
-        "id": "soft-thunderstorm-bed",
-        "name": "Soft Thunderstorm Bed",
-        "category": "thunder",
-        "theme": "distant-storm",
-        "src": "/sounds/soft-thunderstorm-bed.wav",
-        "description": "Procedural audition candidate: soft low thunder rolls with a faint rain hush. No bright thunder cracks, no field recording.",
-        "license_note": "Generated by Nocturne scripts/generate_noise.py from the local alpha.8 thunder design; no third-party source audio.",
-        "source_type": "generated",
-        "source_label": "Generated",
-        "notes": "Audition candidate only; intentionally not a default slot until human sleep-safety review."
-      },
-      {
-        "id": "rain-balcony-peaceful",
-        "name": "Gentle Rain",
-        "category": "rain",
-        "theme": "mist-rain",
-        "src": "/sounds/library/rain-balcony-peaceful.mp3",
-        "description": "Priority default. Peaceful balcony rain; popular candidate.",
-        "source": "Freesound",
-        "source_title": "Rain.wav",
-        "creator": "idomusics",
-        "source_url": "https://freesound.org/people/idomusics/sounds/518863/",
-        "license": "CC0 1.0",
-        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "license_note": "Curated from Freesound as CC0 1.0; verify page screenshot before public release.",
-        "downloaded_at": "2026-06-18",
-        "screenshot": "provenance/screenshots/rain-balcony-peaceful.jpg",
-        "original_filename": "rain-balcony-peaceful.wav",
-        "processed_filename": "rain-balcony-peaceful.mp3",
-        "original_sha256": "5f4c278ddca1212aeaee950db7626b3b3202b284b1713135f8ad354e41127e57",
-        "sha256": "869c44321952548d3c35d8b712d97975d5af169a745f48dc96c124b6f00e68a0",
-        "file_size_bytes": 865218,
-        "edits": "Trimmed/converted for Nocturne; embedded metadata stripped; loudness-normalized for alpha.7; SHA-256 is for bundled MP3.",
-        "notes": "Priority default. Peaceful balcony rain; popular candidate.",
-        "source_type": "recorded_cc0",
-        "source_label": "Recorded CC0"
-      },
-      {
-        "id": "rain-heavy-open-window",
-        "name": "Rain on Open Window",
-        "category": "rain",
-        "theme": "garden-rain",
-        "src": "/sounds/library/rain-heavy-open-window.mp3",
-        "description": "Priority default. Heavy indoor rain from open window.",
-        "source": "Freesound",
-        "source_title": "Rain (Heavy)_From open window.wav",
-        "creator": "Mar.Sounds",
-        "source_url": "https://freesound.org/people/Mar.Sounds/sounds/630424/",
-        "license": "CC0 1.0",
-        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "license_note": "Curated from Freesound as CC0 1.0; verify page screenshot before public release.",
-        "downloaded_at": "2026-06-18",
-        "screenshot": "provenance/screenshots/rain-heavy-open-window.jpg",
-        "original_filename": "rain-heavy-open-window.wav",
-        "processed_filename": "rain-heavy-open-window.mp3",
-        "original_sha256": "62b969909aa4e6bd79d55d124b4640b66dee8fcd6f4c1b2125d865ff4a4d8acd",
-        "sha256": "4e6f30fe3542c708eea0320978d73af1eea45d5a0e90bccc38e1638be5249214",
-        "file_size_bytes": 1250576,
-        "edits": "Trimmed/converted for Nocturne; embedded metadata stripped; loudness-normalized for alpha.7; SHA-256 is for bundled MP3.",
-        "notes": "Priority default. Heavy indoor rain from open window.",
-        "source_type": "recorded_cc0",
-        "source_label": "Recorded CC0"
-      },
-      {
-        "id": "indoor-raining-loop",
-        "name": "Indoor Raining Loop",
-        "category": "rain",
-        "theme": "mist-rain",
-        "src": "/sounds/library/indoor-raining-loop.mp3",
-        "description": "Short loop; good for testing but may feel repetitive.",
-        "source": "Freesound",
-        "source_title": "Indoor raining loop",
-        "creator": "Rvgerxini",
-        "source_url": "https://freesound.org/people/Rvgerxini/sounds/527658/",
-        "license": "CC0 1.0",
-        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "license_note": "Curated from Freesound as CC0 1.0; verify page screenshot before public release.",
-        "downloaded_at": "2026-06-18",
-        "screenshot": "provenance/screenshots/indoor-raining-loop.jpg",
-        "original_filename": "indoor-raining-loop.mp3",
-        "processed_filename": "indoor-raining-loop.mp3",
-        "original_sha256": "3b85b1fffb1e15cd4fbd6dc8dd0d925898d8b0972201f7df1aa21179912af5b6",
-        "sha256": "937f3f0106a4c8ae0151a5a8d64f51d09f66ca7ff7ccb366252f4205b415251c",
-        "file_size_bytes": 527925,
-        "edits": "Trimmed/converted for Nocturne; embedded metadata stripped; loudness-normalized for alpha.7; SHA-256 is for bundled MP3.",
-        "notes": "Short loop; good for testing but may feel repetitive.",
-        "source_type": "recorded_cc0",
-        "source_label": "Recorded CC0"
-      },
-      {
-        "id": "rain-tent-heavy",
-        "name": "Heavy Rain on Tent",
-        "category": "rain",
-        "theme": "tempest",
-        "src": "/sounds/library/rain-tent-heavy.mp3",
-        "description": "Camping/tent texture; good rain variety.",
-        "source": "Freesound",
-        "source_title": "Heavy Rain on a tent",
-        "creator": "Breviceps",
-        "source_url": "https://freesound.org/people/Breviceps/sounds/484724/",
-        "license": "CC0 1.0",
-        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "license_note": "Curated from Freesound as CC0 1.0; verify page screenshot before public release.",
-        "downloaded_at": "2026-06-18",
-        "screenshot": "provenance/screenshots/rain-tent-heavy.jpg",
-        "original_filename": "rain-tent-heavy.wav",
-        "processed_filename": "rain-tent-heavy.mp3",
-        "original_sha256": "d98e00be135d2679aff35e7d12520b7176608da9f70da21ee435e3bbae64914e",
-        "sha256": "01f7b1e3bbd5f674976bd7356b749008fd93cb27910b98c499afca8bc6102c63",
-        "file_size_bytes": 794165,
-        "edits": "Trimmed/converted for Nocturne; embedded metadata stripped; loudness-normalized for alpha.7; SHA-256 is for bundled MP3.",
-        "notes": "Camping/tent texture; good rain variety.",
-        "source_type": "recorded_cc0",
-        "source_label": "Recorded CC0"
-      },
-      {
-        "id": "rain-inside-house",
-        "name": "Rain from Inside House",
-        "category": "rain",
-        "theme": "garden-rain",
-        "src": "/sounds/library/rain-inside-house.mp3",
-        "description": "Attic/inside-house rain; keep only if it auditions warm.",
-        "source": "Freesound",
-        "source_title": "Rain from Inside House.wav",
-        "creator": "phillyfan972",
-        "source_url": "https://freesound.org/people/phillyfan972/sounds/519297/",
-        "license": "CC0 1.0",
-        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "license_note": "Curated from Freesound as CC0 1.0; verify page screenshot before public release.",
-        "downloaded_at": "2026-06-18",
-        "screenshot": "provenance/screenshots/rain-inside-house.jpg",
-        "original_filename": "rain-inside-house.wav",
-        "processed_filename": "rain-inside-house.mp3",
-        "original_sha256": "9037ae9fa98b86c041147caf643dace5f8a6c41a390fa303541c65747a23e10d",
-        "sha256": "03de0ee85dc758c1d542e413db715a96eae5322b1c27205b677ab8d1e57c2c65",
-        "file_size_bytes": 1692777,
-        "edits": "Trimmed/converted for Nocturne; embedded metadata stripped; loudness-normalized for alpha.7; SHA-256 is for bundled MP3.",
-        "notes": "Attic/inside-house rain; keep only if it auditions warm.",
-        "source_type": "recorded_cc0",
-        "source_label": "Recorded CC0"
-      },
-      {
-        "id": "rain-city-pooling",
-        "name": "City Rain Pooling",
-        "category": "rain",
-        "theme": "squall",
-        "src": "/sounds/library/rain-city-pooling.mp3",
-        "description": "Short city rain texture; likely not a default.",
-        "source": "Freesound",
-        "source_title": "raining in the city - rain pooling up - 1",
-        "creator": "FOSSarts",
-        "source_url": "https://freesound.org/people/FOSSarts/sounds/789162/",
-        "license": "CC0 1.0",
-        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "license_note": "Curated from Freesound as CC0 1.0; verify page screenshot before public release.",
-        "downloaded_at": "2026-06-18",
-        "screenshot": "provenance/screenshots/rain-city-pooling.jpg",
-        "original_filename": "rain-city-pooling.wav",
-        "processed_filename": "rain-city-pooling.mp3",
-        "original_sha256": "9785a8192cebb8f7603f09190da10586d7f4949f3f038b6b09ed4e55ef867aab",
-        "sha256": "2cc7b080ca413751cd037625ce90c54d4a91cb0632dfcdea1f1eaf728449e148",
-        "file_size_bytes": 169734,
-        "edits": "Trimmed/converted for Nocturne; embedded metadata stripped; loudness-normalized for alpha.7; SHA-256 is for bundled MP3.",
-        "notes": "Short city rain texture; likely not a default.",
-        "source_type": "recorded_cc0",
-        "source_label": "Recorded CC0"
-      },
-      {
-        "id": "fire-crackling-loop",
-        "name": "Fireplace",
-        "category": "fire",
-        "theme": "hearth",
-        "src": "/sounds/library/fire-crackling-loop.mp3",
-        "description": "Priority default. Compare against Nox_Sound and keep the warmer one.",
-        "source": "Freesound",
-        "source_title": "fire crackling loop.wav",
-        "creator": "soundofsong",
-        "source_url": "https://freesound.org/people/soundofsong/sounds/650574/",
-        "license": "CC0 1.0",
-        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "license_note": "Curated from Freesound as CC0 1.0; verify page screenshot before public release.",
-        "downloaded_at": "2026-06-18",
-        "screenshot": "provenance/screenshots/fire-crackling-loop.jpg",
-        "original_filename": "fire-crackling-loop.wav",
-        "processed_filename": "fire-crackling-loop.mp3",
-        "original_sha256": "40d19da3fd9fa1f5d04dc2b9c1bce3bd8c64ab636953112d45ec7cbe97b631c4",
-        "sha256": "855cd56f2f74559eff1bc7dedbf6c189f5a5545c23e8913f8538c7ab872d2ae1",
-        "file_size_bytes": 81545,
-        "edits": "Trimmed/converted for Nocturne; embedded metadata stripped; loudness-normalized for alpha.7; SHA-256 is for bundled MP3.",
-        "notes": "Priority default. Compare against Nox_Sound and keep the warmer one.",
-        "source_type": "recorded_cc0",
-        "source_label": "Recorded CC0"
-      },
-      {
-        "id": "campfire-loop-stereo",
-        "name": "Campfire",
-        "category": "fire",
-        "theme": "hearth",
-        "src": "/sounds/library/campfire-loop-stereo.mp3",
-        "description": "Alternate fire default candidate.",
-        "source": "Freesound",
-        "source_title": "Ambiance_Campfire_Loop_Stereo.wav",
-        "creator": "Nox_Sound",
-        "source_url": "https://freesound.org/people/Nox_Sound/sounds/558967/",
-        "license": "CC0 1.0",
-        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "license_note": "Curated from Freesound as CC0 1.0; verify page screenshot before public release.",
-        "downloaded_at": "2026-06-18",
-        "screenshot": "provenance/screenshots/campfire-loop-stereo.jpg",
-        "original_filename": "campfire-loop-stereo.wav",
-        "processed_filename": "campfire-loop-stereo.mp3",
-        "original_sha256": "ac533432f35aed4e4a1375c42f1dad505cfc4026d67ae38f37720ba1f56801b6",
-        "sha256": "b5f9bac0883ff14eedc8765322eff1d90e95ad2f6593db61ecd89395afeb9cd5",
-        "file_size_bytes": 204843,
-        "edits": "Trimmed/converted for Nocturne; embedded metadata stripped; loudness-normalized for alpha.7; SHA-256 is for bundled MP3.",
-        "notes": "Alternate fire default candidate.",
-        "source_type": "recorded_cc0",
-        "source_label": "Recorded CC0"
-      },
-      {
-        "id": "crickets-at-night-clean",
-        "name": "Night Crickets",
-        "category": "night",
-        "theme": "distant-storm",
-        "src": "/sounds/library/crickets-at-night-clean.mp3",
-        "description": "Priority default. Strong wide-audience night ambience.",
-        "source": "Freesound",
-        "source_title": "Crickets At Night - Clean sound",
-        "creator": "Defelozedd94",
-        "source_url": "https://freesound.org/people/Defelozedd94/sounds/522298/",
-        "license": "CC0 1.0",
-        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "license_note": "Curated from Freesound as CC0 1.0; verify page screenshot before public release.",
-        "downloaded_at": "2026-06-18",
-        "screenshot": "provenance/screenshots/crickets-at-night-clean.jpg",
-        "original_filename": "crickets-at-night-clean.wav",
-        "processed_filename": "crickets-at-night-clean.mp3",
-        "original_sha256": "d1fbaae90af7a23aa9ccedea87fec21a3b2bb81e290f17a4c4aaa1fae9fece64",
-        "sha256": "8a95afbe1bd13a07539b25429ac7b34176464a6210fee99b242c40d02aedbb55",
-        "file_size_bytes": 2705074,
-        "edits": "Trimmed/converted for Nocturne; embedded metadata stripped; loudness-normalized for alpha.7; SHA-256 is for bundled MP3.",
-        "notes": "Priority default. Strong wide-audience night ambience.",
-        "source_type": "recorded_cc0",
-        "source_label": "Recorded CC0"
-      },
-      {
-        "id": "bavaria-meadow-loop",
-        "name": "Bavaria Meadow",
-        "category": "night",
-        "theme": "garden-rain",
-        "src": "/sounds/library/bavaria-meadow-loop.mp3",
-        "description": "Lovely meadow/crickets/wind; review birds before defaulting.",
-        "source": "Freesound",
-        "source_title": "Bayerwald Wiesn - Bavaria Meadow",
-        "creator": "myLoop",
-        "source_url": "https://freesound.org/people/myLoop/sounds/857809/",
-        "license": "CC0 1.0",
-        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "license_note": "Curated from Freesound as CC0 1.0; verify page screenshot before public release.",
-        "downloaded_at": "2026-06-18",
-        "screenshot": "provenance/screenshots/bavaria-meadow-loop.jpg",
-        "original_filename": "bavaria-meadow-loop.wav",
-        "processed_filename": "bavaria-meadow-loop.mp3",
-        "original_sha256": "6c032e775a6764fff0b54ae8dcc9ee088aa8cc444da92f68445338fe8cb68d64",
-        "sha256": "49e5e3e6b27515caef2788fb249538e07202ce293677ad420615fa17b7518d4a",
-        "file_size_bytes": 508699,
-        "edits": "Trimmed/converted for Nocturne; embedded metadata stripped; loudness-normalized for alpha.7; SHA-256 is for bundled MP3.",
-        "notes": "Lovely meadow/crickets/wind; review birds before defaulting.",
-        "source_type": "recorded_cc0",
-        "source_label": "Recorded CC0"
-      },
-      {
-        "id": "waves-on-shore",
-        "name": "Gentle Waves",
-        "category": "water",
-        "theme": "garden-rain",
-        "src": "/sounds/library/waves-on-shore.mp3",
-        "description": "Priority default if loop is clean.",
-        "source": "Freesound",
-        "source_title": "WavesOnTheShore.wav",
-        "creator": "richardemoore",
-        "source_url": "https://freesound.org/people/richardemoore/sounds/260263/",
-        "license": "CC0 1.0",
-        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "license_note": "Curated from Freesound as CC0 1.0; verify page screenshot before public release.",
-        "downloaded_at": "2026-06-18",
-        "screenshot": "provenance/screenshots/waves-on-shore.jpg",
-        "original_filename": "waves-on-shore.wav",
-        "processed_filename": "waves-on-shore.mp3",
-        "original_sha256": "7d2cbde3420405cef078e7243c59521f0bfa9aa2d9445ea377e58d87ca8e64bb",
-        "sha256": "666948be7ab37174c764a556db3c4059627031d55359903b80dbd7e9a966d2a4",
-        "file_size_bytes": 721022,
-        "edits": "Trimmed/converted for Nocturne; embedded metadata stripped; loudness-normalized for alpha.7; SHA-256 is for bundled MP3.",
-        "notes": "Priority default if loop is clean.",
-        "source_type": "recorded_cc0",
-        "source_label": "Recorded CC0"
-      },
-      {
-        "id": "flowing-water",
-        "name": "Flowing Water",
-        "category": "water",
-        "theme": "garden-rain",
-        "src": "/sounds/library/flowing-water.mp3",
-        "description": "Synthetic but potentially pleasant stream/water wash.",
-        "source": "Freesound",
-        "source_title": "Flowing water",
-        "creator": "cabled_mess",
-        "source_url": "https://freesound.org/people/cabled_mess/sounds/332250/",
-        "license": "CC0 1.0",
-        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
-        "license_note": "Curated from Freesound as CC0 1.0; verify page screenshot before public release.",
-        "downloaded_at": "2026-06-18",
-        "screenshot": "provenance/screenshots/flowing-water.jpg",
-        "original_filename": "flowing-water.wav",
-        "processed_filename": "flowing-water.mp3",
-        "original_sha256": "1fb2344c31b00688fcdaff7727c546f72b697067c7676e348923a5df1569923e",
-        "sha256": "949b02921ae9de813c4ae937c84040f85bbe6f768bc33674f6fbca9ee0f35067",
-        "file_size_bytes": 558436,
-        "edits": "Trimmed/converted for Nocturne; embedded metadata stripped; loudness-normalized for alpha.7; SHA-256 is for bundled MP3.",
-        "notes": "Synthetic but potentially pleasant stream/water wash.",
-        "source_type": "recorded_cc0",
-        "source_label": "Recorded CC0"
-      }
-    ]
-  };
+  const DEFAULT_SOUND_LIBRARY = /* NOCTURNE:BEGIN GENERATED SOUND LIBRARY */
+{
+  "version": 6,
+  "notes": "Canonical local ambience library for Nocturne alpha.12-dev. Tonight remains eight bundled recorded CC0 files. Generated beds are optional and honestly labeled; experimental sounds require the explicit Experimental shelf. Quarantined originals and seam-baked repair candidates remain server-denied and are detached to the companion evidence bundle in the slim tester release until human audition.",
+  "default_slots": [
+    "rain-heavy-open-window",
+    "rain-balcony-peaceful",
+    "rain-tent-heavy",
+    "fire-crackling-loop",
+    "crickets-at-night-clean",
+    "rain-city-pooling",
+    "campfire-loop-stereo",
+    "flowing-water"
+  ],
+  "sounds": [
+    {
+      "id": "rain-heavy-open-window",
+      "name": "Rain on Open Window",
+      "category": "rain",
+      "theme": "garden-rain",
+      "src": "/sounds/library/rain-heavy-open-window.mp3",
+      "description": "Priority default. Heavy indoor rain from open window.",
+      "source": "Freesound",
+      "source_title": "Rain (Heavy)_From open window.wav",
+      "creator": "Mar.Sounds",
+      "source_url": "https://freesound.org/people/Mar.Sounds/sounds/630424/",
+      "license": "CC0 1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "license_note": "Curated from Freesound as CC0 1.0; verify page screenshot before public release.",
+      "downloaded_at": "2026-06-18",
+      "screenshot": "provenance/screenshots/rain-heavy-open-window.jpg",
+      "original_filename": "rain-heavy-open-window.wav",
+      "processed_filename": "rain-heavy-open-window.mp3",
+      "original_sha256": "62b969909aa4e6bd79d55d124b4640b66dee8fcd6f4c1b2125d865ff4a4d8acd",
+      "sha256": "4e6f30fe3542c708eea0320978d73af1eea45d5a0e90bccc38e1638be5249214",
+      "file_size_bytes": 1250348,
+      "edits": "Trimmed/converted for Nocturne; embedded metadata stripped; loudness-normalized for alpha.7; SHA-256 is for bundled MP3.",
+      "notes": "Priority default. Heavy indoor rain from open window.",
+      "source_type": "recorded_cc0",
+      "source_label": "Recorded CC0",
+      "status": "core",
+      "recommended": true,
+      "sort_order": 10,
+      "availability": "bundled"
+    },
+    {
+      "id": "rain-balcony-peaceful",
+      "name": "Gentle Rain",
+      "category": "rain",
+      "theme": "mist-rain",
+      "src": "/sounds/library/rain-balcony-peaceful.mp3",
+      "description": "Priority default. Peaceful balcony rain; popular candidate.",
+      "source": "Freesound",
+      "source_title": "Rain.wav",
+      "creator": "idomusics",
+      "source_url": "https://freesound.org/people/idomusics/sounds/518863/",
+      "license": "CC0 1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "license_note": "Curated from Freesound as CC0 1.0; verify page screenshot before public release.",
+      "downloaded_at": "2026-06-18",
+      "screenshot": "provenance/screenshots/rain-balcony-peaceful.jpg",
+      "original_filename": "rain-balcony-peaceful.wav",
+      "processed_filename": "rain-balcony-peaceful.mp3",
+      "original_sha256": "5f4c278ddca1212aeaee950db7626b3b3202b284b1713135f8ad354e41127e57",
+      "sha256": "869c44321952548d3c35d8b712d97975d5af169a745f48dc96c124b6f00e68a0",
+      "file_size_bytes": 864812,
+      "edits": "Trimmed/converted for Nocturne; embedded metadata stripped; loudness-normalized for alpha.7; SHA-256 is for bundled MP3.",
+      "notes": "Priority default. Peaceful balcony rain; popular candidate.",
+      "source_type": "recorded_cc0",
+      "source_label": "Recorded CC0",
+      "status": "core",
+      "recommended": true,
+      "sort_order": 20,
+      "availability": "bundled"
+    },
+    {
+      "id": "rain-tent-heavy",
+      "name": "Heavy Rain on Tent",
+      "category": "rain",
+      "theme": "tempest",
+      "src": "/sounds/library/rain-tent-heavy.mp3",
+      "description": "Camping/tent texture; good rain variety.",
+      "source": "Freesound",
+      "source_title": "Heavy Rain on a tent",
+      "creator": "Breviceps",
+      "source_url": "https://freesound.org/people/Breviceps/sounds/484724/",
+      "license": "CC0 1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "license_note": "Curated from Freesound as CC0 1.0; verify page screenshot before public release.",
+      "downloaded_at": "2026-06-18",
+      "screenshot": "provenance/screenshots/rain-tent-heavy.jpg",
+      "original_filename": "rain-tent-heavy.wav",
+      "processed_filename": "rain-tent-heavy.mp3",
+      "original_sha256": "d98e00be135d2679aff35e7d12520b7176608da9f70da21ee435e3bbae64914e",
+      "sha256": "01f7b1e3bbd5f674976bd7356b749008fd93cb27910b98c499afca8bc6102c63",
+      "file_size_bytes": 794156,
+      "edits": "Trimmed/converted for Nocturne; embedded metadata stripped; loudness-normalized for alpha.7; SHA-256 is for bundled MP3.",
+      "notes": "Camping/tent texture; good rain variety.",
+      "source_type": "recorded_cc0",
+      "source_label": "Recorded CC0",
+      "status": "core",
+      "recommended": true,
+      "sort_order": 30,
+      "availability": "bundled"
+    },
+    {
+      "id": "fire-crackling-loop",
+      "name": "Fireplace",
+      "category": "fire",
+      "theme": "hearth",
+      "src": "/sounds/library/fire-crackling-loop.mp3",
+      "description": "Priority default. Compare against Nox_Sound and keep the warmer one.",
+      "source": "Freesound",
+      "source_title": "fire crackling loop.wav",
+      "creator": "soundofsong",
+      "source_url": "https://freesound.org/people/soundofsong/sounds/650574/",
+      "license": "CC0 1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "license_note": "Curated from Freesound as CC0 1.0; verify page screenshot before public release.",
+      "downloaded_at": "2026-06-18",
+      "screenshot": "provenance/screenshots/fire-crackling-loop.jpg",
+      "original_filename": "fire-crackling-loop.wav",
+      "processed_filename": "fire-crackling-loop.mp3",
+      "original_sha256": "40d19da3fd9fa1f5d04dc2b9c1bce3bd8c64ab636953112d45ec7cbe97b631c4",
+      "sha256": "855cd56f2f74559eff1bc7dedbf6c189f5a5545c23e8913f8538c7ab872d2ae1",
+      "file_size_bytes": 81452,
+      "edits": "Trimmed/converted for Nocturne; embedded metadata stripped; loudness-normalized for alpha.7; SHA-256 is for bundled MP3.",
+      "notes": "Priority default. Compare against Nox_Sound and keep the warmer one.",
+      "source_type": "recorded_cc0",
+      "source_label": "Recorded CC0",
+      "status": "core",
+      "recommended": true,
+      "sort_order": 40,
+      "availability": "bundled"
+    },
+    {
+      "id": "crickets-at-night-clean",
+      "name": "Night Crickets",
+      "category": "night",
+      "theme": "distant-storm",
+      "src": "/sounds/library/crickets-at-night-clean.mp3",
+      "description": "Priority default. Strong wide-audience night ambience.",
+      "source": "Freesound",
+      "source_title": "Crickets At Night - Clean sound",
+      "creator": "Defelozedd94",
+      "source_url": "https://freesound.org/people/Defelozedd94/sounds/522298/",
+      "license": "CC0 1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "license_note": "Curated from Freesound as CC0 1.0; verify page screenshot before public release.",
+      "downloaded_at": "2026-06-18",
+      "screenshot": "provenance/screenshots/crickets-at-night-clean.jpg",
+      "original_filename": "crickets-at-night-clean.wav",
+      "processed_filename": "crickets-at-night-clean.mp3",
+      "original_sha256": "d1fbaae90af7a23aa9ccedea87fec21a3b2bb81e290f17a4c4aaa1fae9fece64",
+      "sha256": "8a95afbe1bd13a07539b25429ac7b34176464a6210fee99b242c40d02aedbb55",
+      "file_size_bytes": 2704940,
+      "edits": "Trimmed/converted for Nocturne; embedded metadata stripped; loudness-normalized for alpha.7; SHA-256 is for bundled MP3.",
+      "notes": "Priority default. Strong wide-audience night ambience.",
+      "source_type": "recorded_cc0",
+      "source_label": "Recorded CC0",
+      "status": "core",
+      "recommended": true,
+      "sort_order": 50,
+      "availability": "bundled"
+    },
+    {
+      "id": "rain-city-pooling",
+      "name": "City Rain Pooling",
+      "category": "rain",
+      "theme": "squall",
+      "src": "/sounds/library/rain-city-pooling.mp3",
+      "description": "Short city rain texture; likely not a default.",
+      "source": "Freesound",
+      "source_title": "raining in the city - rain pooling up - 1",
+      "creator": "FOSSarts",
+      "source_url": "https://freesound.org/people/FOSSarts/sounds/789162/",
+      "license": "CC0 1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "license_note": "Curated from Freesound as CC0 1.0; verify page screenshot before public release.",
+      "downloaded_at": "2026-06-18",
+      "screenshot": "provenance/screenshots/rain-city-pooling.jpg",
+      "original_filename": "rain-city-pooling.wav",
+      "processed_filename": "rain-city-pooling.mp3",
+      "original_sha256": "9785a8192cebb8f7603f09190da10586d7f4949f3f038b6b09ed4e55ef867aab",
+      "sha256": "2cc7b080ca413751cd037625ce90c54d4a91cb0632dfcdea1f1eaf728449e148",
+      "file_size_bytes": 169772,
+      "edits": "Trimmed/converted for Nocturne; embedded metadata stripped; loudness-normalized for alpha.7; SHA-256 is for bundled MP3.",
+      "notes": "Short city rain texture; likely not a default.",
+      "source_type": "recorded_cc0",
+      "source_label": "Recorded CC0",
+      "status": "core",
+      "recommended": true,
+      "sort_order": 60,
+      "availability": "bundled"
+    },
+    {
+      "id": "campfire-loop-stereo",
+      "name": "Campfire",
+      "category": "fire",
+      "theme": "hearth",
+      "src": "/sounds/library/campfire-loop-stereo.mp3",
+      "description": "Alternate fire default candidate.",
+      "source": "Freesound",
+      "source_title": "Ambiance_Campfire_Loop_Stereo.wav",
+      "creator": "Nox_Sound",
+      "source_url": "https://freesound.org/people/Nox_Sound/sounds/558967/",
+      "license": "CC0 1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "license_note": "Curated from Freesound as CC0 1.0; verify page screenshot before public release.",
+      "downloaded_at": "2026-06-18",
+      "screenshot": "provenance/screenshots/campfire-loop-stereo.jpg",
+      "original_filename": "campfire-loop-stereo.wav",
+      "processed_filename": "campfire-loop-stereo.mp3",
+      "original_sha256": "ac533432f35aed4e4a1375c42f1dad505cfc4026d67ae38f37720ba1f56801b6",
+      "sha256": "b5f9bac0883ff14eedc8765322eff1d90e95ad2f6593db61ecd89395afeb9cd5",
+      "file_size_bytes": 204716,
+      "edits": "Trimmed/converted for Nocturne; embedded metadata stripped; loudness-normalized for alpha.7; SHA-256 is for bundled MP3.",
+      "notes": "Alternate fire default candidate.",
+      "source_type": "recorded_cc0",
+      "source_label": "Recorded CC0",
+      "status": "core",
+      "recommended": true,
+      "sort_order": 70,
+      "availability": "bundled"
+    },
+    {
+      "id": "flowing-water",
+      "name": "Flowing Water",
+      "category": "water",
+      "theme": "garden-rain",
+      "src": "/sounds/library/flowing-water.mp3",
+      "description": "Synthetic but potentially pleasant stream/water wash.",
+      "source": "Freesound",
+      "source_title": "Flowing water",
+      "creator": "cabled_mess",
+      "source_url": "https://freesound.org/people/cabled_mess/sounds/332250/",
+      "license": "CC0 1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "license_note": "Curated from Freesound as CC0 1.0; verify page screenshot before public release.",
+      "downloaded_at": "2026-06-18",
+      "screenshot": "provenance/screenshots/flowing-water.jpg",
+      "original_filename": "flowing-water.wav",
+      "processed_filename": "flowing-water.mp3",
+      "original_sha256": "1fb2344c31b00688fcdaff7727c546f72b697067c7676e348923a5df1569923e",
+      "sha256": "949b02921ae9de813c4ae937c84040f85bbe6f768bc33674f6fbca9ee0f35067",
+      "file_size_bytes": 558380,
+      "edits": "Trimmed/converted for Nocturne; embedded metadata stripped; loudness-normalized for alpha.7; SHA-256 is for bundled MP3.",
+      "notes": "Synthetic but potentially pleasant stream/water wash.",
+      "source_type": "recorded_cc0",
+      "source_label": "Recorded CC0",
+      "status": "core",
+      "recommended": true,
+      "sort_order": 80,
+      "availability": "bundled"
+    },
+    {
+      "id": "indoor-raining-loop",
+      "name": "Indoor Raining Loop",
+      "category": "rain",
+      "theme": "mist-rain",
+      "src": "/sounds/library/indoor-raining-loop.mp3",
+      "description": "Short loop; good for testing but may feel repetitive.",
+      "source": "Freesound",
+      "source_title": "Indoor raining loop",
+      "creator": "Rvgerxini",
+      "source_url": "https://freesound.org/people/Rvgerxini/sounds/527658/",
+      "license": "CC0 1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "license_note": "Curated from Freesound as CC0 1.0; verify page screenshot before public release.",
+      "downloaded_at": "2026-06-18",
+      "screenshot": "provenance/screenshots/indoor-raining-loop.jpg",
+      "original_filename": "indoor-raining-loop.mp3",
+      "processed_filename": "indoor-raining-loop.mp3",
+      "original_sha256": "3b85b1fffb1e15cd4fbd6dc8dd0d925898d8b0972201f7df1aa21179912af5b6",
+      "sha256": "937f3f0106a4c8ae0151a5a8d64f51d09f66ca7ff7ccb366252f4205b415251c",
+      "file_size_bytes": 527660,
+      "edits": "Trimmed/converted for Nocturne; embedded metadata stripped; loudness-normalized for alpha.7; SHA-256 is for bundled MP3.",
+      "notes": "Short loop; good for testing but may feel repetitive.",
+      "source_type": "recorded_cc0",
+      "source_label": "Recorded CC0",
+      "status": "optional",
+      "recommended": false,
+      "sort_order": 200,
+      "availability": "bundled"
+    },
+    {
+      "id": "bavaria-meadow-loop",
+      "name": "Bavaria Meadow",
+      "category": "night",
+      "theme": "garden-rain",
+      "src": "/sounds/library/bavaria-meadow-loop.mp3",
+      "description": "Lovely meadow/crickets/wind; review birds before defaulting.",
+      "source": "Freesound",
+      "source_title": "Bayerwald Wiesn - Bavaria Meadow",
+      "creator": "myLoop",
+      "source_url": "https://freesound.org/people/myLoop/sounds/857809/",
+      "license": "CC0 1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "license_note": "Curated from Freesound as CC0 1.0; verify page screenshot before public release.",
+      "downloaded_at": "2026-06-18",
+      "screenshot": "provenance/screenshots/bavaria-meadow-loop.jpg",
+      "original_filename": "bavaria-meadow-loop.wav",
+      "processed_filename": "bavaria-meadow-loop.mp3",
+      "original_sha256": "6c032e775a6764fff0b54ae8dcc9ee088aa8cc444da92f68445338fe8cb68d64",
+      "sha256": "49e5e3e6b27515caef2788fb249538e07202ce293677ad420615fa17b7518d4a",
+      "file_size_bytes": 508844,
+      "edits": "Trimmed/converted for Nocturne; embedded metadata stripped; loudness-normalized for alpha.7; SHA-256 is for bundled MP3.",
+      "notes": "Lovely meadow/crickets/wind; review birds before defaulting.",
+      "source_type": "recorded_cc0",
+      "source_label": "Recorded CC0",
+      "status": "optional",
+      "recommended": false,
+      "sort_order": 210,
+      "availability": "bundled"
+    },
+    {
+      "id": "waves-on-shore",
+      "name": "Gentle Waves",
+      "category": "water",
+      "theme": "garden-rain",
+      "src": "/sounds/library/waves-on-shore.mp3",
+      "description": "Priority default if loop is clean.",
+      "source": "Freesound",
+      "source_title": "WavesOnTheShore.wav",
+      "creator": "richardemoore",
+      "source_url": "https://freesound.org/people/richardemoore/sounds/260263/",
+      "license": "CC0 1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "license_note": "Curated from Freesound as CC0 1.0; verify page screenshot before public release.",
+      "downloaded_at": "2026-06-18",
+      "screenshot": "provenance/screenshots/waves-on-shore.jpg",
+      "original_filename": "waves-on-shore.wav",
+      "processed_filename": "waves-on-shore.mp3",
+      "original_sha256": "7d2cbde3420405cef078e7243c59521f0bfa9aa2d9445ea377e58d87ca8e64bb",
+      "sha256": "666948be7ab37174c764a556db3c4059627031d55359903b80dbd7e9a966d2a4",
+      "file_size_bytes": 721022,
+      "edits": "Trimmed/converted for Nocturne; embedded metadata stripped; loudness-normalized for alpha.7; SHA-256 is for bundled MP3.",
+      "notes": "Priority default if loop is clean.",
+      "source_type": "recorded_cc0",
+      "source_label": "Recorded CC0",
+      "status": "optional",
+      "recommended": false,
+      "sort_order": 220,
+      "availability": "bundled"
+    },
+    {
+      "id": "soft-rain-noise",
+      "name": "Soft Rain Noise",
+      "category": "rain",
+      "theme": "mist-rain",
+      "src": "/sounds/soft-rain-noise.wav",
+      "description": "Procedural rain-like starter bed generated locally during install. Replace with a curated CC0 field recording when ready.",
+      "license_note": "Generated by Nocturne scripts/generate_noise.py.",
+      "source_type": "generated",
+      "source_label": "Generated",
+      "status": "optional",
+      "recommended": false,
+      "sort_order": 500,
+      "availability": "install_generated"
+    },
+    {
+      "id": "window-rain-noise",
+      "name": "Window Rain Noise",
+      "category": "rain",
+      "theme": "garden-rain",
+      "src": "/sounds/window-rain-noise.wav",
+      "description": "Procedural close rain/window-like starter bed generated locally during install.",
+      "license_note": "Generated by Nocturne scripts/generate_noise.py.",
+      "source_type": "generated",
+      "source_label": "Generated",
+      "status": "optional",
+      "recommended": false,
+      "sort_order": 510,
+      "availability": "install_generated"
+    },
+    {
+      "id": "heavy-rain-noise",
+      "name": "Heavy Rain Noise",
+      "category": "rain",
+      "theme": "distant-storm",
+      "src": "/sounds/heavy-rain-noise.wav",
+      "description": "Procedural heavy rain-like starter bed generated locally during install.",
+      "license_note": "Generated by Nocturne scripts/generate_noise.py.",
+      "source_type": "generated",
+      "source_label": "Generated",
+      "status": "optional",
+      "recommended": false,
+      "sort_order": 520,
+      "availability": "install_generated"
+    },
+    {
+      "id": "distant-storm-noise",
+      "name": "Soft Pink Rain Noise",
+      "category": "noise",
+      "theme": "ember-noise",
+      "src": "/sounds/distant-storm-noise.wav",
+      "description": "Procedural rain/noise bed generated locally during install. Alpha.8 audition found this reads closer to soft pink-noise-like wash than to a convincing dark rain rumble.",
+      "license_note": "Generated by Nocturne scripts/generate_noise.py.",
+      "source_type": "generated",
+      "source_label": "Generated",
+      "notes": "Alpha.8 metadata correction only: ID and file preserved for compatibility; display name/description changed after audition. Generated entirely by scripts/generate_noise.py.",
+      "status": "optional",
+      "recommended": false,
+      "sort_order": 530,
+      "availability": "install_generated"
+    },
+    {
+      "id": "soft-wind-noise",
+      "name": "Soft Air Noise",
+      "category": "noise",
+      "theme": "mist-rain",
+      "src": "/sounds/soft-wind-noise.wav",
+      "description": "Procedural soft air/wind-like bed generated locally during install.",
+      "license_note": "Generated by Nocturne scripts/generate_noise.py.",
+      "source_type": "generated",
+      "source_label": "Generated",
+      "status": "optional",
+      "recommended": false,
+      "sort_order": 540,
+      "availability": "install_generated"
+    },
+    {
+      "id": "pink-noise",
+      "name": "Dark Rain Rumble Noise",
+      "category": "noise",
+      "theme": "mountain-storm",
+      "src": "/sounds/pinknoise.wav",
+      "description": "Procedural pink-spectrum noise generated locally during install. Alpha.8 audition found this slot reads more like a dark rain/rumble bed in the mixer than the previous plain Pink Noise label.",
+      "license_note": "Generated by Nocturne scripts/generate_noise.py.",
+      "source_type": "generated",
+      "source_label": "Generated",
+      "notes": "Alpha.8 metadata correction only: ID and file preserved for compatibility; display name/description changed after audition. Generated entirely by scripts/generate_noise.py.",
+      "status": "optional",
+      "recommended": false,
+      "sort_order": 550,
+      "availability": "install_generated"
+    },
+    {
+      "id": "brown-noise",
+      "name": "Brown Noise (Deep/Subtle)",
+      "category": "noise",
+      "theme": "ember-noise",
+      "src": "/sounds/brown-noise.wav",
+      "description": "Procedural low-frequency brown noise. Best on headphones or speakers with bass response.",
+      "license_note": "Generated by Nocturne scripts/generate_noise.py.",
+      "source_type": "generated",
+      "source_label": "Generated",
+      "notes": "Low-frequency brown noise may sound very quiet on small laptop/phone speakers.",
+      "status": "optional",
+      "recommended": false,
+      "sort_order": 560,
+      "availability": "install_generated"
+    },
+    {
+      "id": "white-noise",
+      "name": "White Noise",
+      "category": "noise",
+      "theme": "ember-noise",
+      "src": "/sounds/white-noise.wav",
+      "description": "Generated locally by scripts/generate_noise.py during install.",
+      "license_note": "Generated by Nocturne scripts/generate_noise.py.",
+      "source_type": "generated",
+      "source_label": "Generated",
+      "status": "optional",
+      "recommended": false,
+      "sort_order": 570,
+      "availability": "install_generated"
+    },
+    {
+      "id": "low-rumble-bed",
+      "name": "Low Rumble Bed",
+      "category": "noise",
+      "theme": "mountain-storm",
+      "src": "/sounds/low-rumble-bed.wav",
+      "description": "Procedural low/sub rumble bed with slow swells in the 22–130 Hz region. Thunder-adjacent texture, not a recording of real thunder; no sharp peaks.",
+      "license_note": "Generated by Nocturne scripts/generate_noise.py.",
+      "source_type": "generated",
+      "source_label": "Generated",
+      "notes": "Best on headphones or speakers with bass response; very low frequencies may be quiet on small laptop/phone speakers.",
+      "status": "optional",
+      "recommended": false,
+      "sort_order": 580,
+      "availability": "install_generated"
+    },
+    {
+      "id": "distant-train-bed",
+      "name": "Distant Train Bed",
+      "category": "noise",
+      "theme": "distant-storm",
+      "src": "/sounds/distant-train-bed.wav",
+      "description": "Procedural soft low rolling rail texture with a gentle rhythmic cadence. Synthetic bed — no horn, no metallic screech, no identifiable train events.",
+      "license_note": "Generated by Nocturne scripts/generate_noise.py.",
+      "source_type": "generated",
+      "source_label": "Generated",
+      "status": "optional",
+      "recommended": false,
+      "sort_order": 590,
+      "availability": "install_generated"
+    },
+    {
+      "id": "soft-traffic-bed",
+      "name": "Soft Traffic Bed",
+      "category": "noise",
+      "theme": "garden-rain",
+      "src": "/sounds/soft-traffic-bed.wav",
+      "description": "Procedural distant-city traffic wash, very low and smooth. Anonymous wash only — no honks, sirens, or identifiable vehicles.",
+      "license_note": "Generated by Nocturne scripts/generate_noise.py.",
+      "source_type": "generated",
+      "source_label": "Generated",
+      "status": "optional",
+      "recommended": false,
+      "sort_order": 600,
+      "availability": "install_generated"
+    },
+    {
+      "id": "fan-room-bed",
+      "name": "Fan / Room Bed",
+      "category": "noise",
+      "theme": "ember-noise",
+      "src": "/sounds/fan-room-bed.wav",
+      "description": "Procedural steady fan / air-conditioner style bed. Smoother and warmer than white noise; steady with no pure tone.",
+      "license_note": "Generated by Nocturne scripts/generate_noise.py.",
+      "source_type": "generated",
+      "source_label": "Generated",
+      "status": "optional",
+      "recommended": false,
+      "sort_order": 610,
+      "availability": "install_generated"
+    },
+    {
+      "id": "rain-on-glass-noise",
+      "name": "Rain on Glass Noise",
+      "category": "rain",
+      "theme": "garden-rain",
+      "src": "/sounds/rain-on-glass-noise.wav",
+      "description": "Procedural light rain taps over a soft rain bed, tuned to sit closer to a windowpane character than plain filtered noise. Synthetic bed, not a field recording.",
+      "license_note": "Generated by Nocturne scripts/generate_noise.py.",
+      "source_type": "generated",
+      "source_label": "Generated",
+      "status": "optional",
+      "recommended": false,
+      "sort_order": 620,
+      "availability": "install_generated"
+    },
+    {
+      "id": "deep-water-bed",
+      "name": "Deep Water Bed",
+      "category": "water",
+      "theme": "mist-rain",
+      "src": "/sounds/deep-water-bed.wav",
+      "description": "Procedural low filtered water-like movement with gentle surges. No animal sounds, no sudden splashes.",
+      "license_note": "Generated by Nocturne scripts/generate_noise.py.",
+      "source_type": "generated",
+      "source_label": "Generated",
+      "status": "optional",
+      "recommended": false,
+      "sort_order": 630,
+      "availability": "install_generated"
+    },
+    {
+      "id": "ember-crackle-bed",
+      "name": "Ember Crackle Bed",
+      "category": "fire",
+      "theme": "hearth",
+      "src": "/sounds/ember-crackle-bed.wav",
+      "description": "Procedural warm noise bed with sparse soft crackles. Rounded crackles (not bright clicks); a texture bed, not a recording of a real fire.",
+      "license_note": "Generated by Nocturne scripts/generate_noise.py.",
+      "source_type": "generated",
+      "source_label": "Generated",
+      "notes": "Weakest of the generated set; the crackles are deliberately subtle to stay sleep-safe. Treat as 'maybe' — review against the CC0 fireplace loops before featuring it.",
+      "status": "optional",
+      "recommended": false,
+      "sort_order": 640,
+      "availability": "install_generated"
+    },
+    {
+      "id": "distant-thunder-bed",
+      "name": "Distant Thunder Bed",
+      "category": "thunder",
+      "theme": "mountain-storm",
+      "src": "/sounds/distant-thunder-bed.wav",
+      "description": "Procedural audition candidate: sparse distant low thunder rolls over a very quiet rumble floor. No rain, no sharp cracks, no field recording.",
+      "license_note": "Generated by Nocturne scripts/generate_noise.py from Nocturne's local procedural thunder design; no third-party source audio.",
+      "source_type": "generated",
+      "source_label": "Generated",
+      "notes": "Audition candidate only; intentionally not a default slot until human sleep-safety review.",
+      "status": "experimental",
+      "recommended": false,
+      "sort_order": 900,
+      "availability": "install_generated"
+    },
+    {
+      "id": "soft-thunderstorm-bed",
+      "name": "Soft Thunderstorm Bed",
+      "category": "thunder",
+      "theme": "distant-storm",
+      "src": "/sounds/soft-thunderstorm-bed.wav",
+      "description": "Procedural audition candidate: soft low thunder rolls with a faint rain hush. No bright thunder cracks, no field recording.",
+      "license_note": "Generated by Nocturne scripts/generate_noise.py from Nocturne's local procedural thunder design; no third-party source audio.",
+      "source_type": "generated",
+      "source_label": "Generated",
+      "notes": "Audition candidate only; intentionally not a default slot until human sleep-safety review.",
+      "status": "experimental",
+      "recommended": false,
+      "sort_order": 910,
+      "availability": "install_generated"
+    }
+  ],
+  "excluded_sounds": [
+    {
+      "id": "rain-inside-house",
+      "name": "Rain from Inside House",
+      "status": "quarantined",
+      "reason": "Extreme loop-boundary discontinuity in numerical screening; requires repair and human audition before any public return.",
+      "quarantine_path": "sounds/inbox/quarantine-seam-risk/rain-inside-house.mp3",
+      "source_type": "recorded_cc0",
+      "source_url": "https://freesound.org/people/phillyfan972/sounds/519297/",
+      "license": "CC0 1.0",
+      "sha256": "03de0ee85dc758c1d542e413db715a96eae5322b1c27205b677ab8d1e57c2c65",
+      "file_size_bytes": 1692716,
+      "public": false,
+      "source_title": "Rain from Inside House.wav",
+      "creator": "phillyfan972",
+      "screenshot": "provenance/screenshots/rain-inside-house.jpg",
+      "original_filename": "rain-inside-house.wav",
+      "processed_filename": "rain-inside-house.mp3",
+      "downloaded_at": "2026-06-18",
+      "retention": "evidence_bundle"
+    },
+    {
+      "id": "rain-inside-house-seam-baked",
+      "name": "Rain from Inside House — seam-baked candidate",
+      "status": "quarantined",
+      "reason": "Offline equal-power cyclic crossfade reduced the numerical boundary jump, but numerical screening does not prove an inaudible or comfortable loop. Human audition pending.",
+      "quarantine_path": "sounds/inbox/seam-baked/rain-inside-house-seam-baked.m4a",
+      "transform_sidecar": "sounds/inbox/seam-baked/rain-inside-house-seam-baked.m4a.loop.json",
+      "derived_from": "rain-inside-house",
+      "source_type": "recorded_cc0_transformed_candidate",
+      "sha256": "d09492ab6bb1c9676538f5c049c6b4261111a8bd66b31aff6eae570f1be69118",
+      "file_size_bytes": 2411317,
+      "public": false,
+      "retention": "evidence_bundle",
+      "transform_sidecar_sha256": "b64a17ab6894fac30c57d7e829f47f4e3b566448ca170264fb9631739b892605",
+      "transform_sidecar_size_bytes": 2392
+    },
+    {
+      "id": "soft-wind-trees",
+      "name": "Soft Wind in the Trees (unverified local candidate)",
+      "status": "quarantined",
+      "reason": "The historical local payload did not audibly match the cited source; the payload is not shipped and no CC0 claim is made for it.",
+      "quarantine_path": null,
+      "historical_sha256": "c58471d65c99875d154713fe6a264b6228f3d0ee04d1bf524afda3683900c2e6",
+      "public": false
+    }
+  ]
+}
+  /* NOCTURNE:END GENERATED SOUND LIBRARY */;
 
   let soundLibrary = DEFAULT_SOUND_LIBRARY;
   let soundById = new Map();
   const SLOT_COUNT = 8;
+  const CATEGORY_TONIGHT = '__tonight';
   const CATEGORY_ALL = 'all';
   const CATEGORY_RECORDED = '__recorded';
   const CATEGORY_GENERATED = '__generated';
-  let pickerState = { slotIndex: 0, query: '', category: CATEGORY_ALL };
+  const CATEGORY_EXPERIMENTAL = '__experimental';
+  let pickerState = { slotIndex: 0, query: '', category: CATEGORY_TONIGHT };
   let pickerPreviewAudio = null;
   let pickerPreviewId = '';
+  let pickerReturnFocus = null;
 
 
   /* ─────────────────────────────────────────────
@@ -5343,12 +5557,19 @@ body[data-mode="dashboard"] .topbar {
     const inferredGenerated = !src.includes('/sounds/library/');
     const sourceType = String(entry.source_type || (inferredGenerated ? 'generated' : 'recorded_cc0'));
     const sourceLabel = String(entry.source_label || (sourceType === 'generated' ? 'Generated' : 'Recorded CC0'));
+    const rawStatus = String(entry.status || 'optional');
+    const status = ['core', 'optional', 'experimental'].includes(rawStatus) ? rawStatus : 'optional';
+    const sortOrder = Number.isFinite(Number(entry.sort_order)) ? Number(entry.sort_order) : 9999;
     return {
       id,
       name: String(entry.name || entry.title || id || 'Untitled Sound'),
       category: String(entry.category || 'ambient'),
       source_type: sourceType,
       source_label: sourceLabel,
+      status,
+      recommended: entry.recommended === true || status === 'core',
+      sort_order: sortOrder,
+      availability: String(entry.availability || (sourceType === 'generated' ? 'install_generated' : 'bundled')),
       theme: VISUAL_THEMES[entry.theme] ? entry.theme : 'mist-rain',
       src,
       description: String(entry.description || ''),
@@ -5361,6 +5582,7 @@ body[data-mode="dashboard"] .topbar {
     const merged = {
       version: data && data.version ? data.version : 1,
       default_slots: Array.isArray(data && data.default_slots) ? data.default_slots.slice(0, SLOT_COUNT) : DEFAULT_SOUND_LIBRARY.default_slots.slice(),
+      excluded_sounds: Array.isArray(data && data.excluded_sounds) ? data.excluded_sounds.slice() : [],
       sounds: []
     };
     const seen = new Set();
@@ -5376,6 +5598,7 @@ body[data-mode="dashboard"] .topbar {
       const fallback = DEFAULT_SOUND_LIBRARY.default_slots[merged.default_slots.length] || 'pink-noise';
       merged.default_slots.push(fallback);
     }
+    merged.sounds.sort((a, b) => (a.sort_order - b.sort_order) || a.name.localeCompare(b.name));
     return merged;
   }
 
@@ -5518,6 +5741,7 @@ body[data-mode="dashboard"] .topbar {
       /* Keep the old per-sound key as a friendly migration path for existing users. */
       saveVol(`vol:${channel.config.id}`, percent);
     }
+    scheduleMediaSessionUpdate();
   }
 
   function ensureSlotControls(channel) {
@@ -5592,12 +5816,16 @@ body[data-mode="dashboard"] .topbar {
       channel.audio.loop = true;
       channel.audio.preload = 'auto';
       channel.audio.crossOrigin = 'anonymous';
+      observeMediaElement(channel.audio, 'ambient');
     }
 
     applyVisualTheme(channel, effectiveThemeForSlot(channel));
     if (channel.themeSelect) {
       const override = loadText(slotKey(channel.slotIndex, 'theme'), 'auto');
       channel.themeSelect.value = VISUAL_THEMES[override] ? override : 'auto';
+    }
+    if (channel.changeButton) {
+      channel.changeButton.setAttribute('aria-label', `Change sound for slot ${channel.slotIndex + 1}, currently ${sound.name}`);
     }
     setChannelVolume(channel, previousPercent, { persist: false });
     checkChannelAvailability(channel);
@@ -5652,6 +5880,8 @@ body[data-mode="dashboard"] .topbar {
   }
 
   function restoreCoreSlots() {
+    activeSceneName = '';
+    sceneStatus('Restored the Tonight sound assignments. Saved scene records were not deleted.');
     for (let i = 0; i < SLOT_COUNT; i += 1) {
       const sound = getSoundById(defaultSlotSoundId(i));
       saveText(slotKey(i, 'sound'), sound.id);
@@ -5666,9 +5896,11 @@ body[data-mode="dashboard"] .topbar {
   }
 
   function filterChipLabel(category) {
+    if (category === CATEGORY_TONIGHT) return 'tonight';
     if (category === CATEGORY_ALL) return 'all';
     if (category === CATEGORY_RECORDED) return 'recorded';
     if (category === CATEGORY_GENERATED) return 'generated';
+    if (category === CATEGORY_EXPERIMENTAL) return 'experimental';
     return category;
   }
 
@@ -5699,8 +5931,14 @@ body[data-mode="dashboard"] .topbar {
   }
 
   function soundCategories() {
-    const cats = Array.from(new Set(soundLibrary.sounds.map(s => s.category).filter(Boolean)));
-    return [CATEGORY_ALL, CATEGORY_RECORDED, CATEGORY_GENERATED].concat(cats.sort((a, b) => a.localeCompare(b)));
+    const cats = Array.from(new Set(
+      soundLibrary.sounds
+        .filter(sound => sound.status !== 'experimental')
+        .map(sound => sound.category)
+        .filter(Boolean)
+    ));
+    return [CATEGORY_TONIGHT, CATEGORY_ALL, CATEGORY_RECORDED, CATEGORY_GENERATED, CATEGORY_EXPERIMENTAL]
+      .concat(cats.sort((a, b) => a.localeCompare(b)));
   }
 
   function renderSoundPickerCategories() {
@@ -5712,6 +5950,7 @@ body[data-mode="dashboard"] .topbar {
       btn.type = 'button';
       btn.className = 'sound-chip' + (pickerState.category === category ? ' active' : '');
       btn.textContent = filterChipLabel(category);
+      btn.setAttribute('aria-pressed', pickerState.category === category ? 'true' : 'false');
       btn.addEventListener('click', () => {
         pickerState.category = category;
         renderSoundPicker();
@@ -5728,11 +5967,16 @@ body[data-mode="dashboard"] .topbar {
     const currentId = channel && channel.config ? channel.config.id : '';
     const q = pickerState.query.trim().toLowerCase();
     const sounds = soundLibrary.sounds.filter(sound => {
-      if (pickerState.category === CATEGORY_RECORDED && sound.source_type !== 'recorded_cc0') return false;
-      if (pickerState.category === CATEGORY_GENERATED && sound.source_type !== 'generated') return false;
-      if (![CATEGORY_ALL, CATEGORY_RECORDED, CATEGORY_GENERATED].includes(pickerState.category) && sound.category !== pickerState.category) return false;
+      if (pickerState.category === CATEGORY_TONIGHT && !sound.recommended) return false;
+      if (pickerState.category === CATEGORY_ALL && sound.status === 'experimental') return false;
+      if (pickerState.category === CATEGORY_RECORDED && (sound.source_type !== 'recorded_cc0' || sound.status === 'experimental')) return false;
+      if (pickerState.category === CATEGORY_GENERATED && (sound.source_type !== 'generated' || sound.status === 'experimental')) return false;
+      if (pickerState.category === CATEGORY_EXPERIMENTAL && sound.status !== 'experimental') return false;
+      if (![CATEGORY_TONIGHT, CATEGORY_ALL, CATEGORY_RECORDED, CATEGORY_GENERATED, CATEGORY_EXPERIMENTAL].includes(pickerState.category)) {
+        if (sound.category !== pickerState.category || sound.status === 'experimental') return false;
+      }
       if (!q) return true;
-      const hay = `${sound.name} ${sound.category} ${sound.source_label} ${sound.id} ${sound.description} ${sound.prompt}`.toLowerCase();
+      const hay = `${sound.name} ${sound.category} ${sound.source_label} ${sound.status} ${sound.id} ${sound.description} ${sound.prompt}`.toLowerCase();
       return hay.includes(q);
     });
     list.innerHTML = '';
@@ -5750,18 +5994,22 @@ body[data-mode="dashboard"] .topbar {
       item.innerHTML =
         `<div class="sound-option-copy">` +
           `<span class="sound-option-name">${escapeHtml(sound.name)}</span>` +
-          `<span class="sound-option-meta">${escapeHtml(sourceTypeLabel(sound))} · ${escapeHtml(sound.category)} · ${escapeHtml((VISUAL_THEMES[sound.theme] || VISUAL_THEMES['mist-rain']).label)}</span>` +
+          `<span class="sound-option-meta">${sound.recommended ? 'Tonight · ' : sound.status === 'experimental' ? 'Experimental · ' : ''}${escapeHtml(sourceTypeLabel(sound))} · ${escapeHtml(sound.category)} · ${escapeHtml((VISUAL_THEMES[sound.theme] || VISUAL_THEMES['mist-rain']).label)}</span>` +
           `<span class="sound-option-path">${escapeHtml(sound.src || 'no file assigned')}</span>` +
         `</div>` +
         `<div class="sound-option-actions">` +
           `<button type="button" class="sound-option-preview${pickerPreviewId === sound.id ? ' playing' : ''}">${pickerPreviewId === sound.id ? 'stop' : 'preview'}</button>` +
           `<button type="button" class="sound-option-select">use</button>` +
         `</div>`;
-      item.querySelector('.sound-option-preview')?.addEventListener('click', (e) => {
+      const previewButton = item.querySelector('.sound-option-preview');
+      const selectButton = item.querySelector('.sound-option-select');
+      previewButton?.setAttribute('aria-label', `${pickerPreviewId === sound.id ? 'Stop previewing' : 'Preview'} ${sound.name}`);
+      selectButton?.setAttribute('aria-label', `Use ${sound.name} in slot ${pickerState.slotIndex + 1}`);
+      previewButton?.addEventListener('click', (e) => {
         e.stopPropagation();
         previewSound(sound);
       });
-      item.querySelector('.sound-option-select')?.addEventListener('click', (e) => {
+      selectButton?.addEventListener('click', (e) => {
         e.stopPropagation();
         stopSoundPreview();
         const channel = channelMap.get(pickerState.slotIndex);
@@ -5773,7 +6021,8 @@ body[data-mode="dashboard"] .topbar {
   }
 
   function openSoundPicker(slotIndex) {
-    pickerState = { slotIndex, query: '', category: CATEGORY_ALL };
+    pickerState = { slotIndex, query: '', category: CATEGORY_TONIGHT };
+    pickerReturnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const picker = document.getElementById('sound-picker');
     const slot = document.getElementById('sound-picker-slot');
     const current = document.getElementById('sound-picker-current');
@@ -5788,16 +6037,28 @@ body[data-mode="dashboard"] .topbar {
     if (picker) {
       picker.hidden = false;
       picker.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('sound-picker-open');
     }
     if (search) setTimeout(() => search.focus(), 0);
   }
 
-  function closeSoundPicker() {
+  function closeSoundPicker(options = {}) {
+    const { focusVisible = false } = options && typeof options === 'object' ? options : {};
     stopSoundPreview();
     const picker = document.getElementById('sound-picker');
     if (!picker) return;
     picker.hidden = true;
     picker.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('sound-picker-open');
+    if (pickerReturnFocus && document.contains(pickerReturnFocus)) {
+      const target = pickerReturnFocus;
+      target.focus();
+      if (focusVisible) {
+        target.classList.add('nocturne-focus-return');
+        target.addEventListener('blur', () => target.classList.remove('nocturne-focus-return'), { once: true });
+      }
+    }
+    pickerReturnFocus = null;
   }
 
   function wireSoundPickerControls() {
@@ -5810,7 +6071,28 @@ body[data-mode="dashboard"] .topbar {
     const reset = document.getElementById('reset-mixer-slots');
     if (reset) reset.addEventListener('click', restoreCoreSlots);
     window.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closeSoundPicker();
+      const picker = document.getElementById('sound-picker');
+      if (!picker || picker.hidden) return;
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        closeSoundPicker({ focusVisible: true });
+        return;
+      }
+      if (e.key !== 'Tab') return;
+      const panel = picker.querySelector('.sound-picker-panel');
+      const focusable = panel ? Array.from(panel.querySelectorAll(
+        'button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), a[href], [tabindex]:not([tabindex="-1"])'
+      )).filter(el => !el.hidden && el.getClientRects().length) : [];
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
     });
   }
 
@@ -5886,6 +6168,7 @@ body[data-mode="dashboard"] .topbar {
         channel.gain.gain.setValueAtTime(current, ctx.currentTime);
       }
     }
+    scheduleMediaSessionUpdate();
   }
 
   function pauseRadioWithoutChangingSavedLevels() {
@@ -6050,6 +6333,23 @@ body[data-mode="dashboard"] .topbar {
     const video = document.getElementById('bg-video');
     if (!stage || !video) return;
 
+    if (!profileFeature('rain_video', true)) {
+      stage.classList.add('profile-static');
+      stage.classList.remove('video-loading', 'has-video');
+      video.removeAttribute('src');
+      video.querySelectorAll('source').forEach(source => source.remove());
+      video.load();
+      return;
+    }
+
+    const src = video.dataset.fullSrc;
+    if (src && !video.querySelector('source')) {
+      const source = document.createElement('source');
+      source.src = src;
+      source.type = 'video/mp4';
+      video.appendChild(source);
+    }
+    video.preload = 'auto';
     video.muted = true;
     video.defaultMuted = true;
     video.volume = 0;
@@ -6069,7 +6369,6 @@ body[data-mode="dashboard"] .topbar {
     };
 
     stage.classList.add('video-loading');
-
     video.addEventListener('loadeddata', reveal, { once: true });
     video.addEventListener('canplay', reveal, { once: true });
     video.addEventListener('playing', reveal, { once: true });
@@ -6103,14 +6402,19 @@ body[data-mode="dashboard"] .topbar {
     }
   };
   let appSettings = mergeSettings(DEFAULT_APP_SETTINGS);
-  let buildInfo = {
-    version: '0.1.0-alpha.8',
-    channel: 'alpha',
-    build_date_utc: '2026-06-29',
-    commit: '7c9dba3',
-    commit_date_utc: '2026-06-29',
-    feedback_label: 'v0.1.0-alpha.8 · 2026-06-29 · 7c9dba3'
-  };
+  const DEFAULT_BUILD_INFO = /* NOCTURNE:BEGIN GENERATED BUILD INFO */
+{
+  "schema": "nocturne.build.v2",
+  "version": "0.1.0-alpha.12-dev",
+  "channel": "alpha",
+  "build_date_utc": "2026-07-12T23:16:22Z",
+  "revision": "codex-profile-split-v0.4.0-dev",
+  "revision_kind": "manual",
+  "source_date_utc": "2026-07-12T00:00:00-05:00",
+  "feedback_label": "v0.1.0-alpha.12-dev · 2026-07-12 · codex-profile-split-v0.4.0-dev"
+}
+  /* NOCTURNE:END GENERATED BUILD INFO */;
+  let buildInfo = { ...DEFAULT_BUILD_INFO };
 
   function mergeSettings(raw) {
     const next = {
@@ -6157,10 +6461,10 @@ body[data-mode="dashboard"] .topbar {
 
   function buildFeedbackLabel(info = buildInfo) {
     if (info && info.feedback_label) return info.feedback_label;
-    const version = (info && info.version) || '0.1.0-alpha.8';
-    const commit = (info && info.commit) || '7c9dba3';
-    const day = ((info && (info.commit_date_utc || info.build_date_utc)) || '2026-06-29').slice(0, 10);
-    return `v${version} · ${day} · ${commit}`;
+    const version = (info && info.version) || 'unknown';
+    const revision = (info && (info.revision || info.commit)) || 'unknown';
+    const day = ((info && (info.source_date_utc || info.commit_date_utc || info.build_date_utc)) || '').slice(0, 10) || 'unknown-date';
+    return `v${version} · ${day} · ${revision}`;
   }
 
   function applyBuildInfo(info = buildInfo) {
@@ -6172,7 +6476,7 @@ body[data-mode="dashboard"] .topbar {
     if (footerLabel) footerLabel.textContent = `Nocturne · ${label}`;
     if (footerDate) footerDate.textContent = `Build ${((info && info.build_date_utc) || '').slice(0, 10) || '2026-06-09'}`;
     if (settingsLabel) settingsLabel.textContent = label;
-    if (settingsDetails) settingsDetails.textContent = `Channel: ${(info && info.channel) || 'alpha'} · Commit date: ${((info && info.commit_date_utc) || '').slice(0, 10) || 'unknown'} · API: /api/version`;
+    if (settingsDetails) settingsDetails.textContent = `Edition: ${(info && info.profile) === 'nocturne-pi' ? 'Nocturne Pi' : 'Nocturne'} · Channel: ${(info && info.channel) || 'alpha'} · Revision: ${(info && (info.revision || info.commit)) || 'unknown'} · API: /api/version`;
   }
 
   async function loadBuildInfo() {
@@ -6510,6 +6814,7 @@ body[data-mode="dashboard"] .topbar {
         delete dashboardFrame.dataset.loaded;
       }
     }
+    scheduleMediaSessionUpdate();
   }
 
   document.querySelectorAll('.mode-btn').forEach(btn => {
@@ -6751,6 +7056,7 @@ body[data-mode="dashboard"] .topbar {
       radioState.audio = new Audio();
       radioState.audio.preload = 'auto';
       radioState.audio.crossOrigin = 'anonymous';
+      observeMediaElement(radioState.audio, 'radio');
       radioState.audio.addEventListener('ended', onRadioEnded);
       radioState.audio.addEventListener('error', onRadioError);
       radioState.audio.addEventListener('play',  updatePlayButton);
@@ -7012,6 +7318,8 @@ body[data-mode="dashboard"] .topbar {
       btn.setAttribute('aria-label', playing ? 'Pause' : 'Play');
     }
     document.body.classList.toggle('radio-playing', !!playing);
+    if (playing) lastPlaybackSurface = 'radio';
+    scheduleMediaSessionUpdate();
   }
 
   function onRadioEnded() { nextTrack(); }
@@ -7439,6 +7747,455 @@ arrange(
     }
   });
 
+
+  /* ─────────────────────────────────────────────
+     LOCAL SCENES
+     Named presets stay in this browser's localStorage. They are deliberately
+     small: mixer assignment/level/look plus the Radio texture controls.
+     ───────────────────────────────────────────── */
+  function sceneStatus(message = '') {
+    const el = document.getElementById('scene-status');
+    if (el) el.textContent = message;
+  }
+
+  function normaliseScene(raw) {
+    if (!raw || typeof raw !== 'object') return null;
+    // Missing schema means the alpha.10 shape and migrates cleanly to schema 1.
+    // Unknown future schemas are ignored rather than guessed at silently.
+    const schema = Number(raw.schema ?? SCENE_SCHEMA);
+    if (!Number.isInteger(schema) || schema !== SCENE_SCHEMA) return null;
+    const name = String(raw.name || '').trim().slice(0, 48);
+    const slots = Array.isArray(raw.slots) ? raw.slots.slice(0, SLOT_COUNT).map((slot, index) => ({
+      soundId: String(slot && slot.soundId || defaultSlotSoundId(index)),
+      volume: clamp(slot && slot.volume),
+      theme: String(slot && slot.theme || 'auto')
+    })) : [];
+    while (slots.length < SLOT_COUNT) {
+      slots.push({ soundId: defaultSlotSoundId(slots.length), volume: 0, theme: 'auto' });
+    }
+    if (!name) return null;
+    return {
+      schema: SCENE_SCHEMA,
+      id: String(raw.id || `scene-${Date.now()}`).slice(0, 80),
+      name,
+      updatedAt: String(raw.updatedAt || new Date().toISOString()),
+      mode: VALID_MODES.includes(raw.mode) ? raw.mode : 'onsen',
+      master: clamp(raw.master ?? 70),
+      slots,
+      radio: {
+        volume: clamp((raw.radio && raw.radio.volume) ?? 60),
+        warmth: clamp((raw.radio && raw.radio.warmth) ?? 0),
+        drift: clamp((raw.radio && raw.radio.drift) ?? 0),
+        reverb: clamp((raw.radio && raw.radio.reverb) ?? 0),
+        shuffle: raw.radio ? raw.radio.shuffle !== false : true
+      }
+    };
+  }
+
+  function loadLocalScenes() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(STORAGE_PREFIX + SCENES_KEY) || '[]');
+      if (!Array.isArray(raw)) return [];
+      const normalised = raw.map(normaliseScene);
+      const skipped = normalised.filter(scene => !scene).length;
+      if (skipped) sceneStatus(`${skipped} saved scene${skipped === 1 ? '' : 's'} used an unsupported format and could not be read by this version.`);
+      return normalised.filter(Boolean).slice(0, MAX_LOCAL_SCENES);
+    } catch (e) {
+      sceneStatus('Saved scenes could not be read in this browser. Private browsing or blocked site storage may be the cause.');
+      return [];
+    }
+  }
+
+  function encodedByteLength(value) {
+    if (typeof TextEncoder === 'function') return new TextEncoder().encode(value).length;
+    return value.length * 2;
+  }
+
+  function writeLocalScenes(scenes) {
+    try {
+      const payload = JSON.stringify(scenes.slice(0, MAX_LOCAL_SCENES));
+      if (encodedByteLength(payload) > MAX_SCENE_STORAGE_BYTES) {
+        sceneStatus('These scenes exceed Nocturne’s small local-storage limit. Delete one before saving again.');
+        return false;
+      }
+      localStorage.setItem(STORAGE_PREFIX + SCENES_KEY, payload);
+      return true;
+    } catch (e) {
+      const name = String(e && e.name || '');
+      const quota = name === 'QuotaExceededError' || name === 'NS_ERROR_DOM_QUOTA_REACHED';
+      sceneStatus(quota
+        ? 'Scene storage is full in this browser. Delete a scene or clear space, then try again.'
+        : 'Scene storage is unavailable in this browser. Private browsing or blocked site storage may be the cause.');
+      return false;
+    }
+  }
+
+  function sceneId(name) {
+    const slug = String(name).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 42) || 'night';
+    const suffix = (window.crypto && typeof window.crypto.randomUUID === 'function')
+      ? window.crypto.randomUUID().slice(0, 8)
+      : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
+    return `scene-${slug}-${suffix}`.slice(0, 80);
+  }
+
+  function captureCurrentScene(name, existingId = '') {
+    const slots = Array.from(channelMap.values())
+      .sort((a, b) => a.slotIndex - b.slotIndex)
+      .map(channel => ({
+        soundId: channel.config.id,
+        volume: clamp(channel.slider.value),
+        theme: channel.themeSelect ? channel.themeSelect.value : loadText(slotKey(channel.slotIndex, 'theme'), 'auto')
+      }));
+    return normaliseScene({
+      id: existingId || sceneId(name),
+      name,
+      updatedAt: new Date().toISOString(),
+      mode: document.body.dataset.mode || 'onsen',
+      master: clamp(masterEl.value),
+      slots,
+      radio: {
+        volume: radioState.volume * 100,
+        warmth: radioState.warmth * 100,
+        drift: radioState.drift * 100,
+        reverb: radioState.reverb * 100,
+        shuffle: radioState.shuffle
+      }
+    });
+  }
+
+  function renderSceneOptions(selectedId = '') {
+    const select = document.getElementById('scene-select');
+    const apply = document.getElementById('scene-apply');
+    const del = document.getElementById('scene-delete');
+    if (!select) return;
+    const scenes = loadLocalScenes();
+    select.innerHTML = '<option value="">saved scenes…</option>';
+    scenes.forEach(scene => {
+      const option = document.createElement('option');
+      option.value = scene.id;
+      option.textContent = scene.name;
+      select.appendChild(option);
+    });
+    if (selectedId && scenes.some(scene => scene.id === selectedId)) select.value = selectedId;
+    const has = Boolean(select.value);
+    if (apply) apply.disabled = !has;
+    if (del) del.disabled = !has;
+  }
+
+  function selectedLocalScene() {
+    const select = document.getElementById('scene-select');
+    if (!select || !select.value) return null;
+    return loadLocalScenes().find(scene => scene.id === select.value) || null;
+  }
+
+  function applyLocalScene(scene) {
+    scene = normaliseScene(scene);
+    if (!scene) return;
+    applyingScene = true;
+    try {
+      scene.slots.forEach((slot, index) => {
+        const channel = channelMap.get(index);
+        if (!channel) return;
+        const sound = getSoundById(slot.soundId);
+        const theme = VISUAL_THEMES[slot.theme] ? slot.theme : 'auto';
+        saveText(slotKey(index, 'sound'), sound.id);
+        saveText(slotKey(index, 'theme'), theme);
+        updateSlotSound(channel, sound, { persist: false, restoreSavedVolume: false });
+        if (channel.themeSelect) channel.themeSelect.value = theme;
+        applyVisualTheme(channel, theme === 'auto' ? (sound.theme || 'mist-rain') : theme);
+        setChannelVolume(channel, slot.volume, { persist: true });
+      });
+      setMaster(scene.master);
+      setRadioVolume(scene.radio.volume);
+      setRadioWarmth(scene.radio.warmth);
+      setRadioDrift(scene.radio.drift);
+      setRadioReverb(scene.radio.reverb);
+      radioState.shuffle = scene.radio.shuffle;
+      if (_shufBtn) _shufBtn.setAttribute('aria-pressed', String(radioState.shuffle));
+      updateDeckDisplay();
+      if (modeEnabled(scene.mode)) setMode(scene.mode);
+      activeSceneName = scene.name;
+      sceneStatus(`Applied “${scene.name}”. Raised channels begin from this tap; zeroed channels stay quiet.`);
+      scheduleMediaSessionUpdate();
+    } finally {
+      applyingScene = false;
+    }
+  }
+
+  function saveCurrentScene() {
+    const selected = selectedLocalScene();
+    const suggested = selected ? selected.name : (activeSceneName || 'Night scene');
+    const answer = window.prompt('Name this local scene', suggested);
+    if (answer === null) return;
+    const name = answer.trim().slice(0, 48);
+    if (!name) {
+      sceneStatus('Scene name was empty; nothing saved.');
+      return;
+    }
+    const scenes = loadLocalScenes();
+    const sameName = scenes.find(scene => scene.name.toLowerCase() === name.toLowerCase());
+    const existing = selected || sameName || null;
+    if (!existing && scenes.length >= MAX_LOCAL_SCENES) {
+      sceneStatus(`This browser already has ${MAX_LOCAL_SCENES} scenes. Delete one before saving another.`);
+      return;
+    }
+    if (existing && existing.name !== name && !window.confirm(`Replace the saved scene “${existing.name}”?`)) return;
+    const next = captureCurrentScene(name, existing && existing.id);
+    const updated = existing
+      ? scenes.map(scene => scene.id === existing.id ? next : scene)
+      : [next, ...scenes];
+    if (writeLocalScenes(updated)) {
+      activeSceneName = next.name;
+      renderSceneOptions(next.id);
+      sceneStatus(`Saved “${next.name}” on this browser.`);
+      scheduleMediaSessionUpdate();
+    }
+  }
+
+  function deleteSelectedScene() {
+    const scene = selectedLocalScene();
+    if (!scene || !window.confirm(`Delete the local scene “${scene.name}”?`)) return;
+    const next = loadLocalScenes().filter(item => item.id !== scene.id);
+    if (writeLocalScenes(next)) {
+      if (activeSceneName === scene.name) activeSceneName = '';
+      renderSceneOptions();
+      sceneStatus(`Deleted “${scene.name}”.`);
+    }
+  }
+
+  function wireSceneControls() {
+    const select = document.getElementById('scene-select');
+    const apply = document.getElementById('scene-apply');
+    const save = document.getElementById('scene-save');
+    const del = document.getElementById('scene-delete');
+    renderSceneOptions();
+    if (select) select.addEventListener('change', () => {
+      const has = Boolean(select.value);
+      if (apply) apply.disabled = !has;
+      if (del) del.disabled = !has;
+      sceneStatus(has ? 'Ready to apply this local scene.' : '');
+    });
+    if (apply) apply.addEventListener('click', () => {
+      const scene = selectedLocalScene();
+      if (scene) applyLocalScene(scene);
+    });
+    if (save) save.addEventListener('click', saveCurrentScene);
+    if (del) del.addEventListener('click', deleteSelectedScene);
+  }
+
+  /* ─────────────────────────────────────────────
+     PLATFORM AUDIO / INTERRUPTION AWARENESS
+     Feature-detected only: this improves OS controls and exposes degradation,
+     but it does not claim that a mobile OS will keep a tab alive overnight.
+     ───────────────────────────────────────────── */
+  function isAmbientPlaying() {
+    return Array.from(channelMap.values()).some(channel =>
+      channel.audio && !channel.audio.paused && clamp(channel.slider.value) > 0
+    );
+  }
+
+  function isRadioPlaying() {
+    return Boolean(radioState.audio && !radioState.audio.paused);
+  }
+
+  function sessionNotice(message = '') {
+    const el = document.getElementById('session-notice');
+    if (!el) return;
+    el.textContent = message;
+    el.hidden = !message;
+  }
+
+  function observeMediaElement(media, surface) {
+    if (!media || observedMedia.has(media)) return;
+    observedMedia.add(media);
+    const update = () => {
+      if (!media.paused) lastPlaybackSurface = surface;
+      scheduleMediaSessionUpdate();
+    };
+    ['play', 'playing', 'pause', 'ended', 'error'].forEach(event => media.addEventListener(event, update));
+  }
+
+  function resumeAmbientMix(options = {}) {
+    const { announce = true } = options;
+    ensureContext();
+    let started = 0;
+    for (const channel of channelMap.values()) {
+      const percent = clamp(channel.slider.value);
+      if (percent > 0 && !channel.unavailable) {
+        setChannelVolume(channel, percent, { persist: false });
+        started += 1;
+      }
+    }
+    lastPlaybackSurface = 'ambient';
+    if (announce) setTimerStatus(started ? `playing ${started} saved sound${started === 1 ? '' : 's'}` : 'raise a channel, then resume mix');
+    sessionNotice('');
+    scheduleMediaSessionUpdate();
+    return started;
+  }
+
+  function pausePlaybackPreservingMix() {
+    pauseAmbientWithoutChangingSavedMix();
+    pauseRadioWithoutChangingSavedLevels();
+    scheduleMediaSessionUpdate();
+  }
+
+  function resumeLastPlaybackSurface() {
+    sessionNotice('');
+    if (lastPlaybackSurface === 'radio' && radioState.audio && radioState.audio.src) {
+      ensureContext();
+      applyRadioPlaybackRate();
+      radioState.audio.play().catch(() => sessionNotice('Tap play in Nocturne to resume this browser session.'));
+      startMeter();
+    } else {
+      resumeAmbientMix({ announce: true });
+    }
+    scheduleMediaSessionUpdate();
+  }
+
+  function currentMediaDescriptor() {
+    const track = radioState.tracks[radioState.current];
+    if ((isRadioPlaying() || document.body.dataset.mode === 'radio') && track) {
+      return { title: track.name, artist: 'Nocturne Radio', album: 'a quiet place' };
+    }
+    const active = Array.from(channelMap.values())
+      .filter(channel => clamp(channel.slider.value) > 0)
+      .sort((a, b) => b.slider.value - a.slider.value)
+      .slice(0, 2)
+      .map(channel => channel.config.name);
+    return {
+      title: activeSceneName || (active.length ? active.join(' + ') : 'Nocturne'),
+      artist: active.length ? 'Ambient mix' : 'a quiet place',
+      album: 'Nocturne'
+    };
+  }
+
+  function updateMediaSessionState() {
+    if (!('mediaSession' in navigator)) return;
+    try {
+      const descriptor = currentMediaDescriptor();
+      if ('MediaMetadata' in window) {
+        navigator.mediaSession.metadata = new MediaMetadata({
+          ...descriptor,
+          artwork: [
+            { src: '/icons/nocturne-192.png', sizes: '192x192', type: 'image/png' },
+            { src: '/icons/nocturne-512.png', sizes: '512x512', type: 'image/png' }
+          ]
+        });
+      }
+      navigator.mediaSession.playbackState = (isAmbientPlaying() || isRadioPlaying()) ? 'playing' : 'paused';
+    } catch (e) {
+      console.warn('Nocturne media session update was not accepted', e);
+    }
+  }
+
+  function scheduleMediaSessionUpdate() {
+    if (mediaUpdateTimer) clearTimeout(mediaUpdateTimer);
+    mediaUpdateTimer = setTimeout(updateMediaSessionState, 50);
+  }
+
+  function registerMediaSession() {
+    if (!('mediaSession' in navigator)) return false;
+    const handlers = {
+      play: resumeLastPlaybackSurface,
+      pause: pausePlaybackPreservingMix,
+      stop: pausePlaybackPreservingMix,
+      previoustrack: () => {
+        if (radioState.tracks.length) prevTrack();
+      },
+      nexttrack: () => {
+        if (radioState.tracks.length) nextTrack();
+      }
+    };
+    Object.entries(handlers).forEach(([action, handler]) => {
+      try { navigator.mediaSession.setActionHandler(action, handler); }
+      catch (e) { /* Browsers expose different action subsets. */ }
+    });
+    updateMediaSessionState();
+    return true;
+  }
+
+  function currentPlaybackSnapshot() {
+    return {
+      ambient: isAmbientPlaying(),
+      radio: isRadioPlaying(),
+      contextState: ctx ? ctx.state : 'not-created',
+      capturedAt: Date.now()
+    };
+  }
+
+  function inspectPlaybackAfterReturn() {
+    if (!hiddenPlaybackSnapshot) return;
+    const expected = hiddenPlaybackSnapshot.ambient || hiddenPlaybackSnapshot.radio;
+    const nowPlaying = isAmbientPlaying() || isRadioPlaying();
+    const contextInterrupted = Boolean(ctx && ctx.state === 'suspended');
+    if (expected && (!nowPlaying || contextInterrupted)) {
+      sessionNotice('Playback may have been interrupted while Nocturne was in the background. Tap “resume mix” or the Radio play control to continue.');
+    }
+    hiddenPlaybackSnapshot = null;
+    updatePlatformCards();
+    scheduleMediaSessionUpdate();
+  }
+
+  function setPlatformCard(id, state, text) {
+    const card = document.getElementById(id);
+    if (!card) return;
+    card.dataset.state = state;
+    const detail = card.querySelector('span');
+    if (detail) detail.textContent = text;
+  }
+
+  function updatePlatformCards() {
+    setPlatformCard(
+      'platform-context',
+      window.isSecureContext ? 'available' : 'limited',
+      window.isSecureContext ? 'secure context available' : 'plain LAN HTTP: some browser APIs are withheld'
+    );
+    setPlatformCard(
+      'platform-media-session',
+      'mediaSession' in navigator ? 'available' : 'unavailable',
+      'mediaSession' in navigator ? 'metadata and playback handlers requested where supported' : 'not exposed by this browser/context'
+    );
+    const installed = window.matchMedia('(display-mode: standalone)').matches || Boolean(navigator.standalone);
+    const manifest = Boolean(document.querySelector('link[rel="manifest"]'));
+    setPlatformCard(
+      'platform-install',
+      installed ? 'available' : (manifest ? 'limited' : 'unavailable'),
+      installed ? 'running as an installed app' : (manifest ? 'app identity present; installation depends on browser + secure context' : 'manifest missing')
+    );
+    setPlatformCard(
+      'platform-visibility',
+      'hidden' in document ? 'available' : 'unavailable',
+      'hidden' in document ? 'return-from-background interruption check enabled' : 'Page Visibility API unavailable'
+    );
+  }
+
+  function wirePlatformIntegration() {
+    registerMediaSession();
+    updatePlatformCards();
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        hiddenPlaybackSnapshot = currentPlaybackSnapshot();
+      } else {
+        setTimeout(inspectPlaybackAfterReturn, 250);
+      }
+    });
+    window.addEventListener('pagehide', () => {
+      hiddenPlaybackSnapshot = currentPlaybackSnapshot();
+    });
+    window.addEventListener('pageshow', () => setTimeout(inspectPlaybackAfterReturn, 250));
+    window.addEventListener('appinstalled', updatePlatformCards);
+    document.getElementById('resume-mix')?.addEventListener('click', () => {
+      lastPlaybackSurface = 'ambient';
+      sessionNotice('');
+      scheduleMediaSessionUpdate();
+    });
+    document.getElementById('silence')?.addEventListener('click', () => {
+      sessionNotice('');
+      scheduleMediaSessionUpdate();
+    });
+  }
+
+
   /* ─────────────────────────────────────────────
      SKY/RADIO BOOT
      Called from the original boot() at the end of the IIFE.
@@ -7462,12 +8219,14 @@ arrange(
     loadSettings().then(() => setMode(getMode()));
 
     /* Attach tilt to the new stages so they feel alive */
-    const sky = document.getElementById('sky-stage');
-    if (sky) attachTilt(sky, { maxTilt: 1.4 });
-    const radio = document.getElementById('radio-stage');
-    if (radio) attachTilt(radio, { maxTilt: 0.8 });
-    const utilityStage = document.getElementById('utility-stage');
-    if (utilityStage) attachTilt(utilityStage, { maxTilt: 0.55 });
+    if (profileFeature('parallax', true)) {
+      const sky = document.getElementById('sky-stage');
+      if (sky) attachTilt(sky, { maxTilt: 1.4 });
+      const radio = document.getElementById('radio-stage');
+      if (radio) attachTilt(radio, { maxTilt: 0.8 });
+      const utilityStage = document.getElementById('utility-stage');
+      if (utilityStage) attachTilt(utilityStage, { maxTilt: 0.55 });
+    }
 
     /* Draw the moon immediately even before the sky tab is opened, so
        that if the user lands on Sky the moon is already correct. */
@@ -7481,7 +8240,9 @@ arrange(
   /* ─────────────────────────────────────────────
      BOOT
      ───────────────────────────────────────────── */
-  function boot() {
+  async function boot() {
+    await loadActiveProfile();
+
     /* Master from storage */
     const savedMaster = clamp(loadVol('master', 70));
     setMaster(savedMaster, false);
@@ -7490,12 +8251,16 @@ arrange(
     rebuildSoundIndex();
     buildMixerSlots();
     wireSoundPickerControls();
+    wireSceneControls();
+    wirePlatformIntegration();
     loadSoundLibraryManifest();
 
-    /* Tilt */
-    document.querySelectorAll('.channel[data-tilt]').forEach(el => attachTilt(el, { maxTilt: 4.5 }));
-    const stage = document.querySelector('.video-stage[data-tilt]');
-    if (stage) attachTilt(stage, { maxTilt: 1.6 });
+    /* Tilt is a profile capability; Pi avoids continuous pointer compositing. */
+    if (profileFeature('parallax', true)) {
+      document.querySelectorAll('.channel[data-tilt]').forEach(el => attachTilt(el, { maxTilt: 4.5 }));
+      const stage = document.querySelector('.video-stage[data-tilt]');
+      if (stage) attachTilt(stage, { maxTilt: 1.6 });
+    }
 
     /* Video */
     setupVideo();

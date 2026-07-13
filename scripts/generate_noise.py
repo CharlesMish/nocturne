@@ -25,7 +25,7 @@ Generated files (expanded set, added alpha.7):
   sounds/deep-water-bed.wav        low filtered water movement, no splashes
   sounds/ember-crackle-bed.wav     sparse soft crackles over a warm noise bed
 
-Generated files (thunder audition candidates, added alpha.8):
+Generated files (experimental thunder audition candidates):
   sounds/distant-thunder-bed.wav    sparse distant low thunder rolls, no rain
   sounds/soft-thunderstorm-bed.wav  soft low thunder rolls with faint rain hush
 
@@ -65,7 +65,7 @@ PEAKS = {
     "rain-on-glass-noise.wav": 0.23,
     "deep-water-bed.wav": 0.24,
     "ember-crackle-bed.wav": 0.22,
-    # Thunder audition candidates (alpha.8). Lower peaks than the broad noise
+    # Experimental thunder audition candidates. Lower peaks than the broad noise
     # beds because sparse low events can feel louder than their meter level.
     "distant-thunder-bed.wav": 0.20,
     "soft-thunderstorm-bed.wav": 0.21,
@@ -476,7 +476,7 @@ def main() -> int:
         "rain-on-glass-noise.wav": rain_on_glass_noise,
         "deep-water-bed.wav": deep_water_bed,
         "ember-crackle-bed.wav": ember_crackle_bed,
-        # Thunder audition candidates (alpha.8)
+        # Experimental thunder audition candidates
         "distant-thunder-bed.wav": distant_thunder_bed,
         "soft-thunderstorm-bed.wav": soft_thunderstorm_bed,
     }

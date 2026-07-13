@@ -1,49 +1,42 @@
-# Nocturne Alpha Feedback Notes
+# Nocturne alpha feedback
 
-Thanks for trying Nocturne. The most useful bug reports include the build label, device/browser, mode, and the smallest steps that reproduce the issue.
+Thank you for testing Nocturne. A short, concrete observation is more useful
+than a polished review.
 
-## Build identity
-
-The app exposes build information in three places:
-
-- Settings → Build
-- the page footer
-- `http://127.0.0.1:8000/api/version`
-
+<!-- NOCTURNE:BEGIN GENERATED BUILD ID -->
 Current packaged alpha label:
 
 ```text
-v0.1.0-alpha.8 · 2026-06-29 · 7c9dba3
+v0.1.0-alpha.12-dev · 2026-07-12 · codex-profile-split-v0.4.0-dev
 ```
 
-Before making a new zip from a git checkout, stamp the build metadata:
+To stamp another package from a Git checkout or source archive:
 
 ```bash
-python scripts/stamp_build.py --version 0.1.0-alpha.8
+python scripts/stamp_build.py --version 0.1.0-alpha.12-dev --revision codex-profile-split-v0.4.0-dev
 ```
+<!-- NOCTURNE:END GENERATED BUILD ID -->
 
-That updates `nocturne_build.json` with the version, UTC build time, git commit, and git commit date.
-
-## Feedback template
+Please include:
 
 ```text
-Build label:
-Device / OS:
-Browser:
-How I launched it: local only / LAN / Pi service
-Mode: Onsen / Sky / Radio / Utility / Dashboard / Settings
-What I expected:
-What happened:
-Steps to reproduce:
-Screenshots or console errors:
-Audio files present? generated noise only / Core Sound Pack / radio tracks added
+Edition: Nocturne / Nocturne Pi
+Device / RAM / operating system:
+Browser and version:
+Usage: server only / host and local display / not sure
+How Nocturne was opened: localhost / plain LAN HTTP / trusted HTTPS / installed icon
+Speaker or headphones:
+Approximate test duration:
+
+What worked:
+What interrupted, clicked, jumped, or became tiring:
+Which sound(s) and mixer levels were active:
+Did lock-screen play/pause appear and work:
+Did playback survive screen lock, app switch, and return:
+Did a saved scene restore correctly:
+Anything confusing or visually awkward:
 ```
 
-## Things to check first
-
-- Does `python3 install.py` finish even if optional media fetches fail?
-- Does the terminal print `Nocturne is ready at http://127.0.0.1:8000/` when launched locally?
-- Does Radio show tracks dropped into `sounds/radio/` after a browser refresh?
-- Can Onsen/Sky slots open the sound picker, change sounds, and change visual looks?
-- Do missing/unavailable sounds show clearly without breaking the mixer?
-- Does Settings → Location save and change the Sky weather readout?
+Do not rely on Nocturne as your only alarm during alpha testing. The focused
+checklist is in `docs/FIELD_TEST_CARD.md`; record exact device/browser results
+in `docs/DEVICE_TEST_MATRIX.md`.

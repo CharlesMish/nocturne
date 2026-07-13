@@ -1,60 +1,52 @@
-# Nocturne sounds folder
+# Nocturne sound areas
 
-Nocturne has three audio areas:
+Nocturne keeps playable audio, curation intake, and personal Radio tracks separate.
 
 ```text
 sounds/
-  soft-rain-noise.wav      # generated during install
-  window-rain-noise.wav    # generated during install
-  heavy-rain-noise.wav     # generated during install
-  distant-storm-noise.wav  # generated during install
-  soft-wind-noise.wav      # generated during install
-  pinknoise.wav            # generated during install
-  brown-noise.wav          # generated during install
-  white-noise.wav          # generated during install
-  low-rumble-bed.wav       # generated during install
-  distant-train-bed.wav    # generated during install
-  soft-traffic-bed.wav     # generated during install
-  fan-room-bed.wav         # generated during install
-  rain-on-glass-noise.wav  # generated during install
-  deep-water-bed.wav       # generated during install
-  ember-crackle-bed.wav    # generated during install
-  distant-thunder-bed.wav  # generated during install; audition candidate
-  soft-thunderstorm-bed.wav # generated during install; audition candidate
-  sound_library.json       # assignable mixer library manifest
-  inbox/                   # temporary curation/download intake
-  library/                 # finished curated CC0/user-owned loops
-  radio/                   # personal radio tracks
+  sound_library.json       # canonical public catalog + exclusion records
+  *.wav                    # 17 procedural beds generated during install
+  library/                 # 11 bundled public CC0 recordings
+  inbox/                   # never public; intake and quarantine
+    quarantine-seam-risk/  # retained evidence in review tree / evidence ZIP
+    quarantine-unverified/ # records for payloads that are not shipped
+    seam-baked/            # candidates + sidecars; detached from tester ZIP
+  radio/                   # personal Radio tracks
 ```
 
-## Mixer sounds
+## Public mixer contract
 
-The Onsen/Sky mixer has eight live slots. Each slot can choose any entry in `sound_library.json`.
+The Onsen/Sky mixer always has eight live slots. `sound_library.json` is the source of truth for the picker and contains:
 
-Fresh install generates the procedural starter beds above. The public alpha defaults can point to bundled recorded loops in `sounds/library/` plus selected generated beds, all through `sound_library.json`.
+- **8 Tonight defaults:** all bundled recorded CC0 files;
+- **3 optional bundled recordings:** including Gentle Waves, which is not a default;
+- **15 ordinary install-generated beds**;
+- **2 Experimental install-generated thunder candidates**.
 
-Real curated ambience loops should go in `sounds/library/` and be imported with:
+That is 28 public catalog entries. Generated WAVs are intentionally absent from the source archive and are created by `install.py` or `scripts/generate_noise.py`. The browser fallback is generated from the canonical JSON by `scripts/sync_release_data.py`; do not hand-edit both copies.
+
+## Quarantine
+
+Nothing under `sounds/inbox/` is served by `/sounds`. Non-README inbox payloads are also detached from the slim tester ZIP and placed in the companion evidence archive. The canonical manifest retains paths, sizes, hashes, and three exclusion records:
+
+- `rain-inside-house`: payload retained under `quarantine-seam-risk/` after numerical boundary screening found a severe seam-risk signal;
+- `rain-inside-house-seam-baked`: an offline cyclic-crossfade render with a transform sidecar; still `audition_required`;
+- `soft-wind-trees`: historical hash and reason retained, but the unverified payload is not shipped.
+
+Promotion requires an explicit manifest edit, catalog synchronization, release audit, and human listening record. Moving a file alone is not promotion.
+
+## Importing a recorded sound
+
+Place finished, appropriately licensed audio in `sounds/inbox/`, complete the metadata CSV, then run:
 
 ```bash
-python scripts/import_sound_pack.py sounds/inbox --metadata-csv audio_sources.csv --generate-credits
+python scripts/import_sound_pack.py sounds/inbox \
+  --metadata-csv audio_sources.csv \
+  --generate-credits
 ```
 
-## Radio sounds
+Use `--set-defaults` only with at least eight reviewed files. The importer updates the canonical manifest and synchronizes the browser fallback.
 
-Radio mode is separate. Drop personal tracks or bedtime-story MP3s into `sounds/radio/` and refresh the browser.
+## Radio
 
-For stories, keep provenance honest: user-authored text, user-owned or user-licensed generated narration, and not CC0 unless separately proven.
-
-## Legacy fixed names
-
-The old Pixabay/fetcher filenames are still supported for compatibility/archive use, but are no longer the preferred release path:
-
-```text
-calming_rain.mp3
-gentle_rain.mp3
-heavy_rain.mp3
-rainstorm.mp3
-heavy_storm.mp3
-thunder.mp3
-fireplace.mp3
-```
+Radio is separate from the ambience catalog. Drop personal tracks or bedtime-story files into `sounds/radio/` and refresh the browser. Keep provenance honest; user-owned or user-licensed narration is not CC0 unless that status is separately established.

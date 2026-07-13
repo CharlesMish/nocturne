@@ -34,15 +34,14 @@ DEFAULT_CSV = ROOT / "audio_sources.mainstream_cc0.csv"
 AUDIO_EXTS = {".mp3", ".wav", ".ogg", ".m4a", ".opus", ".webm", ".flac", ".aiff", ".aif"}
 PLACEHOLDER_MARKERS = ("TODO: Freesound CC0",)
 DEFAULT_SLOT_ORDER = [
-    "rain-balcony-peaceful",
     "rain-heavy-open-window",
-    "indoor-raining-loop",
+    "rain-balcony-peaceful",
     "rain-tent-heavy",
     "fire-crackling-loop",
     "crickets-at-night-clean",
-    "waves-on-shore",
-    "fan-room-bed",
-    "low-rumble-bed",
+    "rain-city-pooling",
+    "campfire-loop-stereo",
+    "flowing-water",
 ]
 
 
@@ -145,8 +144,15 @@ def build_entry(row: dict[str, str], src: Path, dest: Path) -> dict[str, Any]:
         "original_sha256": sha256(src),
         "sha256": sha256(dest),
         "file_size_bytes": dest.stat().st_size,
-        "edits": row.get("edits") or "transcoded/normalized for Nocturne pack",
+        "edits": "Imported/transcoded by finalize_core_sound_pack.py; metadata removed during transcoding. This script does not perform loudness normalization, seam repair, or listening certification.",
+        "declared_edits": row.get("edits") or "",
         "notes": row.get("notes") or "",
+        "source_type": "recorded_cc0",
+        "source_label": "Recorded CC0",
+        "status": "optional",
+        "recommended": False,
+        "sort_order": 800,
+        "availability": "bundled",
     }
 
 
@@ -166,6 +172,10 @@ def finalize(csv_path: Path, inbox: Path, mode: str, bitrate: str, set_defaults:
             continue
         sounds.append(s)
     by_id = {str(s.get("id")): s for s in sounds if isinstance(s, dict) and s.get("id")}
+    excluded_ids = {
+        str(item.get("id")) for item in data.get("excluded_sounds", [])
+        if isinstance(item, dict) and item.get("id")
+    }
 
     imported: list[str] = []
     missing: list[str] = []
@@ -173,6 +183,9 @@ def finalize(csv_path: Path, inbox: Path, mode: str, bitrate: str, set_defaults:
         LIBRARY.mkdir(parents=True, exist_ok=True)
 
     for row in rows:
+        if row["id"] in excluded_ids:
+            print(f"{row['id']}: skipped because the canonical manifest marks it quarantined")
+            continue
         matches = candidate_inputs(row, inbox)
         if not matches:
             missing.append(row["filename"])
@@ -212,7 +225,20 @@ def finalize(csv_path: Path, inbox: Path, mode: str, bitrate: str, set_defaults:
             if sid in available and sid not in defaults:
                 defaults.append(sid)
         data["default_slots"] = defaults[:8]
+        default_order = {sid: (index + 1) * 10 for index, sid in enumerate(data["default_slots"])}
+        for sound in data["sounds"]:
+            sid = str(sound.get("id") or "")
+            if sid in default_order:
+                sound["status"] = "core"
+                sound["recommended"] = True
+                sound["sort_order"] = default_order[sid]
+                sound["availability"] = "bundled"
+            elif sound.get("status") == "core":
+                sound["status"] = "optional"
+                sound["recommended"] = False
     save_manifest(data)
+
+    subprocess.run([sys.executable, str(ROOT / "scripts" / "sync_release_data.py")], cwd=ROOT, check=True)
 
     sys.path.insert(0, str((ROOT / "scripts").resolve()))
     from write_audio_credits import write_audio_docs

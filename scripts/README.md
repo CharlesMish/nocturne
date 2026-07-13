@@ -1,33 +1,67 @@
 # Nocturne scripts
 
-## What works immediately
+## Install and run
 
 ```bash
 python3 install.py
+.venv/bin/python run_nocturne.py
 ```
 
-The installer creates the virtual environment, installs dependencies, creates local folders, writes default config, and generates the procedural starter sound pack.
+The normal installer creates `.venv`, installs `requirements.txt`, creates local folders/config, and generates the 17 procedural beds. `--skip-deps` is only for an already prepared `.venv`; the installer now checks that environment before continuing.
 
-## Core scripts
+## Release integrity
 
-| Task | Command | Output |
-|---|---|---|
-| Generate procedural starter beds | `python3 scripts/generate_noise.py` | rain-like placeholders, storm/wind noise, pink/brown/white noise in `sounds/` |
-| Import curated CC0/user-owned sounds | `python scripts/import_sound_pack.py sounds/inbox --metadata-csv audio_sources.csv --generate-credits` | copied files in `sounds/library/`, updated `sounds/sound_library.json`, regenerated credits/provenance |
-| Regenerate credits only | `python scripts/write_audio_credits.py` | `AUDIO_CREDITS.md`, `AUDIO_PROVENANCE.md` |
-| Legacy optional Pixabay fetcher | `python scripts/fetch_media.py --init` then `python scripts/fetch_media.py --yes` | old fixed files in `sounds/` plus receipts, if scraping/downloads work |
-| Stamp release build | `python scripts/stamp_build.py --version 0.1.0-alpha.N` | updated `nocturne_build.json` |
+| Purpose | Command |
+|---|---|
+| Synchronize/check embedded catalog and build fallbacks | `python scripts/sync_release_data.py` / `python scripts/sync_release_data.py --check` |
+| Validate a source archive | `python check_audio_contract.py --source` |
+| Audit a source archive | `node scripts/release-audit.mjs --source` |
+| Exercise live FastAPI routes without persistent state | `python scripts/runtime_smoke.py` |
+| Verify dirty-tree exclusions, manifests, and ZIP modes | `python scripts/release_builder_smoke.py` |
+| Exercise UI hierarchy/focus and capture screenshots (optional QA deps) | `python scripts/browser_smoke.py` |
+| Require all locally generated WAVs | `python check_audio_contract.py --installed` and `node scripts/release-audit.mjs --installed` |
+| Stamp a source/archive build | `python scripts/stamp_build.py --version 0.1.0-alpha.N --revision <label>` |
 
-## Preferred media workflow
+`browser_smoke.py` requires Python Playwright and a Chromium executable, but neither is a Nocturne runtime dependency.
 
-Use `docs/FREESOUND_CC0_WORKFLOW.md`. The short version:
+## Audio tools
 
-1. Download CC0 candidates into `sounds/inbox/`.
-2. Screenshot each source page into `provenance/screenshots/`.
-3. Fill `audio_sources.csv` from `audio_sources.template.csv`.
-4. Import with `scripts/import_sound_pack.py`.
-5. Audition through Nocturne's sound picker.
+| Purpose | Command |
+|---|---|
+| Generate procedural beds | `python scripts/generate_noise.py` |
+| Bake a traceable cyclic-crossfade candidate | `python scripts/bake_seamless_loop.py INPUT OUTPUT --crossfade-seconds 6` |
+| Split product and evidence archives | `python scripts/make_release.py --output-dir ... --product-name ... --evidence-name ...` |
+| Import curated CC0/user-owned sounds | `python scripts/import_sound_pack.py sounds/inbox --metadata-csv audio_sources.csv --generate-credits` |
+| Finalize the known core CSV set | `python scripts/finalize_core_sound_pack.py --dry-run` before any real run |
+| Regenerate audio credit/provenance docs | `python scripts/write_audio_credits.py` |
+| Legacy optional Pixabay compatibility | `python scripts/fetch_media.py --init` then `python scripts/fetch_media.py --yes` |
 
-## Legacy `fetch_media.py`
+Use `docs/FREESOUND_CC0_WORKFLOW.md` for the curation workflow. The legacy fetcher does not manage the assignable sound catalog or Radio tracks.
 
-`fetch_media.py` is a compatibility helper for the old fixed Onsen/Sky ambient filenames. It does **not** manage the new assignable sound library and does **not** fetch Radio tracks.
+`make_release.py` excludes generated WAVs, local settings and media, transient
+reports, screenshots, logs, and non-public `sounds/inbox/` payloads from the
+product ZIP. Detached evidence is selected from canonical catalog metadata, not
+whatever happens to be in the inbox. The evidence ZIP can also carry current
+verification output and an optional history tree.
+
+## Dual-profile release preparation
+
+```bash
+python scripts/make_dual_release.py \
+  --output-dir outputs \
+  --release-id v0.4.0-dev \
+  --evidence-source ../nocturne-evidence-branch
+```
+
+This builds `nocturne-*`, `nocturne-pi-*`, and one evidence archive from the
+same source identity. The Pi archive omits `static/rain.mp4`; the UI does not
+request it after resolving the Pi profile.
+
+## Profile and support checks
+
+```bash
+python scripts/profile_smoke.py
+python scripts/browser_smoke.py --profile nocturne
+python scripts/browser_smoke.py --profile nocturne-pi
+python scripts/support_report.py
+```

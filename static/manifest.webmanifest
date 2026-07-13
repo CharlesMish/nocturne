@@ -1,0 +1,33 @@
+{
+  "id": "/",
+  "name": "Nocturne — a quiet place",
+  "short_name": "Nocturne",
+  "description": "A local-first bedside sound mixer, weather sky, and personal night radio.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#06070a",
+  "theme_color": "#0a0808",
+  "orientation": "any",
+  "categories": ["lifestyle", "music"],
+  "icons": [
+    {
+      "src": "/icons/nocturne-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/nocturne-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/nocturne-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

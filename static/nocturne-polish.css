@@ -1,0 +1,202 @@
+/* === NOCTURNE POLISH LAYER v0.2.1 ==========================================
+   Quiet, global safeguards only. Component-specific visual decisions remain
+   beside their components so this layer cannot become a second design system.
+   ========================================================================== */
+
+:where(button, input, select, textarea) {
+  font: inherit;
+}
+
+:where(button:not(:disabled), [role="button"]:not([aria-disabled="true"]), a[href]) {
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+:where(button, [role="button"], a[href], input, select, textarea, [tabindex]):focus-visible,
+.nocturne-focus-return {
+  outline: 2px solid var(--nocturne-focus, currentColor);
+  outline-offset: 3px;
+}
+
+:where(button, [role="button"])[aria-disabled="true"],
+:where(button, input, select, textarea):disabled {
+  cursor: not-allowed;
+}
+
+html {
+  color-scheme: dark;
+}
+
+:where(h1, h2, h3) {
+  text-wrap: balance;
+}
+
+:where(p, li) {
+  text-wrap: pretty;
+}
+
+.nocturne-visually-hidden,
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+@media (pointer: coarse) {
+  :where(button, [role="button"], a[href], input, select) {
+    min-block-size: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:focus-within {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (forced-colors: active) {
+  :where(button, [role="button"], a[href], input, select, textarea):focus-visible {
+    outline: 2px solid CanvasText;
+  }
+}
+
+/* Keep the modal stationary on touch devices and undo the late compact-deck
+   override that otherwise compresses four mixer channels into a phone width. */
+body.sound-picker-open {
+  overflow: hidden;
+}
+
+@media (max-width: 720px) {
+  .mixer-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .channel .name {
+    font-size: 0.74rem !important;
+  }
+}
+
+@media (max-width: 340px) {
+  .mixer-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* alpha.10 product pass: local scenes and honest platform-state cards */
+.scene-shelf {
+  display: grid;
+  grid-template-columns: minmax(13rem, 1fr) minmax(11rem, 0.72fr) auto;
+  gap: 0.8rem 1rem;
+  align-items: end;
+  margin: 1.1rem 0 1.6rem;
+  padding: 1rem 1.05rem;
+  border: 1px solid var(--hairline);
+  background: linear-gradient(135deg, rgba(232,169,111,0.035), rgba(217,154,168,0.025));
+}
+.scene-copy p {
+  max-inline-size: 54ch;
+  color: var(--text-muted);
+  font-size: 0.77rem;
+  line-height: 1.55;
+}
+.scene-field select {
+  inline-size: 100%;
+  min-block-size: 38px;
+  border: 1px solid var(--hairline-warm);
+  border-radius: 2px;
+  background: rgba(6,7,10,0.72);
+  color: var(--text);
+  padding: 0.55rem 2rem 0.55rem 0.7rem;
+  font: inherit;
+}
+.scene-actions { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+.scene-status {
+  grid-column: 1 / -1;
+  min-block-size: 1.2em;
+  color: rgba(232,169,111,0.82);
+  font-size: 0.72rem;
+  letter-spacing: 0.025em;
+}
+.session-notice {
+  flex-basis: 100%;
+  margin-top: 0.45rem;
+  color: rgba(240,210,160,0.9);
+  font-size: 0.75rem;
+}
+.platform-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
+  margin: 0.65rem 0 0.8rem;
+}
+.platform-card {
+  display: grid;
+  gap: 0.2rem;
+  min-block-size: 64px;
+  padding: 0.65rem 0.7rem;
+  border: 1px solid var(--hairline);
+  background: rgba(5,4,4,0.28);
+}
+.platform-card strong {
+  color: var(--text);
+  font-size: 0.74rem;
+  font-weight: 400;
+}
+.platform-card span { color: var(--text-muted); font-size: 0.7rem; line-height: 1.4; }
+.platform-card[data-state="available"] { border-color: rgba(150,220,160,0.22); }
+.platform-card[data-state="limited"] { border-color: rgba(240,190,120,0.24); }
+.platform-card[data-state="unavailable"] { border-color: rgba(255,145,125,0.2); }
+@media (max-width: 760px) {
+  .scene-shelf { grid-template-columns: 1fr; align-items: stretch; }
+  .scene-actions { justify-content: flex-start; }
+  .platform-grid { grid-template-columns: 1fr; }
+}
+
+/* Nocturne Pi: same controls and audio, lower continuous rendering cost. */
+body[data-profile="nocturne-pi"] .ambient-rain,
+body[data-profile="nocturne-pi"] .ambient-petals,
+body[data-profile="nocturne-pi"] .grain {
+  display: none !important;
+}
+body[data-profile="nocturne-pi"] .layer,
+body[data-profile="nocturne-pi"] .scene-bloom,
+body[data-profile="nocturne-pi"] .live-dot,
+body[data-profile="nocturne-pi"] .radio-glow,
+body[data-profile="nocturne-pi"] .reel {
+  animation: none !important;
+  translate: none !important;
+  transform: none !important;
+}
+body[data-profile="nocturne-pi"] #bg-video {
+  display: none !important;
+}
+body[data-profile="nocturne-pi"] .video-stage {
+  background: #090a0d url('/rain-still.webp') center / cover no-repeat;
+}
+body[data-profile="nocturne-pi"] .scene {
+  opacity: 0.34;
+}
+body[data-profile="nocturne-pi"] .settings-dialog,
+body[data-profile="nocturne-pi"] .sound-picker-dialog,
+body[data-profile="nocturne-pi"] .channel,
+body[data-profile="nocturne-pi"] .local-scenes {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}

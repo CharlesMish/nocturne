@@ -7,6 +7,17 @@ dist/
 review_bundles/
 /*.zip
 
+# Root-level scratch media never belongs to the product package
+/*.aac
+/*.flac
+/*.m4a
+/*.mp3
+/*.mp4
+/*.ogg
+/*.opus
+/*.wav
+/*.webm
+
 sounds/*.mp3
 sounds/*.wav
 sounds/*.flac
@@ -29,9 +40,10 @@ sounds/radio/*.webm
 media_sources.json
 config/nocturne.json
 
-# Curation intake/originals can contain large or unprocessed source files
-sounds/inbox/*
-!sounds/inbox/.gitkeep
-!sounds/inbox/README.md
+# Curation intake/originals can contain large or unprocessed source files.
+# Keep the directory documentation while ignoring every other inbox payload.
+sounds/inbox/**
+!sounds/inbox/**/
+!sounds/inbox/**/README.md
 provenance/originals/*
 !provenance/originals/.gitkeep

@@ -1,0 +1,18 @@
+{
+  "schema": "nocturne.profile.v1",
+  "id": "nocturne-pi",
+  "display_name": "Nocturne Pi",
+  "description": "Lower-resource presentation designed for Raspberry Pi 3-class and constrained local-display systems.",
+  "visuals": {
+    "rain_video": false,
+    "ambient_motion": false,
+    "parallax": false,
+    "backdrop_blur": false,
+    "compact_assets": true,
+    "preload_strategy": "conservative"
+  },
+  "target": {
+    "guidance": "Designed for Raspberry Pi 3-class, low-memory systems, older browsers, and kiosk-style local display use.",
+    "tested_models": []
+  }
+}

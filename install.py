@@ -153,7 +153,7 @@ def main() -> int:
         return 1
 
     parser = argparse.ArgumentParser(description="Install Nocturne locally.")
-    parser.add_argument("--skip-deps", action="store_true", help="do not install requirements.txt")
+    parser.add_argument("--skip-deps", action="store_true", help="reuse an existing prepared .venv; do not run pip")
     parser.add_argument("--skip-noise", action="store_true", help="do not generate procedural starter beds")
     parser.add_argument("--noise-seconds", type=int, default=180, help="duration per generated starter file; default: 180")
     parser.add_argument("--fetch-media", action="store_true", help="force download of ambience from media_sources.json (or .default.json)")
@@ -180,11 +180,23 @@ def main() -> int:
         settings_path.write_text(example_settings.read_text(encoding="utf-8"), encoding="utf-8")
         print("Created config/nocturne.json")
 
+    if args.skip_deps and not VENV.exists():
+        print("--skip-deps requires an existing prepared .venv.")
+        print("Run the installer once without --skip-deps, or create and prepare .venv first.")
+        return 2
+
     python = ensure_venv()
 
     if not args.skip_deps:
         run([python, "-m", "pip", "install", "--upgrade", "pip"])
         run([python, "-m", "pip", "install", "-r", ROOT / "requirements.txt"])
+    else:
+        try:
+            run([python, "-c", "import fastapi, httpx, numpy, uvicorn"])
+        except subprocess.CalledProcessError:
+            print("The existing .venv is missing one or more requirements.")
+            print("Rerun without --skip-deps so pip can prepare it.")
+            return 2
 
     if not args.skip_noise:
         run([python, ROOT / "scripts" / "generate_noise.py", "--seconds", str(args.noise_seconds)])
