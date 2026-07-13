@@ -1,20 +1,20 @@
 {
   "schema": "nocturne.release-manifest.v2",
   "profile": "product-source",
-  "package": "nocturne-v0.1.0-alpha.12",
+  "package": "nocturne-v0.1.0-alpha.13-dev",
   "build": {
     "schema": "nocturne.build.v2",
-    "version": "0.1.0-alpha.12",
+    "version": "0.1.0-alpha.13-dev",
     "channel": "alpha",
-    "build_date_utc": "2026-07-13T04:07:14Z",
-    "revision": "v0.1.0-alpha.12",
-    "revision_kind": "package",
-    "source_date_utc": "2026-07-12T00:00:00-05:00",
-    "feedback_label": "v0.1.0-alpha.12 · 2026-07-12 · v0.1.0-alpha.12"
+    "build_date_utc": "2026-07-13T06:01:00Z",
+    "revision": "visual-appearance-dev",
+    "revision_kind": "manual",
+    "source_date_utc": "2026-07-13T00:00:00-05:00",
+    "feedback_label": "v0.1.0-alpha.13-dev · 2026-07-13 · visual-appearance-dev"
   },
-  "generated_at_utc": "2026-07-13T04:07:14Z",
-  "file_count": 100,
-  "total_payload_bytes_excluding_manifest": 12120630,
+  "generated_at_utc": "2026-07-13T06:01:00Z",
+  "file_count": 112,
+  "total_payload_bytes_excluding_manifest": 12772008,
   "manifest_self_excluded": true,
   "evidence_detached": true,
   "detached_evidence_file_count": 3,
@@ -69,8 +69,8 @@
     },
     {
       "path": "ALPHA_FEEDBACK.md",
-      "size_bytes": 1252,
-      "sha256": "3a7f81c3663fb02521f0d5e779659c0b9bb2eccf8d77861e1c5ab17f3418924c"
+      "size_bytes": 1272,
+      "sha256": "569d08d8dd8ef7417b2597190ba7825f0edaf51ce7a44f3128c126a85c538a8c"
     },
     {
       "path": "AUDIO_CREDITS.md",
@@ -84,8 +84,8 @@
     },
     {
       "path": "CHANGELOG.md",
-      "size_bytes": 2608,
-      "sha256": "4f7fd706e6772d36e784141f1a0b9edda1a232d49b3874338d468a9dd4983948"
+      "size_bytes": 4518,
+      "sha256": "a99fb9f7a0021416a7ab8d489e9cfce71f1d13865b3e18024ab0ff6a738808eb"
     },
     {
       "path": "Fetch Ambient Media.bat",
@@ -114,13 +114,13 @@
     },
     {
       "path": "MEDIA_LICENSES.md",
-      "size_bytes": 2721,
-      "sha256": "36f13d0ec226f780f16a766a5ba969bf5e98229969a85a67e786197f10d20132"
+      "size_bytes": 3124,
+      "sha256": "bb3451fc6a0de0398e7696f19bcd3b3deec2346e1bbe6922b7b254b331131c36"
     },
     {
       "path": "README.md",
-      "size_bytes": 5709,
-      "sha256": "5ae9b9686bec9ffa31b752d8d4ed80af7b113b6f0690cfc4dec3359445bfce13"
+      "size_bytes": 7449,
+      "sha256": "34f6231e16fd9d4095ab8235752b50c265d9652a667185d5229d20e47566f5d9"
     },
     {
       "path": "Start Nocturne LAN.bat",
@@ -194,8 +194,8 @@
     },
     {
       "path": "docs/PROFILES.md",
-      "size_bytes": 1493,
-      "sha256": "7f3d2fc65cb10d5fa23e1763151b802b1ac6a99a75c2d9a6ae33ee48291d4e7a"
+      "size_bytes": 1813,
+      "sha256": "069ccc6c79ba08b5f9921b16b281290f6eac5d20ae746592aeb80f2bd4b0006e"
     },
     {
       "path": "docs/RADIO_DRIFT_SPACE.md",
@@ -218,6 +218,31 @@
       "sha256": "a8ab12e4624c0d6780409e8b48f835dc9c955323470b3b33b317c57dbd97a3d3"
     },
     {
+      "path": "docs/screenshots/README.md",
+      "size_bytes": 1187,
+      "sha256": "cde497c77dfcf498d2a60f954e343a8875ec4b14de9bc5f67146e6802c1037cf"
+    },
+    {
+      "path": "docs/screenshots/appearance-room.png",
+      "size_bytes": 223685,
+      "sha256": "19d0aa2fcb36293975af296a41189710efa36b9f992aa5d3e4ee6a64c49cb3b3"
+    },
+    {
+      "path": "docs/screenshots/onsen-rain-lantern.webp",
+      "size_bytes": 92432,
+      "sha256": "927d7b88f75a2b697058976c9e86e243a2a4da10fbec48a88b869fd58ad80f3b"
+    },
+    {
+      "path": "docs/screenshots/radio-bedside-deck.webp",
+      "size_bytes": 30620,
+      "sha256": "0f2c4c65db6ca3a50a00fcf52e4a9907014851f000a40fb9e300b4152f9bb7f0"
+    },
+    {
+      "path": "docs/screenshots/sky-observing.webp",
+      "size_bytes": 24712,
+      "sha256": "8b6d65ca6def824fb7ddd24dee88dd29387f8d0490faa8ed986ca0e373ca6452"
+    },
+    {
       "path": "install.py",
       "size_bytes": 10414,
       "sha256": "1ee0da8d7760fd10d84d8414da665e340cf04fde13e23cdda78d0dfb95a93041"
@@ -229,8 +254,8 @@
     },
     {
       "path": "main.py",
-      "size_bytes": 27425,
-      "sha256": "c90a9a6d476f0c3fb6994e2d52a77f7e3ef2f57c0801676dc637b32df0a041fb"
+      "size_bytes": 27475,
+      "sha256": "bf923b19a8bbbd5d370cbc0a0aa64632aaa629401d4bebeba4ed67d230b88cb6"
     },
     {
       "path": "media_sources.default.json",
@@ -244,8 +269,8 @@
     },
     {
       "path": "nocturne_build.json",
-      "size_bytes": 318,
-      "sha256": "d1ca934c6a3f971ed2ab0aefb610df6d0f37f38043b713613ba8b7e972b7802d"
+      "size_bytes": 337,
+      "sha256": "64edc1fe002d3e377229588c8647fe95d7768e86a9c9e369cebe01f890aa6e63"
     },
     {
       "path": "nocturne_profile.json",
@@ -254,13 +279,13 @@
     },
     {
       "path": "profiles/nocturne-pi.json",
-      "size_bytes": 575,
-      "sha256": "de05881db12ce53624246f2df5c693d9196f993748c8354d917922738f29e4a0"
+      "size_bytes": 614,
+      "sha256": "dd962b9a1eca85103dbd1c993b93094bb504d99ab52c9a7306828f916dc197fb"
     },
     {
       "path": "profiles/nocturne.json",
-      "size_bytes": 504,
-      "sha256": "27e20c2b5544dba171c1a3dbd480ec58513546c9fbbea80ae12d9c15fc05624d"
+      "size_bytes": 542,
+      "sha256": "b35e24098bf665378e3626056294df05e7b1a1b318859c58b4e3274ad7444c90"
     },
     {
       "path": "provenance/README.md",
@@ -289,8 +314,8 @@
     },
     {
       "path": "scripts/browser_smoke.py",
-      "size_bytes": 19612,
-      "sha256": "9b172d2d224e71a6f9f69b930f290cac2a8eb86f241202bbea71b0290f9ff5f0"
+      "size_bytes": 38361,
+      "sha256": "f0144e55b703a84898b3c1406213393a51e0972cac4d24927495fb7abed60a38"
     },
     {
       "path": "scripts/fetch_media.py",
@@ -324,8 +349,8 @@
     },
     {
       "path": "scripts/profile_smoke.py",
-      "size_bytes": 2132,
-      "sha256": "d3bc7dc503fdbc0c674601d504644e333e3bac3a13395fe53dcfff4c5855500b"
+      "size_bytes": 2368,
+      "sha256": "e6887bb2fab7a250cc6fe765ba82b2932daa79a696b95d990a70b8cd59542e6c"
     },
     {
       "path": "scripts/release-audit.mjs",
@@ -344,8 +369,8 @@
     },
     {
       "path": "scripts/runtime_smoke.py",
-      "size_bytes": 7787,
-      "sha256": "1d3edfbf9cee2846e1edce68e81f6b5f2301d5970e7209bb91260579e8e1f1eb"
+      "size_bytes": 8587,
+      "sha256": "d655486c41eaa47840203f754836ffe7ec45c52b8a951dd096acdfecb89906af"
     },
     {
       "path": "scripts/stamp_build.py",
@@ -484,8 +509,43 @@
     },
     {
       "path": "static/dashboard.html",
-      "size_bytes": 45065,
-      "sha256": "f3b9d88ec253b3df2d2f244fc9d160db7cba7bfd78ab9a9b9d60d3c40cd048f6"
+      "size_bytes": 45013,
+      "sha256": "45fe7df730b6052710c65d0051cad25ae97cbebc93832cbffbae1d82e329bded"
+    },
+    {
+      "path": "static/fonts/fraunces-italic-latin.woff2",
+      "size_bytes": 81704,
+      "sha256": "4af9c759c8059b53923b4b50ba377ba51029876e1af1ea757efb07bc67d97896"
+    },
+    {
+      "path": "static/fonts/fraunces-latin.woff2",
+      "size_bytes": 67388,
+      "sha256": "48282a415ec22e31beaf0a0666e6fae0c8cbddcd0b1f6e729f27c3ade8a64e43"
+    },
+    {
+      "path": "static/fonts/jetbrains-mono-latin.woff2",
+      "size_bytes": 30944,
+      "sha256": "ccc346cf8c98ec21b72f270ddbba661b715ba0f3f0f642844ab2462dbea7e0c2"
+    },
+    {
+      "path": "static/fonts/licenses/Fraunces-OFL.txt",
+      "size_bytes": 4390,
+      "sha256": "6732d6cc72c5d09292ff754dc1f39d9ea14918f74e87a17afa3f00a5120c3d48"
+    },
+    {
+      "path": "static/fonts/licenses/JetBrains-Mono-OFL.txt",
+      "size_bytes": 4399,
+      "sha256": "b2fe5e8987594e9ffd1d2ca52a2f5d73eb8335243893c5d6254b5ad69269591d"
+    },
+    {
+      "path": "static/fonts/licenses/Manrope-OFL.txt",
+      "size_bytes": 4383,
+      "sha256": "f612090fb72b6dca3e807e66fa0d2b5def163cef86f1a3209b5c897cba5ee4b7"
+    },
+    {
+      "path": "static/fonts/manrope-latin.woff2",
+      "size_bytes": 24576,
+      "sha256": "e310b55a7fd9677f5e3555e6c6c4d064fa1f1d24393f0ddbe217cea12a8c432f"
     },
     {
       "path": "static/icons/apple-touch-icon.png",
@@ -514,8 +574,8 @@
     },
     {
       "path": "static/index.html",
-      "size_bytes": 302284,
-      "sha256": "60e55e74ed8cd03ac1ad8af852999f5c233aee43d192373316e33be51e966215"
+      "size_bytes": 312340,
+      "sha256": "1058e0144f5205421aa7a5924c0d4419ebfab5bd7ec60eb2d2f58d83297a9eb2"
     },
     {
       "path": "static/manifest.webmanifest",
@@ -524,8 +584,8 @@
     },
     {
       "path": "static/nocturne-polish.css",
-      "size_bytes": 5519,
-      "sha256": "b10611c8553d2cd1b820978cf41859dd30b7a25cdae5de5f5f629ae08cb98b02"
+      "size_bytes": 32149,
+      "sha256": "b2ddb74d2394470f11a4a017e8525aa7385b05d9071b00a2f8dfec52b24db27d"
     },
     {
       "path": "static/rain-still.webp",

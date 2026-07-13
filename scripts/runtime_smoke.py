@@ -72,9 +72,19 @@ def main() -> int:
             response = client.get("/")
             expect(response.status_code == 200, "main page is served", checks)
             expect('/nocturne-polish.css' in response.text, "main page loads the served polish stylesheet", checks)
+            expect("fonts.googleapis.com" not in response.text and "fonts.gstatic.com" not in response.text, "main page has no external font dependency", checks)
+            dashboard = client.get("/dashboard.html")
+            expect(
+                dashboard.status_code == 200 and "fonts.googleapis.com" not in dashboard.text and "fonts.gstatic.com" not in dashboard.text,
+                "optional Dashboard has no external font dependency",
+                checks,
+            )
 
             response = client.get("/nocturne-polish.css")
             expect(response.status_code == 200 and ":focus-visible" in response.text, "polish stylesheet is reachable and contains focus treatment", checks)
+            for font in ("fraunces-latin.woff2", "fraunces-italic-latin.woff2", "manrope-latin.woff2", "jetbrains-mono-latin.woff2"):
+                asset = client.get(f"/fonts/{font}")
+                expect(asset.status_code == 200 and asset.content.startswith(b"wOF2"), f"local font is served: {font}", checks)
 
             active_profile = client.get("/api/profile").json()
             expected_short_name = "Nocturne Pi" if active_profile.get("id") == "nocturne-pi" else "Nocturne"

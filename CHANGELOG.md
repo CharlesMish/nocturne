@@ -1,5 +1,35 @@
 # Changelog
 
+## 0.1.0-alpha.13-dev — curated room appearance
+
+- Added four coordinated atmosphere moods, three typography treatments, and
+  three lighting densities to the full Nocturne profile.
+- Kept appearance browser-local and separate from saved audio scenes, server
+  settings, and the rain media itself.
+- Reworked the full-profile mixer as a roomier four-by-two desktop instrument,
+  moved the one shared master/timer rail directly below the active room, and
+  reduced Local Scenes to a concise browser-local mix utility.
+- Rebalanced the responsive header into a calm desktop row and a mobile
+  brand/Settings row above a full-width three-room switcher; the mobile Onsen
+  scene now uses a shorter 16:10 frame so controls arrive sooner.
+- Finished Sky with a responsive moon and clipped halo, a separate observing
+  card, and explicit stale/offline weather states without changing its local
+  moon math or weather API behavior.
+- Finished Radio with tighter deck/playlist proportions, intentional empty and
+  selected states, larger targets, and first-track selection without autoplay
+  or early audio-graph creation.
+- Split Settings into non-persisted Room and Setup tabs with modal scroll lock,
+  focus containment, Escape closing, and focus return; Nocturne Pi opens Setup
+  directly and does not expose an empty Room tab.
+- Refined the sound picker hierarchy, contrast, actions, and viewport
+  containment while leaving its catalog and sound-selection contract intact.
+- Kept sakura in Onsen while Sky and Radio use only their own ambient language.
+- Preserved the compact Nocturne Pi layout, still-scene path, disabled
+  appearance controls, and reduced-motion/compositing boundary.
+- Replaced the external font request with locally packaged OFL typefaces.
+- Added a compact README showcase of Onsen, Sky, Radio, and the browser-local
+  Room appearance controls using deterministic full-profile captures.
+
 ## 0.1.0-alpha.12 — first public field-test alpha
 
 - Added the shared Nocturne and Nocturne Pi presentation profiles while keeping

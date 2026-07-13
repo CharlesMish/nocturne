@@ -7,11 +7,15 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>rpi4 // weather</title>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@200;300;400;500&display=swap" rel="stylesheet">
-
 <style>
+  @font-face {
+    font-family: "JetBrains Mono";
+    src: url("/fonts/jetbrains-mono-latin.woff2") format("woff2");
+    font-style: normal;
+    font-weight: 300 400;
+    font-display: swap;
+  }
+
   /* ───────────────────────────────────────────────────────────
      a black terminal screen, with weather inside it
      ─────────────────────────────────────────────────────────── */
@@ -40,7 +44,7 @@
     margin: 0; padding: 0; height: 100%; width: 100%;
     background: var(--bg-0);
     color: rgb(var(--phos));
-    font-family: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+    font-family: "JetBrains Mono", ui-monospace, Menlo, monospace;
     font-weight: 300;
     overflow: hidden;
     cursor: none;
@@ -692,7 +696,7 @@
 
     fctx.textBaseline = "alphabetic";
     fctx.textAlign    = "left";
-    fctx.font = `300 ${Math.round(CFG.fontSize * dpr)}px "IBM Plex Mono", monospace`;
+    fctx.font = `300 ${Math.round(CFG.fontSize * dpr)}px "JetBrains Mono", monospace`;
   }
   resize();
   window.addEventListener("resize", resize);

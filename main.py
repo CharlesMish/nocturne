@@ -111,6 +111,7 @@ def _load_profile() -> dict[str, Any]:
                 "parallax": True,
                 "backdrop_blur": True,
                 "compact_assets": False,
+                "appearance_customization": True,
                 "preload_strategy": "balanced",
             },
             "target": {"guidance": "General-purpose profile.", "tested_models": []},
