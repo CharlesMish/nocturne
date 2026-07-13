@@ -1,0 +1,15 @@
+{
+  "schema": "nocturne.release-build.v1",
+  "build": "v0.1.0-alpha.11 \u00b7 2026-07-11 \u00b7 product-v0.3.1",
+  "product": {
+    "path": "/mnt/data/nocturne-alpha11-release/nocturne-alpha11-product-v0.3.1.zip",
+    "size_bytes": 13115452,
+    "sha256": "667606424c3c01fe85ebe58ddda58b2d858b6a0f6c4ea885c8711fd02789f6c6"
+  },
+  "evidence": {
+    "path": "/mnt/data/nocturne-alpha11-release/nocturne-alpha11-evidence-v0.3.1.zip",
+    "size_bytes": 19698069,
+    "sha256": "e84f4210d94f216573af95cdf621535f3917c28eca49e51cbcc1b56be359f5f8"
+  },
+  "product_files": 99
+}

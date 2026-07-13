@@ -1,0 +1,531 @@
+{
+  "schema": "nocturne.release-manifest.v2",
+  "profile": "product-source",
+  "package": "nocturne-alpha11-product-v0.3.1",
+  "build": {
+    "schema": "nocturne.build.v2",
+    "version": "0.1.0-alpha.11",
+    "channel": "alpha",
+    "build_date_utc": "2026-07-11T23:25:46Z",
+    "revision": "product-v0.3.1",
+    "revision_kind": "package",
+    "source_date_utc": "2026-07-11T00:00:00-05:00",
+    "feedback_label": "v0.1.0-alpha.11 · 2026-07-11 · product-v0.3.1"
+  },
+  "generated_at_utc": "2026-07-11T23:25:46Z",
+  "file_count": 98,
+  "total_payload_bytes_excluding_manifest": 14074508,
+  "manifest_self_excluded": true,
+  "evidence_detached": true,
+  "detached_evidence_file_count": 3,
+  "detached_evidence_bytes": 4106425,
+  "detached_evidence": [
+    {
+      "path": "sounds/inbox/quarantine-seam-risk/rain-inside-house.mp3",
+      "size_bytes": 1692716,
+      "sha256": "03de0ee85dc758c1d542e413db715a96eae5322b1c27205b677ab8d1e57c2c65"
+    },
+    {
+      "path": "sounds/inbox/seam-baked/rain-inside-house-seam-baked.m4a",
+      "size_bytes": 2411317,
+      "sha256": "d09492ab6bb1c9676538f5c049c6b4261111a8bd66b31aff6eae570f1be69118"
+    },
+    {
+      "path": "sounds/inbox/seam-baked/rain-inside-house-seam-baked.m4a.loop.json",
+      "size_bytes": 2392,
+      "sha256": "b64a17ab6894fac30c57d7e829f47f4e3b566448ca170264fb9631739b892605"
+    }
+  ],
+  "files": [
+    {
+      "path": ".gitignore",
+      "size_bytes": 744,
+      "sha256": "5c58a38be18f3592ef5310fa73ecce2aba9d988ce37eef5c8b1353503886ef82"
+    },
+    {
+      "path": "ALPHA_FEEDBACK.md",
+      "size_bytes": 1157,
+      "sha256": "3e932bb55a67d3fcf258068abd0407ac60c67fb12af273d85f29f1919ea7050d"
+    },
+    {
+      "path": "AUDIO_CREDITS.md",
+      "size_bytes": 5555,
+      "sha256": "a9e0fefc060e40a4e42b038086c451a71503f6a8cbd90e72286c8922b364caf2"
+    },
+    {
+      "path": "AUDIO_PROVENANCE.md",
+      "size_bytes": 25596,
+      "sha256": "1c3d784401e9e2e4ba8ae11001fbf34ca48c8db514360127c2b0869cd66c5124"
+    },
+    {
+      "path": "CHANGELOG.md",
+      "size_bytes": 1754,
+      "sha256": "ef8681d76bd1c0b0e06ddf835927e05f62f2c6dcb3dc1a7dcd2a93e543caf481"
+    },
+    {
+      "path": "Fetch Ambient Media.bat",
+      "size_bytes": 1225,
+      "sha256": "385a15d856d21005d82473434a38509790f433f74afd364bdb5910b90a5e6822"
+    },
+    {
+      "path": "Install Nocturne.bat",
+      "size_bytes": 703,
+      "sha256": "d1857b73c9006287cbda4528c57ed9e97267b0870c6be74d7846a637621a7163"
+    },
+    {
+      "path": "Install Nocturne.command",
+      "size_bytes": 176,
+      "sha256": "e75948b1f5e432062b0b4c416181507fe23e814364b6b19e6d6286d59a513cec"
+    },
+    {
+      "path": "LAUNCH_CHECKLIST.md",
+      "size_bytes": 697,
+      "sha256": "991efbea6750709462cbf752bc765fe01c0c222630e2dc9fe1acd068c8af799e"
+    },
+    {
+      "path": "LICENSE",
+      "size_bytes": 11357,
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+    },
+    {
+      "path": "MEDIA_LICENSES.md",
+      "size_bytes": 2721,
+      "sha256": "36f13d0ec226f780f16a766a5ba969bf5e98229969a85a67e786197f10d20132"
+    },
+    {
+      "path": "README.md",
+      "size_bytes": 7811,
+      "sha256": "ddf114783c228691f556ed652d787ef422a99e4392c2304ec99f7143257ed88e"
+    },
+    {
+      "path": "Start Nocturne LAN.bat",
+      "size_bytes": 255,
+      "sha256": "18566db086657a1e5c173e8f69a40f46a1533ef5e2998cf7005e4fab4e2ec320"
+    },
+    {
+      "path": "Start Nocturne.bat",
+      "size_bytes": 807,
+      "sha256": "120f1e5a49595ab616982445b218fab881b8c12ffe842b25beb2f8a7e2b08190"
+    },
+    {
+      "path": "audio_sources.mainstream_cc0.csv",
+      "size_bytes": 4580,
+      "sha256": "45ad2b5f109719ef3a388ab79c7721cd102ff2c24c8209bb90d7e8e35022b32d"
+    },
+    {
+      "path": "audio_sources.template.csv",
+      "size_bytes": 489,
+      "sha256": "d9182141c2099a77643ec62859d28700f806daf8e7ac7a9ebabddb132e538a5b"
+    },
+    {
+      "path": "check_audio_contract.py",
+      "size_bytes": 8726,
+      "sha256": "46345796cafbc88c24c23913473a8273600ea3e670f97fcc2ea289f28c4b16c7"
+    },
+    {
+      "path": "config/.gitkeep",
+      "size_bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "path": "config/nocturne.example.json",
+      "size_bytes": 290,
+      "sha256": "5f9dd5ec6fcf6c215245620354287bd3fd36d08577da377a65d7b09290252ce9"
+    },
+    {
+      "path": "docs/CC0_DOWNLOAD_CHECKLIST.md",
+      "size_bytes": 2749,
+      "sha256": "1eeeeeffd1355093921bd1ad7f614f98bbadfb0c675f171efbf6e56a71034032"
+    },
+    {
+      "path": "docs/DEVICE_TEST_MATRIX.md",
+      "size_bytes": 1341,
+      "sha256": "7dc112ab603bcc5e148acbfa4d63ab864bb656e5b40a25310854fa30f860c3bc"
+    },
+    {
+      "path": "docs/FIELD_TEST_CARD.md",
+      "size_bytes": 2299,
+      "sha256": "38ba518ab64b3cc2c71712449447581f346bc658d6913a15b999c139a0365b0b"
+    },
+    {
+      "path": "docs/FREESOUND_CC0_WORKFLOW.md",
+      "size_bytes": 2037,
+      "sha256": "a8730e65e95c14f24d897099a71c3851e5218b0b833bb0017280138e41593c5f"
+    },
+    {
+      "path": "docs/PLATFORM_BEHAVIOR.md",
+      "size_bytes": 3312,
+      "sha256": "ef16e715b0d067a48fc3f753890bb79ff38953c99255dcb1539349f87f540808"
+    },
+    {
+      "path": "docs/PROCEDURAL_STARTER_SOUNDS.md",
+      "size_bytes": 1671,
+      "sha256": "72dbc196a2b2bcb2d9f6d65e4f4c713a7fceba7a112b5970a5bbb9f6ae0d818a"
+    },
+    {
+      "path": "docs/RADIO_DRIFT_SPACE.md",
+      "size_bytes": 1855,
+      "sha256": "1f7c21df9689ff7d3c9786280c1d15810596c985462cf0f243fd978dd5304e8f"
+    },
+    {
+      "path": "docs/SEAM_BAKING.md",
+      "size_bytes": 2268,
+      "sha256": "2aa266290696e9776007f972c6b8a1d26a229dd09f2df3c6ca977e989ba35fa9"
+    },
+    {
+      "path": "docs/SOUND_LIBRARY.md",
+      "size_bytes": 2581,
+      "sha256": "a8ab12e4624c0d6780409e8b48f835dc9c955323470b3b33b317c57dbd97a3d3"
+    },
+    {
+      "path": "install.py",
+      "size_bytes": 10414,
+      "sha256": "1ee0da8d7760fd10d84d8414da665e340cf04fde13e23cdda78d0dfb95a93041"
+    },
+    {
+      "path": "install.sh",
+      "size_bytes": 83,
+      "sha256": "783aded5554249399e77e7598c7b23494a787dc4996ed3b56265e945c2219bc0"
+    },
+    {
+      "path": "main.py",
+      "size_bytes": 23833,
+      "sha256": "f13471c329603c7afdae4a265366e06f72f8f7d9169b55e72ebf2ccf7875fbc1"
+    },
+    {
+      "path": "media_sources.default.json",
+      "size_bytes": 3571,
+      "sha256": "9c44b793dc2922fb8d8318d2b665390ce385be3cd9d67b69a14edc9bdf36a37d"
+    },
+    {
+      "path": "nocturne.service",
+      "size_bytes": 1177,
+      "sha256": "26e746177d1be092b8592b37b3f29d081d2c0e67e32e6f5175623b6667d733e3"
+    },
+    {
+      "path": "nocturne_build.json",
+      "size_bytes": 316,
+      "sha256": "bd25d20023aa7acaf600e419ab8466d08a35e01e64d77a762fa872192b542068"
+    },
+    {
+      "path": "provenance/originals/.gitkeep",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "provenance/screenshots/.gitkeep",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "provenance/screenshots/README.md",
+      "size_bytes": 340,
+      "sha256": "4407ae21e4c4600772c8b7887b0cba238ed27f7c1050223372fc8b8f486d26c1"
+    },
+    {
+      "path": "provenance/screenshots/bavaria-meadow-loop.jpg",
+      "size_bytes": 233589,
+      "sha256": "4b9b14aed1dbac81aa4c939401b0654dedfa34b2ef296e5a1c7bd570574a2f3e"
+    },
+    {
+      "path": "provenance/screenshots/campfire-loop-stereo.jpg",
+      "size_bytes": 181884,
+      "sha256": "747530c7a0e86fbd33e02b958cbf90a4eb7db0988c83a3f6eef36f71a20b1e09"
+    },
+    {
+      "path": "provenance/screenshots/crickets-at-night-clean.jpg",
+      "size_bytes": 153184,
+      "sha256": "33aac123bf609a658722804e8f82eb8d173d51c2e894611eaaa06b83ffc0bded"
+    },
+    {
+      "path": "provenance/screenshots/fire-crackling-loop.jpg",
+      "size_bytes": 162248,
+      "sha256": "6c8c8666a67e3fb0e13d5333c9697c4e0d19076f0199c255f03f5eb9b5cd7af8"
+    },
+    {
+      "path": "provenance/screenshots/flowing-water.jpg",
+      "size_bytes": 195772,
+      "sha256": "f0dbdff19a8b1b1aee3bff80a8c95aa553f124e138229353e909bef353c0ed11"
+    },
+    {
+      "path": "provenance/screenshots/indoor-raining-loop.jpg",
+      "size_bytes": 156253,
+      "sha256": "28c641d2506a7c41366ccd4b49fd2fdceb9ef22773774fafe58d0657cac0df29"
+    },
+    {
+      "path": "provenance/screenshots/rain-balcony-peaceful.jpg",
+      "size_bytes": 139079,
+      "sha256": "03546871b1b57c8ed215b31e96b96712b988efc4ff3948c0de8305ab95c7172b"
+    },
+    {
+      "path": "provenance/screenshots/rain-city-pooling.jpg",
+      "size_bytes": 181901,
+      "sha256": "2a365f1471702c0303e25a136ac5623d54df6848d2edea24b91e92cbdcf875ab"
+    },
+    {
+      "path": "provenance/screenshots/rain-heavy-open-window.jpg",
+      "size_bytes": 159035,
+      "sha256": "07b3f8551b747154c1a59bd8f48919ef11bac41a539ae6478a15a31593725214"
+    },
+    {
+      "path": "provenance/screenshots/rain-inside-house.jpg",
+      "size_bytes": 149051,
+      "sha256": "dbc1f08dd07d877d24d4a37b9d6e85d35b2d1a3b69a61a85e558ffa72532c9bb"
+    },
+    {
+      "path": "provenance/screenshots/rain-tent-heavy.jpg",
+      "size_bytes": 169703,
+      "sha256": "a8ec36185e2a0258e8add5292fb07956aae6a6960e36eceaac89ee560e556e66"
+    },
+    {
+      "path": "provenance/screenshots/waves-on-shore.jpg",
+      "size_bytes": 161868,
+      "sha256": "bfaaffa1ab858069e449b2763c054dce0110b9f7c5fc7a16c15be7f6caba6ecb"
+    },
+    {
+      "path": "requirements.txt",
+      "size_bytes": 71,
+      "sha256": "b2558baed3e344148e6900560bcc055e657dec4bd226f059f03eaba6c11749ae"
+    },
+    {
+      "path": "run_nocturne.py",
+      "size_bytes": 2203,
+      "sha256": "8db3ace09fc362a9ff0494d81a6c4a3f24fe75dbc5bd7b99d62d9867662f5384"
+    },
+    {
+      "path": "scripts/README.md",
+      "size_bytes": 2579,
+      "sha256": "6e04d68dd7db9a44785dd883564b80ead2a87fdd275c172cf19fba5932f31194"
+    },
+    {
+      "path": "scripts/bake_seamless_loop.py",
+      "size_bytes": 11991,
+      "sha256": "8137948d5e6be1de11731e890e66cb38e2de614561d2aa45ca3902f2f4ef2010"
+    },
+    {
+      "path": "scripts/browser_smoke.py",
+      "size_bytes": 17970,
+      "sha256": "64817ddf92721aa703b4570deac2f1c5b05955c869e0f2196588d513173955c6"
+    },
+    {
+      "path": "scripts/fetch_media.py",
+      "size_bytes": 21141,
+      "sha256": "21cb45945da848a7d694cb6aa1baba8a3122daaeb1fd6baaa694d4a67b77358c"
+    },
+    {
+      "path": "scripts/finalize_core_sound_pack.py",
+      "size_bytes": 10724,
+      "sha256": "d68f20d005dd1b6a82f38625cc468d1d13eb7cac520b3e70d2f54ac09792676d"
+    },
+    {
+      "path": "scripts/generate_noise.py",
+      "size_bytes": 22462,
+      "sha256": "09cdd4ed0cdc779858da7f2059cd6a0bdf048f6b88bba8619a42c5279807bbc8"
+    },
+    {
+      "path": "scripts/import_sound_pack.py",
+      "size_bytes": 9795,
+      "sha256": "7eb9094affcc4c942d49fda7e84eacd43571f2594c33d35ff13d9606a0a7feaf"
+    },
+    {
+      "path": "scripts/make_release.py",
+      "size_bytes": 10322,
+      "sha256": "6da139a9619c4d3844d4a3937f6f8720ad725dfbd9b467aec88ef174826147d1"
+    },
+    {
+      "path": "scripts/release-audit.mjs",
+      "size_bytes": 23086,
+      "sha256": "241006fde44da71ab2ef2da4dc08dd2295d954014621b84b14e2e4ab3401048b"
+    },
+    {
+      "path": "scripts/rename_freesound_downloads.py",
+      "size_bytes": 11740,
+      "sha256": "34c7b0a2cf40d921c3bc80c6596fd704f4d24d5bc9aa58e9597b725bd8628628"
+    },
+    {
+      "path": "scripts/runtime_smoke.py",
+      "size_bytes": 5181,
+      "sha256": "99074b1596473ac2e077b120a9224809554db5018a9df865126261cdb838a6c9"
+    },
+    {
+      "path": "scripts/stamp_build.py",
+      "size_bytes": 4229,
+      "sha256": "0c90f82a8a35ef16c225bf8c9659fbfb2dda2d41fed15b9320a6589f3742a256"
+    },
+    {
+      "path": "scripts/sync_release_data.py",
+      "size_bytes": 4965,
+      "sha256": "29d6f5f7e449ee53a842c1e192a9815d390f4b6849f268213e12e46e91ffbe72"
+    },
+    {
+      "path": "scripts/write_audio_credits.py",
+      "size_bytes": 7283,
+      "sha256": "e4dda05efeeb98a82b2a3101617bec770fbe7ed86d2cde717dc8d5558b179629"
+    },
+    {
+      "path": "songs/evening-loop/code.js",
+      "size_bytes": 5958,
+      "sha256": "6fa589c2045f03588df689036b37c91047f356863138bc8565d88c9fd113e64e"
+    },
+    {
+      "path": "songs/evening-loop/meta.json",
+      "size_bytes": 394,
+      "sha256": "85cf55d4b5b954f59c0b8ccc7d35c55a5ace6538e8f794930f414774ffd9f3d7"
+    },
+    {
+      "path": "sounds/.gitkeep",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "sounds/README.md",
+      "size_bytes": 2809,
+      "sha256": "2014b4a493b8d37aa581046c37e2aceadb673ce9479d117b73e166494da4389b"
+    },
+    {
+      "path": "sounds/inbox/README.md",
+      "size_bytes": 520,
+      "sha256": "7badfe33f94b60ba7d8235c75203337cc92927569a7a53ac14701455a4c9c320"
+    },
+    {
+      "path": "sounds/inbox/quarantine-seam-risk/README.md",
+      "size_bytes": 622,
+      "sha256": "75d41c886738759f0f03c10f0fc5afb5dcfdb8ad841ecc21d34e88c94f82233d"
+    },
+    {
+      "path": "sounds/inbox/quarantine-unverified/README.md",
+      "size_bytes": 350,
+      "sha256": "bd353d4858467534f37db28c2b8dc0773787e375e6fb9c6714e68cc02ab468b2"
+    },
+    {
+      "path": "sounds/inbox/seam-baked/README.md",
+      "size_bytes": 455,
+      "sha256": "a5ef324c3c9ae2c8cb9c1003cccf1bbdeb167e53512763a20b8f4c2152fb9286"
+    },
+    {
+      "path": "sounds/library/.gitkeep",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "sounds/library/bavaria-meadow-loop.mp3",
+      "size_bytes": 508844,
+      "sha256": "49e5e3e6b27515caef2788fb249538e07202ce293677ad420615fa17b7518d4a"
+    },
+    {
+      "path": "sounds/library/campfire-loop-stereo.mp3",
+      "size_bytes": 204716,
+      "sha256": "b5f9bac0883ff14eedc8765322eff1d90e95ad2f6593db61ecd89395afeb9cd5"
+    },
+    {
+      "path": "sounds/library/crickets-at-night-clean.mp3",
+      "size_bytes": 2704940,
+      "sha256": "8a95afbe1bd13a07539b25429ac7b34176464a6210fee99b242c40d02aedbb55"
+    },
+    {
+      "path": "sounds/library/fire-crackling-loop.mp3",
+      "size_bytes": 81452,
+      "sha256": "855cd56f2f74559eff1bc7dedbf6c189f5a5545c23e8913f8538c7ab872d2ae1"
+    },
+    {
+      "path": "sounds/library/flowing-water.mp3",
+      "size_bytes": 558380,
+      "sha256": "949b02921ae9de813c4ae937c84040f85bbe6f768bc33674f6fbca9ee0f35067"
+    },
+    {
+      "path": "sounds/library/indoor-raining-loop.mp3",
+      "size_bytes": 527660,
+      "sha256": "937f3f0106a4c8ae0151a5a8d64f51d09f66ca7ff7ccb366252f4205b415251c"
+    },
+    {
+      "path": "sounds/library/rain-balcony-peaceful.mp3",
+      "size_bytes": 864812,
+      "sha256": "869c44321952548d3c35d8b712d97975d5af169a745f48dc96c124b6f00e68a0"
+    },
+    {
+      "path": "sounds/library/rain-city-pooling.mp3",
+      "size_bytes": 169772,
+      "sha256": "2cc7b080ca413751cd037625ce90c54d4a91cb0632dfcdea1f1eaf728449e148"
+    },
+    {
+      "path": "sounds/library/rain-heavy-open-window.mp3",
+      "size_bytes": 1250348,
+      "sha256": "4e6f30fe3542c708eea0320978d73af1eea45d5a0e90bccc38e1638be5249214"
+    },
+    {
+      "path": "sounds/library/rain-tent-heavy.mp3",
+      "size_bytes": 794156,
+      "sha256": "01f7b1e3bbd5f674976bd7356b749008fd93cb27910b98c499afca8bc6102c63"
+    },
+    {
+      "path": "sounds/library/waves-on-shore.mp3",
+      "size_bytes": 721022,
+      "sha256": "666948be7ab37174c764a556db3c4059627031d55359903b80dbd7e9a966d2a4"
+    },
+    {
+      "path": "sounds/radio/README.md",
+      "size_bytes": 1621,
+      "sha256": "db520aa4f99d6b90199eab0814c5572329399ca683bb17b5b40dbe9a2d5e8db8"
+    },
+    {
+      "path": "sounds/sound_library.json",
+      "size_bytes": 30568,
+      "sha256": "1af02013287ae6b026d9f8e8712e5dda4e58b0a19e3d61179b420020ca218561"
+    },
+    {
+      "path": "static/.gitkeep",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "static/dashboard.html",
+      "size_bytes": 45065,
+      "sha256": "f3b9d88ec253b3df2d2f244fc9d160db7cba7bfd78ab9a9b9d60d3c40cd048f6"
+    },
+    {
+      "path": "static/icons/apple-touch-icon.png",
+      "size_bytes": 3657,
+      "sha256": "2d67961a4c10e58513a0d1ea6757f4c9116a2cfbdc7202bcf8251c4a397f6f4a"
+    },
+    {
+      "path": "static/icons/favicon.png",
+      "size_bytes": 1207,
+      "sha256": "7d5a4ea0a94634f2f623e84b84a4c56da404c61f2e6b7ba4ba46863adee571a0"
+    },
+    {
+      "path": "static/icons/nocturne-192.png",
+      "size_bytes": 3980,
+      "sha256": "98741750dfc35b830741a8a60cc1b5c153a84496068c53a89cd76b67ba3180be"
+    },
+    {
+      "path": "static/icons/nocturne-512.png",
+      "size_bytes": 11948,
+      "sha256": "cf19d8ecf5493a31d95a7521f28706564e4e02a710e0f8da6eadd984899d6003"
+    },
+    {
+      "path": "static/icons/nocturne-maskable-512.png",
+      "size_bytes": 11948,
+      "sha256": "cf19d8ecf5493a31d95a7521f28706564e4e02a710e0f8da6eadd984899d6003"
+    },
+    {
+      "path": "static/index.html",
+      "size_bytes": 300182,
+      "sha256": "d87791948efd728034183f135188bdc8e77c718641373c3f865cdf54d519ac2d"
+    },
+    {
+      "path": "static/manifest.webmanifest",
+      "size_bytes": 784,
+      "sha256": "8ed6e2d3b55049ab37a14ee20565ee4c232687c1e537c1880ff1fabc5d809210"
+    },
+    {
+      "path": "static/nocturne-polish.css",
+      "size_bytes": 4422,
+      "sha256": "32e394dd020198a8a6c7268628e7f4aa278970cf4efd51d424fe9b8c99206cf7"
+    },
+    {
+      "path": "static/rain.mp4",
+      "size_bytes": 2918116,
+      "sha256": "be666bb9dbacfef1bd2f1ff239878897cf88f178be84b4cc15edea0add257e3e"
+    }
+  ]
+}

@@ -1,0 +1,122 @@
+{
+  "schema": "nocturne.verification.v2",
+  "build": "v0.1.0-alpha.11 \u00b7 2026-07-11 \u00b7 product-v0.3.1",
+  "overall": "PASS",
+  "automated_scope": [
+    {
+      "name": "release data synchronization",
+      "status": "PASS",
+      "log": "verification-logs/01-sync.log"
+    },
+    {
+      "name": "source audio contract",
+      "status": "PASS",
+      "log": "verification-logs/02-audio-contract-source.log"
+    },
+    {
+      "name": "source release audit",
+      "status": "PASS",
+      "log": "verification-logs/12-release-audit-final-source.log"
+    },
+    {
+      "name": "Python syntax sweep",
+      "status": "PASS",
+      "log": "verification-logs/04-python-compile.log"
+    },
+    {
+      "name": "Node syntax check",
+      "status": "PASS",
+      "log": "verification-logs/05-node-check.log"
+    },
+    {
+      "name": "FastAPI runtime smoke",
+      "status": "PASS",
+      "log": "verification-logs/06-runtime-smoke.log"
+    },
+    {
+      "name": "Chromium interaction smoke",
+      "status": "PASS",
+      "log": "verification-logs/07-browser-smoke.log"
+    },
+    {
+      "name": "17 procedural beds generated in disposable copy",
+      "status": "PASS",
+      "log": "verification-logs/08-generate-noise.log"
+    },
+    {
+      "name": "installed audio contract in disposable copy",
+      "status": "PASS",
+      "log": "verification-logs/09-audio-contract-installed.log"
+    },
+    {
+      "name": "installed release audit in disposable copy",
+      "status": "PASS",
+      "log": "verification-logs/10-release-audit-installed.log"
+    },
+    {
+      "name": "text and whitespace hygiene",
+      "status": "PASS",
+      "log": "verification-logs/11-text-hygiene.log"
+    }
+  ],
+  "new_behavior_checked": [
+    "saved scenes carry schema 1",
+    "alpha.10 scenes without a schema normalize as schema 1",
+    "scene storage is capped at 12 records and 64 KiB serialized",
+    "quota failure produces an actionable message",
+    "device integration remains visibly field-test pending",
+    "product docs point to the detached rain-video transform record"
+  ],
+  "not_executed": [
+    "human audio audition",
+    "real iOS or Android Media Session and lock-screen testing",
+    "overnight survival",
+    "screen-reader testing",
+    "Raspberry Pi performance",
+    "full-motion review of the optimized rain video on target displays"
+  ],
+  "fresh_product_archive": {
+    "overall": "PASS",
+    "checks": [
+      {
+        "name": "ZIP CRC integrity",
+        "status": "PASS"
+      },
+      {
+        "name": "all 98 manifest records match size and SHA-256",
+        "status": "PASS",
+        "log": "verification-logs/14-fresh-manifest-check.log"
+      },
+      {
+        "name": "generated release data synchronized after extraction",
+        "status": "PASS",
+        "log": "verification-logs/15-fresh-sync.log"
+      },
+      {
+        "name": "source audio contract after extraction",
+        "status": "PASS",
+        "log": "verification-logs/16-fresh-audio-contract.log"
+      },
+      {
+        "name": "source release audit after extraction",
+        "status": "PASS",
+        "log": "verification-logs/17-fresh-release-audit.log"
+      },
+      {
+        "name": "runtime smoke after extraction",
+        "status": "PASS",
+        "log": "verification-logs/18-fresh-runtime-smoke.log"
+      },
+      {
+        "name": "browser smoke after extraction",
+        "status": "PASS",
+        "log": "verification-logs/19-fresh-browser-smoke.log"
+      },
+      {
+        "name": "slim boundary excludes logs, detached payloads, and generated WAVs",
+        "status": "PASS",
+        "log": "verification-logs/20-fresh-boundary-check.log"
+      }
+    ]
+  }
+}

@@ -1,0 +1,27 @@
+Nocturne audio contract (installed mode)
+
+✓ folder exists: sounds
+✓ folder exists: sounds/library
+✓ folder exists: sounds/radio
+✓ default_slots has 8 unique entries
+
+Public catalog:
+
+Tonight defaults:
+✓ rain-heavy-open-window: /sounds/library/rain-heavy-open-window.mp3
+✓ rain-balcony-peaceful: /sounds/library/rain-balcony-peaceful.mp3
+✓ rain-tent-heavy: /sounds/library/rain-tent-heavy.mp3
+✓ fire-crackling-loop: /sounds/library/fire-crackling-loop.mp3
+✓ crickets-at-night-clean: /sounds/library/crickets-at-night-clean.mp3
+✓ rain-city-pooling: /sounds/library/rain-city-pooling.mp3
+✓ campfire-loop-stereo: /sounds/library/campfire-loop-stereo.mp3
+✓ flowing-water: /sounds/library/flowing-water.mp3
+
+Quarantine boundary:
+✓ rain-inside-house: denied evidence at sounds/inbox/quarantine-seam-risk/rain-inside-house.mp3
+✓ rain-inside-house-seam-baked: denied evidence at sounds/inbox/seam-baked/rain-inside-house-seam-baked.m4a
+✓ soft-wind-trees: record retained; payload not shipped
+
+Radio tracks: 0 file(s) in sounds/radio/
+
+Result: PASS

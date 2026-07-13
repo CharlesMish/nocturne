@@ -1,0 +1,36 @@
+Nocturne is ready at http://127.0.0.1:8000/
+{
+  "schema": "nocturne.runtime-smoke.v1",
+  "overall": "PASS",
+  "checks": [
+    "health endpoint returns ok",
+    "version endpoint is available",
+    "API build label matches canonical build JSON",
+    "main page is served",
+    "main page loads the served polish stylesheet",
+    "polish stylesheet is reachable and contains focus treatment",
+    "web app manifest is served",
+    "install icon is served: /icons/nocturne-192.png",
+    "install icon is served: /icons/nocturne-512.png",
+    "install icon is served: /icons/nocturne-maskable-512.png",
+    "optimized rain video is served below 4 MB",
+    "canonical sound manifest is publicly readable",
+    "manifest exposes exactly eight defaults",
+    "default asset is served: rain-heavy-open-window",
+    "default asset is served: rain-balcony-peaceful",
+    "default asset is served: rain-tent-heavy",
+    "default asset is served: fire-crackling-loop",
+    "default asset is served: crickets-at-night-clean",
+    "default asset is served: rain-city-pooling",
+    "default asset is served: campfire-loop-stereo",
+    "default asset is served: flowing-water",
+    "original seam-risk quarantine is denied",
+    "seam-baked audition candidate is also denied",
+    "default profile exposes only Onsen, Sky, and Radio",
+    "Utility write surface is hidden while disabled",
+    "settings reject disabling every mode",
+    "settings reject unknown modes",
+    "Utility can be deliberately enabled",
+    "Utility route becomes available only after enablement"
+  ]
+}

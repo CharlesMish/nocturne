@@ -1,0 +1,46 @@
+{
+  "schema": "nocturne.release-audit.v2",
+  "generatedAt": "2026-07-11T23:25:55.581Z",
+  "mode": "source",
+  "overall": "PASS",
+  "counts": {
+    "files": 102,
+    "packagedAudioFiles": 11,
+    "publicSounds": 28,
+    "defaultSounds": 8,
+    "excludedSounds": 3,
+    "errors": 0,
+    "warnings": 0
+  },
+  "passes": [
+    "11 packaged audio assets are non-empty.",
+    "Waves remains optional but is not a Tonight default.",
+    "rain-inside-house payload is intentionally detached to the companion evidence bundle.",
+    "rain-inside-house-seam-baked payload is intentionally detached to the companion evidence bundle.",
+    "rain-inside-house-seam-baked transform sidecar is intentionally detached to the companion evidence bundle.",
+    "Browser fallback exactly matches the canonical sound manifest.",
+    "Browser build fallback exactly matches nocturne_build.json.",
+    "The public sound route denies the complete sounds/inbox quarantine tree.",
+    "Silence / Resume states is represented in active source.",
+    "accessible pressed state is represented in active source.",
+    "Tonight picker hierarchy is represented in active source.",
+    "explicit Experimental filter is represented in active source.",
+    "sound-picker focus return is represented in active source.",
+    "schema-versioned local scenes is represented in active source.",
+    "local named scenes is represented in active source.",
+    "Media Session handlers is represented in active source.",
+    "background return check is represented in active source.",
+    "honest browser alarm boundary is represented in active source.",
+    "17 procedural WAV paths are correctly treated as install-generated in source mode.",
+    "8 Tonight defaults are bundled; 11 public bundled sounds and 17 install-generated entries were checked."
+  ],
+  "warnings": [],
+  "errors": [],
+  "humanChecksRequired": [
+    "Audition every Tonight/default sound on headphones, a phone/tablet speaker, and the intended bedside speaker.",
+    "Record loop seams, unexpected events, fatigue, level jumps, and one mixed timer/fade session.",
+    "Exercise keyboard and screen-reader behavior in a real browser; static tokens do not prove a usable experience.",
+    "Run a real phone background/lock/unlock cycle and record the exact browser/launch context in docs/DEVICE_TEST_MATRIX.md; API presence does not prove OS survival.",
+    "Audition the seam-baked candidate repeatedly before moving it out of sounds/inbox/."
+  ]
+}

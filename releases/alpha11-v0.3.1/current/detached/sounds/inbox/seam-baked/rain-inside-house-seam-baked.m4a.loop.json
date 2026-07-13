@@ -1,0 +1,78 @@
+{
+  "schema": "nocturne.loop-bake.v1",
+  "status": "audition_required",
+  "created_at_utc": "2026-07-11T17:05:39.238518+00:00",
+  "source": {
+    "path": "sounds/inbox/quarantine-seam-risk/rain-inside-house.mp3",
+    "sha256": "03de0ee85dc758c1d542e413db715a96eae5322b1c27205b677ab8d1e57c2c65",
+    "size_bytes": 1692716,
+    "probe": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "codec_name": "mp3",
+          "sample_rate": 48000,
+          "channels": 2,
+          "duration": "105.768000"
+        }
+      ],
+      "format": {
+        "duration": "105.768000",
+        "size": "1692716",
+        "bit_rate": "128032"
+      }
+    }
+  },
+  "output": {
+    "path": "sounds/inbox/seam-baked/rain-inside-house-seam-baked.m4a",
+    "sha256": "d09492ab6bb1c9676538f5c049c6b4261111a8bd66b31aff6eae570f1be69118",
+    "size_bytes": 2411317,
+    "probe": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "codec_name": "aac",
+          "sample_rate": 48000,
+          "channels": 2,
+          "duration": "99.739000"
+        }
+      ],
+      "format": {
+        "duration": "99.739000",
+        "size": "2411317",
+        "bit_rate": "193410"
+      }
+    }
+  },
+  "transform": {
+    "method": "offline cyclic head-tail crossfade",
+    "curve": "equal-power",
+    "crossfade_seconds": 6.0,
+    "overlap_samples_per_channel": 288000,
+    "sample_rate_hz": 48000,
+    "channels": 2,
+    "safety_gain": 1.0,
+    "ffmpeg": "ffmpeg version 7.1.3-0+deb13u1 Copyright (c) 2000-2025 the FFmpeg developers"
+  },
+  "numerical_screen": {
+    "source_boundary": {
+      "boundary_jump_rms": 0.24990998208522797,
+      "typical_step_rms": 0.004813739874747717,
+      "jump_ratio": 51.915971487413515
+    },
+    "baked_pcm_boundary": {
+      "boundary_jump_rms": 0.0034324685111641884,
+      "typical_step_rms": 0.004836855028757259,
+      "jump_ratio": 0.7096488298195074
+    },
+    "encoded_output_boundary": {
+      "boundary_jump_rms": 0.006936624003966904,
+      "typical_step_rms": 0.004818116343807717,
+      "jump_ratio": 1.4396962441311552
+    },
+    "interpretation": "A lower wrap-jump ratio is encouraging but does not prove an inaudible or comfortable loop."
+  },
+  "claim_boundary": "Nocturne has rendered a traceable repair candidate. Human audition on target devices is still required before catalog promotion."
+}

@@ -1,0 +1,294 @@
+{
+  "schema": "nocturne.evidence-branch-seed.v1",
+  "prepared_for": "v0.1.0-alpha.12-dev \u00b7 2026-07-12 \u00b7 codex-profile-split-v0.4.0-dev",
+  "historical_release_preserved": "alpha11-v0.3.1",
+  "working_release": "alpha12-v0.4.0-dev",
+  "file_count": 57,
+  "files": [
+    {
+      "path": "BRANCH_SETUP.md",
+      "size_bytes": 514,
+      "sha256": "2f61ce91e399d426a13740296376ca2cda859303cd3d031ad051751847111b1a"
+    },
+    {
+      "path": "README.md",
+      "size_bytes": 884,
+      "sha256": "d90b75b47e5155d892c82819e3ab5d8b453d94733a26a69fa45d203f993cf567"
+    },
+    {
+      "path": "protocol/HOPEFUL_SKEPTIC_CORE_v0_4_1_FULL.md",
+      "size_bytes": 61851,
+      "sha256": "c50746cebb91814c9e7e8ec3867a0ffd8bb4aeebf6a4611f4f0c0cbaddd49712"
+    },
+    {
+      "path": "provenance/alpha11-source-pages/.gitkeep",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "provenance/alpha11-source-pages/README.md",
+      "size_bytes": 340,
+      "sha256": "4407ae21e4c4600772c8b7887b0cba238ed27f7c1050223372fc8b8f486d26c1"
+    },
+    {
+      "path": "provenance/alpha11-source-pages/bavaria-meadow-loop.jpg",
+      "size_bytes": 233589,
+      "sha256": "4b9b14aed1dbac81aa4c939401b0654dedfa34b2ef296e5a1c7bd570574a2f3e"
+    },
+    {
+      "path": "provenance/alpha11-source-pages/campfire-loop-stereo.jpg",
+      "size_bytes": 181884,
+      "sha256": "747530c7a0e86fbd33e02b958cbf90a4eb7db0988c83a3f6eef36f71a20b1e09"
+    },
+    {
+      "path": "provenance/alpha11-source-pages/crickets-at-night-clean.jpg",
+      "size_bytes": 153184,
+      "sha256": "33aac123bf609a658722804e8f82eb8d173d51c2e894611eaaa06b83ffc0bded"
+    },
+    {
+      "path": "provenance/alpha11-source-pages/fire-crackling-loop.jpg",
+      "size_bytes": 162248,
+      "sha256": "6c8c8666a67e3fb0e13d5333c9697c4e0d19076f0199c255f03f5eb9b5cd7af8"
+    },
+    {
+      "path": "provenance/alpha11-source-pages/flowing-water.jpg",
+      "size_bytes": 195772,
+      "sha256": "f0dbdff19a8b1b1aee3bff80a8c95aa553f124e138229353e909bef353c0ed11"
+    },
+    {
+      "path": "provenance/alpha11-source-pages/indoor-raining-loop.jpg",
+      "size_bytes": 156253,
+      "sha256": "28c641d2506a7c41366ccd4b49fd2fdceb9ef22773774fafe58d0657cac0df29"
+    },
+    {
+      "path": "provenance/alpha11-source-pages/rain-balcony-peaceful.jpg",
+      "size_bytes": 139079,
+      "sha256": "03546871b1b57c8ed215b31e96b96712b988efc4ff3948c0de8305ab95c7172b"
+    },
+    {
+      "path": "provenance/alpha11-source-pages/rain-city-pooling.jpg",
+      "size_bytes": 181901,
+      "sha256": "2a365f1471702c0303e25a136ac5623d54df6848d2edea24b91e92cbdcf875ab"
+    },
+    {
+      "path": "provenance/alpha11-source-pages/rain-heavy-open-window.jpg",
+      "size_bytes": 159035,
+      "sha256": "07b3f8551b747154c1a59bd8f48919ef11bac41a539ae6478a15a31593725214"
+    },
+    {
+      "path": "provenance/alpha11-source-pages/rain-inside-house.jpg",
+      "size_bytes": 149051,
+      "sha256": "dbc1f08dd07d877d24d4a37b9d6e85d35b2d1a3b69a61a85e558ffa72532c9bb"
+    },
+    {
+      "path": "provenance/alpha11-source-pages/rain-tent-heavy.jpg",
+      "size_bytes": 169703,
+      "sha256": "a8ec36185e2a0258e8add5292fb07956aae6a6960e36eceaac89ee560e556e66"
+    },
+    {
+      "path": "provenance/alpha11-source-pages/waves-on-shore.jpg",
+      "size_bytes": 161868,
+      "sha256": "bfaaffa1ab858069e449b2763c054dce0110b9f7c5fc7a16c15be7f6caba6ecb"
+    },
+    {
+      "path": "releases/alpha11-v0.3.1/PRODUCT_SHA256.txt",
+      "size_bytes": 102,
+      "sha256": "930cc685a78410e5d5fa5b371337cb4d3731859363f26bb7b595fa645d01140b"
+    },
+    {
+      "path": "releases/alpha11-v0.3.1/README.md",
+      "size_bytes": 569,
+      "sha256": "7ced63b59b6a0747805444ce672300c600b4283924e5891390c43cf60fa47229"
+    },
+    {
+      "path": "releases/alpha11-v0.3.1/current/detached/sounds/inbox/quarantine-seam-risk/rain-inside-house.mp3",
+      "size_bytes": 1692716,
+      "sha256": "03de0ee85dc758c1d542e413db715a96eae5322b1c27205b677ab8d1e57c2c65"
+    },
+    {
+      "path": "releases/alpha11-v0.3.1/current/detached/sounds/inbox/seam-baked/rain-inside-house-seam-baked.m4a",
+      "size_bytes": 2411317,
+      "sha256": "d09492ab6bb1c9676538f5c049c6b4261111a8bd66b31aff6eae570f1be69118"
+    },
+    {
+      "path": "releases/alpha11-v0.3.1/current/detached/sounds/inbox/seam-baked/rain-inside-house-seam-baked.m4a.loop.json",
+      "size_bytes": 2392,
+      "sha256": "b64a17ab6894fac30c57d7e829f47f4e3b566448ca170264fb9631739b892605"
+    },
+    {
+      "path": "releases/alpha11-v0.3.1/current/release-audit.json",
+      "size_bytes": 2197,
+      "sha256": "0e64372bd2be80bf3e06f9a14d96bde7deea5a135d1bad166108dc956ee0c415"
+    },
+    {
+      "path": "releases/alpha11-v0.3.1/current/verification-artifacts/browser-smoke.json",
+      "size_bytes": 1875,
+      "sha256": "0af9d4f3668e3cbfa98537ceffb797c5f5223613fb9f0162c1ac68a4a65f2359"
+    },
+    {
+      "path": "releases/alpha11-v0.3.1/current/verification-artifacts/desktop-onsen.png",
+      "size_bytes": 709713,
+      "sha256": "68a12760cf6107cf42463822c20cd59fa17d66e054c978b5f8074f64cb328a2f"
+    },
+    {
+      "path": "releases/alpha11-v0.3.1/current/verification-artifacts/desktop-platform-settings.png",
+      "size_bytes": 347574,
+      "sha256": "9873f6ca19b53ac3218b97682fd01723f09f177feb04b08aa625aa477a2a958d"
+    },
+    {
+      "path": "releases/alpha11-v0.3.1/current/verification-artifacts/desktop-tonight-picker.png",
+      "size_bytes": 744254,
+      "sha256": "5da29bc858d7b7a18a137767ce09d80f373d118543ddbed7987a1ea4525044c7"
+    },
+    {
+      "path": "releases/alpha11-v0.3.1/current/verification-artifacts/mobile-mixer.png",
+      "size_bytes": 263716,
+      "sha256": "cdffd569a99722dfc13c9b2dad9d11deddcf339f68e85991ab1f7a23e084843b"
+    },
+    {
+      "path": "releases/alpha11-v0.3.1/current/verification-logs/01-sync.log",
+      "size_bytes": 48,
+      "sha256": "76a899f7172f37fd77b404b3722a50808b45c19eca5b42198e4e87ef7b67f681"
+    },
+    {
+      "path": "releases/alpha11-v0.3.1/current/verification-logs/02-audio-contract-source.log",
+      "size_bytes": 1180,
+      "sha256": "2edbba5108bd65a01306ab37371d7ac1c9b20c8e99f3122f7e776ee1e3375800"
+    },
+    {
+      "path": "releases/alpha11-v0.3.1/current/verification-logs/03-release-audit-source.log",
+      "size_bytes": 2476,
+      "sha256": "82266e4dfa064e948604504f19de3286839befb829e5eef5632f7457708d8b1e"
+    },
+    {
+      "path": "releases/alpha11-v0.3.1/current/verification-logs/04-python-compile.log",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "releases/alpha11-v0.3.1/current/verification-logs/05-node-check.log",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "releases/alpha11-v0.3.1/current/verification-logs/06-runtime-smoke.log",
+      "size_bytes": 1563,
+      "sha256": "46b90d4c2bd7a023e9306f18d569e180d3406bdeaf86e5dfe0ba8244c50cb2c2"
+    },
+    {
+      "path": "releases/alpha11-v0.3.1/current/verification-logs/07-browser-smoke.log",
+      "size_bytes": 1875,
+      "sha256": "0af9d4f3668e3cbfa98537ceffb797c5f5223613fb9f0162c1ac68a4a65f2359"
+    },
+    {
+      "path": "releases/alpha11-v0.3.1/current/verification-logs/08-generate-noise.log",
+      "size_bytes": 1882,
+      "sha256": "aa59d07f6084c54b71ff57ec3918ea5503e2974331b074fe0296124023f0f93a"
+    },
+    {
+      "path": "releases/alpha11-v0.3.1/current/verification-logs/09-audio-contract-installed.log",
+      "size_bytes": 1069,
+      "sha256": "88edce03b3364b42f2d80f7f9937e4d92c828e68eeebe9934dff1de004d432f0"
+    },
+    {
+      "path": "releases/alpha11-v0.3.1/current/verification-logs/10-release-audit-installed.log",
+      "size_bytes": 2110,
+      "sha256": "a8731a0edb97e81ad7d5d70f140432fc0050185fe7e22660e3297e4e41bd5f28"
+    },
+    {
+      "path": "releases/alpha11-v0.3.1/current/verification-logs/11-text-hygiene.log",
+      "size_bytes": 76,
+      "sha256": "d8a41b4f1a49b0c1cd48e0f64a188b78863ca2847de22c047b5fb71e0cc02b44"
+    },
+    {
+      "path": "releases/alpha11-v0.3.1/current/verification-logs/12-release-audit-final-source.log",
+      "size_bytes": 2197,
+      "sha256": "0e64372bd2be80bf3e06f9a14d96bde7deea5a135d1bad166108dc956ee0c415"
+    },
+    {
+      "path": "releases/alpha11-v0.3.1/current/verification-logs/13-make-release.log",
+      "size_bytes": 569,
+      "sha256": "4ec96e6a6efb0960606425e1df08ee82f4d448c1b63ac418e6cfc48f8b9f27ce"
+    },
+    {
+      "path": "releases/alpha11-v0.3.1/current/verification-logs/14-fresh-manifest-check.log",
+      "size_bytes": 94,
+      "sha256": "cee9c834fb88e0b2a10fd33829bad0b42365e8558b16772696dccdc926c8e7b2"
+    },
+    {
+      "path": "releases/alpha11-v0.3.1/current/verification-logs/15-fresh-sync.log",
+      "size_bytes": 48,
+      "sha256": "76a899f7172f37fd77b404b3722a50808b45c19eca5b42198e4e87ef7b67f681"
+    },
+    {
+      "path": "releases/alpha11-v0.3.1/current/verification-logs/16-fresh-audio-contract.log",
+      "size_bytes": 1180,
+      "sha256": "2edbba5108bd65a01306ab37371d7ac1c9b20c8e99f3122f7e776ee1e3375800"
+    },
+    {
+      "path": "releases/alpha11-v0.3.1/current/verification-logs/17-fresh-release-audit.log",
+      "size_bytes": 2475,
+      "sha256": "2bcd06b93052b8ff56a3e12f96080b454d33f4434018cdfbb7844d73752cad10"
+    },
+    {
+      "path": "releases/alpha11-v0.3.1/current/verification-logs/18-fresh-runtime-smoke.log",
+      "size_bytes": 1563,
+      "sha256": "46b90d4c2bd7a023e9306f18d569e180d3406bdeaf86e5dfe0ba8244c50cb2c2"
+    },
+    {
+      "path": "releases/alpha11-v0.3.1/current/verification-logs/19-fresh-browser-smoke.log",
+      "size_bytes": 1875,
+      "sha256": "0af9d4f3668e3cbfa98537ceffb797c5f5223613fb9f0162c1ac68a4a65f2359"
+    },
+    {
+      "path": "releases/alpha11-v0.3.1/current/verification-logs/20-fresh-boundary-check.log",
+      "size_bytes": 90,
+      "sha256": "bb0babddc37581903413ce89321d7f1110531ebce6e7eb20032fc1d55a4492a3"
+    },
+    {
+      "path": "releases/alpha11-v0.3.1/current/verification-report.json",
+      "size_bytes": 3683,
+      "sha256": "22b28591b27f86ffcc5fa556f78a15b2440d009f81a95b7c47bc21f502b03b09"
+    },
+    {
+      "path": "releases/alpha11-v0.3.1/product/RELEASE_MANIFEST.json",
+      "size_bytes": 17823,
+      "sha256": "abc4c550562e4f79828a82644e911b54e3ae4531d55ebfb092fbec7ab632e2f4"
+    },
+    {
+      "path": "releases/alpha11-v0.3.1/retained/media/rain-comparison.jpg",
+      "size_bytes": 393676,
+      "sha256": "76064271c4769cf2131e94b315cfe0d683ec854f888123afa4895b27f079f6a4"
+    },
+    {
+      "path": "releases/alpha11-v0.3.1/retained/media/rain-original.mp4",
+      "size_bytes": 13345135,
+      "sha256": "f2568a51962d1dd28c4e8d1f6339bba170bd98f44b2c164ffffd9c128cb4106e"
+    },
+    {
+      "path": "releases/alpha11-v0.3.1/retained/media/rain-transform.json",
+      "size_bytes": 2229,
+      "sha256": "59c835ec85808cb84181dfce1c45340e5732928ddc7f41f3dd130bded124f50c"
+    },
+    {
+      "path": "reviews/grok-alpha10-review.md",
+      "size_bytes": 16322,
+      "sha256": "12abc84d1f824205305c341675ac29ce58a678f7cfc6450da0ff46824c530221"
+    },
+    {
+      "path": "reviews/grok-v0.2-polish-review.md",
+      "size_bytes": 16710,
+      "sha256": "a09cd90a7a99960e23c49c99832658cd7c286c6f5c84d7a4418790497e22c631"
+    },
+    {
+      "path": "working/alpha12-v0.4.0-dev/PREP_VERIFICATION.md",
+      "size_bytes": 2319,
+      "sha256": "76e9923a17cf59e4aaa7bdf89ee16b6037a37ba397206d8575e1c517c2355301"
+    },
+    {
+      "path": "working/alpha12-v0.4.0-dev/README.md",
+      "size_bytes": 748,
+      "sha256": "4db6afbc39d4fa0c6ab9c7e7ef63e0d7c928e6cd2d267cec236c9e9c14a3b8a2"
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "schema": "nocturne.browser-smoke.v1",
+  "overall": "PASS",
+  "transport": "page.set_content with intercepted packaged resources and deterministic storage/context shims; no external network",
+  "checks": [
+    "main page includes one served polish stylesheet",
+    "keyboard focus receives a visible 2 px outline from the polish layer",
+    "default browser profile shows only core modes: onsen, sky, radio",
+    "packaged UI has a manifest and runs in a secure test context",
+    "device integration remains explicitly marked as field-test pending",
+    "device-integration cards expose feature state instead of a silent promise",
+    "a schema-versioned named scene persists mixer and Radio state only in browser storage",
+    "applying a local scene restores its saved channel level",
+    "local scenes can be deleted without affecting the sound catalog",
+    "scene save explains a browser storage quota failure",
+    "sound picker opens from a mixer slot",
+    "picker hierarchy begins with Tonight, All, Recorded, Generated, Experimental",
+    "Tonight contains exactly the eight canonical bundled defaults",
+    "Waves and experimental thunder are absent from Tonight",
+    "Waves remains optional in All; experimental sounds stay out of ordinary browsing",
+    "Experimental contains only the two explicitly marked thunder candidates",
+    "Tab focus remains inside the open sound picker",
+    "Escape closes the picker and visibly returns focus to its Change trigger",
+    "desktop viewport has no horizontal overflow",
+    "390 px mobile viewport has no horizontal overflow"
+  ],
+  "console_errors": [],
+  "page_errors": [],
+  "screenshots": [
+    "verification-artifacts/desktop-onsen.png",
+    "verification-artifacts/desktop-platform-settings.png",
+    "verification-artifacts/desktop-tonight-picker.png",
+    "verification-artifacts/mobile-mixer.png"
+  ]
+}
