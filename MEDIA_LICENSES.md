@@ -35,3 +35,14 @@ The old fixed ambience filenames and `scripts/fetch_media.py` remain for compati
   - Role: Onsen visual loop.
   - Source: project-specific generated visual asset created by Charles Mish using Grok Imagine, from text-to-image followed by image-to-video.
   - Boundary: this file is not part of the Freesound CC0 audio pack. Its reuse follows the project owner's permissions and the applicable tool/platform terms, not CC0.
+
+## Bundled typefaces
+
+Nocturne packages Latin web subsets of Fraunces, Manrope, and JetBrains Mono so
+the interface does not contact a font CDN. Each family is distributed under the
+SIL Open Font License 1.1. The corresponding license texts ship beside the font
+assets in `static/fonts/licenses/`:
+
+- Fraunces: `Fraunces-OFL.txt`
+- Manrope: `Manrope-OFL.txt`
+- JetBrains Mono: `JetBrains-Mono-OFL.txt`

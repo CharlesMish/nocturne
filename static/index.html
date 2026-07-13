@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-mood="rain-lantern" data-type="poetic" data-light="balanced" data-appearance-enabled="true">
 <head>
     <meta name="color-scheme" content="dark">
 <meta charset="UTF-8">
@@ -11,9 +11,34 @@
 <link rel="icon" type="image/png" href="/icons/favicon.png">
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300;1,9..144,400&family=Manrope:wght@200;300;400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<script>
+/* Apply the browser-local appearance before first paint. Runtime validation
+   repeats this allowlist and gracefully handles unavailable storage. */
+(() => {
+  const defaults = { schema: 1, mood: 'rain-lantern', type: 'poetic', light: 'balanced' };
+  const allowed = {
+    mood: ['rain-lantern', 'moonwater', 'cedar-steam', 'ember-room'],
+    type: ['poetic', 'quiet', 'clear'],
+    light: ['soft', 'balanced', 'clear']
+  };
+  let appearance = defaults;
+  try {
+    const stored = JSON.parse(localStorage.getItem('nocturne:appearance:v1') || 'null');
+    if (stored && Number(stored.schema) === 1) {
+      appearance = {
+        schema: 1,
+        mood: allowed.mood.includes(stored.mood) ? stored.mood : defaults.mood,
+        type: allowed.type.includes(stored.type) ? stored.type : defaults.type,
+        light: allowed.light.includes(stored.light) ? stored.light : defaults.light
+      };
+    }
+  } catch (e) { /* private/blocked storage keeps the safe defaults */ }
+  const root = document.documentElement;
+  root.dataset.mood = appearance.mood;
+  root.dataset.type = appearance.type;
+  root.dataset.light = appearance.light;
+})();
+</script>
 
 <!-- Utility mode is a local Strudel code sketchbook. It does not embed Strudel; it opens saved code on strudel.cc when requested. -->
 
@@ -24,6 +49,10 @@
    ============================================================ */
 
 :root {
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'Manrope', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
   /* —— Stone & shadow ————————————————————————— */
   --stone-void:    #06070a;
   --stone-deep:    #0e0d0c;
@@ -79,7 +108,7 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 body {
-  font-family: 'Manrope', sans-serif;
+  font-family: var(--font-body);
   font-weight: 300;
   background: var(--stone-void);
   color: var(--text);
@@ -190,20 +219,20 @@ body {
    TYPOGRAPHY
    ============================================================ */
 .serif {
-  font-family: 'Fraunces', serif;
+  font-family: var(--font-display);
   font-weight: 300;
   font-variation-settings: "opsz" 144;
   letter-spacing: -0.022em;
 }
 .serif-italic {
-  font-family: 'Fraunces', serif;
+  font-family: var(--font-display);
   font-style: italic;
   font-weight: 300;
   font-variation-settings: "opsz" 144;
   letter-spacing: -0.018em;
 }
 .mono {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-weight: 300;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -267,14 +296,14 @@ main { position: relative; z-index: 10; }
   gap: 1px;
 }
 .brand-name {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.7rem;
   letter-spacing: 0.24em;
   text-transform: uppercase;
   color: var(--text);
 }
 .brand-sub {
-  font-family: 'Fraunces', serif;
+  font-family: var(--font-display);
   font-style: italic;
   font-weight: 300;
   font-size: 0.72rem;
@@ -288,7 +317,7 @@ main { position: relative; z-index: 10; }
   gap: 1.75rem;
 }
 .location {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.62rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -301,7 +330,7 @@ main { position: relative; z-index: 10; }
   display: inline-flex;
   align-items: center;
   gap: 0.6rem;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.62rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -610,7 +639,7 @@ main { position: relative; z-index: 10; }
 }
 .video-stage.has-video .placeholder-tag { opacity: 0; }
 .placeholder-tag .name {
-  font-family: 'Fraunces', serif;
+  font-family: var(--font-display);
   font-style: italic;
   font-weight: 300;
   font-size: clamp(1rem, 1.4vw, 1.2rem);
@@ -619,7 +648,7 @@ main { position: relative; z-index: 10; }
   text-shadow: 0 2px 30px rgba(0, 0, 0, 0.6);
 }
 .placeholder-tag .meta {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.6rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -630,7 +659,7 @@ main { position: relative; z-index: 10; }
   z-index: 7;
   top: 1.1rem;
   right: 1.5rem;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.6rem;
   letter-spacing: 0.2em;
   color: rgba(255, 240, 220, 0.45);
@@ -664,7 +693,7 @@ main { position: relative; z-index: 10; }
   .hero-text { grid-template-columns: 1fr; gap: 1.25rem; }
 }
 .hero-text h1 {
-  font-family: 'Fraunces', serif;
+  font-family: var(--font-display);
   font-weight: 300;
   font-variation-settings: "opsz" 144;
   font-size: clamp(2.6rem, 6.8vw, 5.4rem);
@@ -679,7 +708,7 @@ main { position: relative; z-index: 10; }
   text-shadow: 0 0 30px rgba(217, 154, 168, 0.25);
 }
 .hero-text .lede {
-  font-family: 'Fraunces', serif;
+  font-family: var(--font-display);
   font-style: italic;
   font-weight: 300;
   font-size: clamp(0.95rem, 1.25vw, 1.08rem);
@@ -713,7 +742,7 @@ main { position: relative; z-index: 10; }
   display: inline-flex;
   align-items: center;
   gap: 0.7rem;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.66rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
@@ -726,7 +755,7 @@ main { position: relative; z-index: 10; }
   background: var(--text-faint);
 }
 .mixer-head h2 {
-  font-family: 'Fraunces', serif;
+  font-family: var(--font-display);
   font-style: italic;
   font-weight: 300;
   font-size: clamp(1.4rem, 2.2vw, 1.8rem);
@@ -736,7 +765,7 @@ main { position: relative; z-index: 10; }
   margin-top: 0.4rem;
 }
 .mixer-head .help {
-  font-family: 'Fraunces', serif;
+  font-family: var(--font-display);
   font-style: italic;
   font-weight: 300;
   font-size: 0.92rem;
@@ -760,7 +789,7 @@ main { position: relative; z-index: 10; }
 @media (max-width: 520px)  { .mixer-grid { grid-template-columns: 1fr; } }
 
 .mixer-head code {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.78em;
   color: var(--lantern-soft);
 }
@@ -781,7 +810,7 @@ main { position: relative; z-index: 10; }
   border-radius: 999px;
   background: rgba(10, 8, 10, 0.34);
   color: var(--text-muted);
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.66rem;
   letter-spacing: 0.03em;
   line-height: 1.1;
@@ -843,7 +872,7 @@ main { position: relative; z-index: 10; }
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 .sound-picker-kicker {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.62rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -851,7 +880,7 @@ main { position: relative; z-index: 10; }
 }
 .sound-picker-head h2 {
   margin-top: 0.25rem;
-  font-family: 'Fraunces', serif;
+  font-family: var(--font-display);
   font-weight: 300;
   font-style: italic;
   font-size: clamp(1.5rem, 3.5vw, 2.15rem);
@@ -872,7 +901,7 @@ main { position: relative; z-index: 10; }
 }
 .sound-search { display: grid; gap: 0.35rem; }
 .sound-search span {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.57rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -891,7 +920,7 @@ main { position: relative; z-index: 10; }
   border-radius: 999px;
   background: rgba(255,255,255,0.035);
   color: var(--text-muted);
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.55rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -928,7 +957,7 @@ main { position: relative; z-index: 10; }
   background: rgba(255,255,255,0.045);
   color: var(--text-muted);
   padding: 0.48rem 0.62rem;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.52rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -943,7 +972,7 @@ main { position: relative; z-index: 10; }
 .sound-option-preview.playing { color: var(--ink); background: var(--lantern-soft); border-color: transparent; }
 .sound-option-name {
   display: block;
-  font-family: 'Fraunces', serif;
+  font-family: var(--font-display);
   font-style: italic;
   font-size: 1.08rem;
 }
@@ -951,7 +980,7 @@ main { position: relative; z-index: 10; }
   display: block;
   margin-top: 0.3rem;
   color: var(--text-muted);
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.56rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -1031,7 +1060,7 @@ main { position: relative; z-index: 10; }
   border-radius: 999px;
   background: rgba(10, 8, 10, 0.72);
   color: var(--text-muted);
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.52rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -1085,7 +1114,7 @@ main { position: relative; z-index: 10; }
   top: 0.7rem;
   right: 0.85rem;
   z-index: 9;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.55rem;
   letter-spacing: 0.22em;
   color: rgba(255, 245, 230, 0.4);
@@ -1764,7 +1793,7 @@ main { position: relative; z-index: 10; }
   margin-bottom: 0.7rem;
 }
 .channel .name {
-  font-family: 'Fraunces', serif;
+  font-family: var(--font-display);
   font-style: italic;
   font-weight: 300;
   font-variation-settings: "opsz" 144;
@@ -1774,7 +1803,7 @@ main { position: relative; z-index: 10; }
   line-height: 1;
 }
 .channel .value {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.62rem;
   letter-spacing: 0.18em;
   color: var(--text-faint);
@@ -1787,7 +1816,7 @@ main { position: relative; z-index: 10; }
   justify-content: space-between;
   gap: 0.5rem;
   margin-bottom: 0.65rem;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.55rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -1907,21 +1936,21 @@ input[type="range"]::-moz-range-thumb {
   gap: 2px;
 }
 .master-slider .label .name {
-  font-family: 'Fraunces', serif;
+  font-family: var(--font-display);
   font-style: italic;
   font-weight: 300;
   font-size: 1.05rem;
   color: var(--text);
 }
 .master-slider .label .meta {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.55rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--text-faint);
 }
 .master-slider .value {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.7rem;
   letter-spacing: 0.18em;
   color: var(--lantern-soft);
@@ -1954,7 +1983,7 @@ input[type="range"]::-moz-range-thumb {
   gap: 2px;
 }
 .sleep-timer .label .name {
-  font-family: 'Fraunces', serif;
+  font-family: var(--font-display);
   font-style: italic;
   font-weight: 300;
   font-size: 0.98rem;
@@ -1962,7 +1991,7 @@ input[type="range"]::-moz-range-thumb {
 }
 .sleep-timer .label .meta,
 .timer-status {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.55rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -1986,7 +2015,7 @@ input[type="range"]::-moz-range-thumb {
   .timer-status { grid-column: 1; text-align: left; }
 }
 .btn {
-  font-family: 'Fraunces', serif;
+  font-family: var(--font-display);
   font-style: italic;
   font-weight: 300;
   font-size: 0.88rem;
@@ -2038,7 +2067,7 @@ footer {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   gap: 1.5rem;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.6rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -2117,239 +2146,6 @@ footer          { animation-delay: 480ms; }
 
 
 /* ============================================================
-   ONE PAGE INSTRUMENT PATCH
-   ============================================================ */
-
-.shell {
-  padding-top: 1rem !important;
-}
-
-.hero {
-  gap: 0 !important;
-}
-
-.video-stage {
-  max-height: 58vh !important;
-}
-
-.mixer-section {
-  margin-top: 0.75rem !important;
-}
-
-.mixer-grid {
-  gap: 0.65rem !important;
-}
-
-.channel {
-  min-height: 118px !important;
-}
-
-.channel .stage {
-  min-height: 70px !important;
-}
-
-.channel .controls {
-  padding: 0.55rem 0.7rem 0.65rem !important;
-}
-
-.channel .meta-row {
-  font-size: 0.48rem !important;
-}
-
-.channel .name {
-  font-size: 0.78rem !important;
-}
-
-.channel input[type="range"] {
-  margin-top: 0.35rem !important;
-}
-
-.topbar {
-  margin-bottom: 0.75rem !important;
-}
-
-
-/* ============================================================
-   COMPACT 8-CHANNEL DECK PATCH
-   ============================================================ */
-
-.shell {
-  max-width: min(1280px, calc(100vw - 3rem)) !important;
-}
-
-.video-stage {
-  max-height: 62vh !important;
-}
-
-.mixer-section {
-  margin-top: 0.55rem !important;
-}
-
-.mixer-grid {
-  display: grid !important;
-  grid-template-columns: repeat(8, minmax(0, 1fr)) !important;
-  gap: 0.45rem !important;
-}
-
-.channel {
-  min-height: 92px !important;
-  aspect-ratio: auto !important;
-}
-
-.channel .stage {
-  height: 34px !important;
-  min-height: 34px !important;
-  opacity: 0.42 !important;
-}
-
-.channel .stage .layer {
-  opacity: 0.55 !important;
-}
-
-.channel .controls {
-  padding: 0.45rem 0.55rem 0.55rem !important;
-}
-
-.channel .meta-row {
-  display: none !important;
-}
-
-.channel .info-row {
-  align-items: baseline !important;
-  gap: 0.35rem !important;
-}
-
-.channel .name {
-  font-size: 0.68rem !important;
-  line-height: 1 !important;
-  white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-}
-
-.channel .value {
-  font-size: 0.62rem !important;
-}
-
-.channel input[type="range"] {
-  margin-top: 0.45rem !important;
-}
-
-.panel-index {
-  font-size: 0.5rem !important;
-  top: 0.35rem !important;
-  right: 0.45rem !important;
-}
-
-.master {
-  margin-top: 0.85rem !important;
-  padding: 0.75rem 1rem !important;
-}
-
-footer {
-  display: none !important;
-}
-
-@media (max-width: 1000px) {
-  .mixer-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-  }
-}
-
-
-/* ============================================================
-   NO TOPBAR / FULLER INSTRUMENT PATCH
-   ============================================================ */
-
-.topbar {
-  display: none !important;
-}
-
-.shell {
-  padding-top: 0.75rem !important;
-}
-
-.video-stage {
-  max-height: 68vh !important;
-}
-
-.mixer-section {
-  margin-top: 0.75rem !important;
-}
-
-.channel {
-  min-height: 112px !important;
-}
-
-.channel .stage {
-  height: 48px !important;
-  min-height: 48px !important;
-}
-
-.master {
-  margin-top: 0.75rem !important;
-}
-
-
-/* ============================================================
-   SCALE + SOFT SAKURA GLOW PATCH
-   ============================================================ */
-
-.shell {
-  max-width: min(1500px, calc(100vw - 2rem)) !important;
-}
-
-.video-stage {
-  max-width: 1400px !important;
-  max-height: 72vh !important;
-  box-shadow:
-    0 38px 120px -55px rgba(255, 155, 190, 0.34),
-    0 18px 70px -42px rgba(255, 120, 170, 0.26),
-    inset 0 0 0 1px rgba(255, 220, 235, 0.06),
-    0 0 0 1px rgba(0, 0, 0, 0.72) !important;
-}
-
-.video-stage::after {
-  content: "";
-  position: absolute;
-  left: 8%;
-  right: 8%;
-  bottom: -38px;
-  height: 72px;
-  pointer-events: none;
-  z-index: -1;
-  background: radial-gradient(
-    ellipse at center,
-    rgba(255, 155, 190, 0.28) 0%,
-    rgba(255, 140, 180, 0.14) 36%,
-    transparent 72%
-  );
-  filter: blur(24px);
-}
-
-.mixer-grid {
-  gap: 0.58rem !important;
-}
-
-.channel {
-  min-height: 128px !important;
-}
-
-.channel .stage {
-  height: 58px !important;
-  min-height: 58px !important;
-}
-
-.channel .controls {
-  padding: 0.55rem 0.65rem 0.65rem !important;
-}
-
-.master {
-  padding: 0.85rem 1.15rem !important;
-}
-
-
-/* ============================================================
    NOCTURNE — five-mode additions (mode switcher, sky, radio, utility, dashboard)
    Appended onto the existing onsen visual language.
    Reuses palette variables, fonts, easings, and layer system.
@@ -2378,7 +2174,7 @@ footer {
   background: transparent;
   border: 0;
   color: var(--text-muted);
-  font-family: 'Manrope', sans-serif;
+  font-family: var(--font-body);
   font-weight: 300;
   font-size: 0.78rem;
   letter-spacing: 0.08em;
@@ -2439,7 +2235,7 @@ footer {
     radial-gradient(100% 80% at 50% 0%, rgba(232,169,111,0.10), transparent 70%),
     rgba(12, 10, 9, 0.54);
   border-radius: 999px;
-  font-family: 'Manrope', sans-serif;
+  font-family: var(--font-body);
   font-weight: 300;
   letter-spacing: 0.08em;
   text-transform: lowercase;
@@ -2495,7 +2291,7 @@ footer {
 }
 .settings-kicker {
   display: block;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.6rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
@@ -2504,7 +2300,7 @@ footer {
 }
 .settings-head h2 {
   margin: 0;
-  font-family: 'Fraunces', serif;
+  font-family: var(--font-display);
   font-style: italic;
   font-weight: 300;
   font-size: clamp(2rem, 6vw, 3rem);
@@ -2525,7 +2321,7 @@ footer {
 .settings-copy code,
 .settings-check code {
   color: var(--lantern-soft);
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.86em;
 }
 .settings-form {
@@ -2567,7 +2363,7 @@ footer {
 .settings-section h3 {
   margin: 0 0 0.7rem;
   color: var(--text);
-  font-family: 'Manrope', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.78rem;
   font-weight: 500;
   letter-spacing: 0.16em;
@@ -2585,7 +2381,7 @@ footer {
 .settings-field.wide { grid-column: 1 / -1; }
 .settings-field span {
   color: var(--text-faint);
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.58rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -2598,7 +2394,7 @@ footer {
   border-radius: 12px;
   background: rgba(255, 245, 220, 0.045);
   color: var(--text);
-  font: 400 0.9rem 'Manrope', sans-serif;
+  font: 400 0.9rem var(--font-body);
   padding: 0.55rem 0.62rem;
 }
 .settings-field select {
@@ -2624,7 +2420,7 @@ footer {
   background: rgba(232, 169, 111, 0.08);
   color: var(--text-muted);
   cursor: pointer;
-  font: 400 0.78rem 'Manrope', sans-serif;
+  font: 400 0.78rem var(--font-body);
   padding: 0.52rem 0.82rem;
   transition: color 0.25s var(--ease), border-color 0.25s var(--ease), background 0.25s var(--ease);
 }
@@ -2652,7 +2448,7 @@ footer {
   background: rgba(255, 245, 220, 0.04);
   color: var(--text-muted);
   cursor: pointer;
-  font: 400 0.84rem 'Manrope', sans-serif;
+  font: 400 0.84rem var(--font-body);
   line-height: 1.35;
   padding: 0.58rem 0.68rem;
   text-align: left;
@@ -2676,7 +2472,7 @@ footer {
   min-height: 1.3em;
   margin: 0.85rem 0 0;
   color: var(--text-faint);
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.62rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -3025,7 +2821,7 @@ body[data-mode="dashboard"] .mixer-section { display: none !important; }
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.74rem;
   letter-spacing: 0.06em;
   color: var(--text-muted);
@@ -3120,14 +2916,14 @@ body[data-mode="dashboard"] .mixer-section { display: none !important; }
 .utility-kicker {
   display: block;
   margin-bottom: 5px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.63rem;
   letter-spacing: 0.24em;
   text-transform: uppercase;
   color: rgba(232, 169, 111, 0.82);
 }
 .utility-title {
-  font-family: 'Fraunces', serif;
+  font-family: var(--font-display);
   font-weight: 300;
   font-size: clamp(1.45rem, 2.1vw, 2.1rem);
   line-height: 1.02;
@@ -3171,7 +2967,7 @@ body[data-mode="dashboard"] .mixer-section { display: none !important; }
 }
 .utility-song-card .title {
   display: block;
-  font-family: 'Fraunces', serif;
+  font-family: var(--font-display);
   font-size: 1.03rem;
   color: var(--paper);
 }
@@ -3196,7 +2992,7 @@ body[data-mode="dashboard"] .mixer-section { display: none !important; }
   border: 1px solid rgba(217,154,168,0.20);
   background: rgba(217,154,168,0.08);
   color: rgba(247,224,232,0.74);
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.62rem;
 }
 .utility-empty {
@@ -3227,7 +3023,7 @@ body[data-mode="dashboard"] .mixer-section { display: none !important; }
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  font-family: 'Fraunces', serif;
+  font-family: var(--font-display);
   font-size: clamp(1.2rem, 1.8vw, 1.65rem);
   color: var(--paper);
 }
@@ -3260,7 +3056,7 @@ body[data-mode="dashboard"] .mixer-section { display: none !important; }
   z-index: 2;
   top: 10px;
   right: 12px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.58rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
@@ -3277,7 +3073,7 @@ body[data-mode="dashboard"] .mixer-section { display: none !important; }
   border: 0;
   background: #08090c;
   color: var(--paper);
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.84rem;
   line-height: 1.55;
 }
@@ -3309,7 +3105,7 @@ body[data-mode="dashboard"] .mixer-section { display: none !important; }
   margin-bottom: 12px;
 }
 .utility-field span {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.62rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -3349,7 +3145,7 @@ body[data-mode="dashboard"] .mixer-section { display: none !important; }
 }
 .utility-help code {
   color: var(--sakura-soft);
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
 }
 body[data-mode="utility"] .mixer-section,
 body[data-mode="utility"] .master,
@@ -3525,7 +3321,7 @@ body[data-mode="utility"] .shell {
   box-shadow:
     inset 0 0 22px rgba(0,0,0,0.7),
     inset 0 1px 0 rgba(255,210,170,0.08);
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   color: var(--lantern-soft);
   text-shadow:
     0 0 6px rgba(232, 169, 111, 0.55),
@@ -3541,7 +3337,7 @@ body[data-mode="utility"] .shell {
     0 0 4px rgba(232, 169, 111, 0.4);
 }
 .deck-track-title {
-  font-family: 'Fraunces', serif;
+  font-family: var(--font-display);
   font-size: 1.4rem;
   font-weight: 300;
   font-style: italic;
@@ -3695,7 +3491,7 @@ body.radio-playing .reel-inner { animation-play-state: running; }
   grid-template-columns: 5em 1fr 3em;
   align-items: center;
   gap: 0.6rem;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.7rem;
   letter-spacing: 0.14em;
   text-transform: lowercase;
@@ -3762,7 +3558,7 @@ body.radio-playing .reel-inner { animation-play-state: running; }
   align-items: baseline;
   justify-content: space-between;
   padding: 0.85rem 1rem 0.55rem;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.66rem;
   letter-spacing: 0.32em;
   text-transform: uppercase;
@@ -3789,7 +3585,7 @@ body.radio-playing .reel-inner { animation-play-state: running; }
   gap: 0.75rem;
   padding: 0.55rem 1rem;
   cursor: pointer;
-  font-family: 'Manrope', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.85rem;
   font-weight: 300;
   color: var(--text-muted);
@@ -3809,7 +3605,7 @@ body.radio-playing .reel-inner { animation-play-state: running; }
 }
 .playlist-item.playing .playlist-num { color: var(--lantern); }
 .playlist-num {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.7rem;
   color: var(--text-faint);
   letter-spacing: 0.1em;
@@ -3827,7 +3623,7 @@ body.radio-playing .reel-inner { animation-play-state: running; }
   font-style: italic;
 }
 .playlist-empty code {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.72rem;
   color: var(--lantern-soft);
   background: rgba(232, 169, 111, 0.08);
@@ -3886,7 +3682,7 @@ body[data-mode="dashboard"] .topbar {
   align-items: center;
   gap: 0.8ch;
   color: rgba(198, 255, 220, 0.72);
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.62rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
@@ -4121,7 +3917,7 @@ body[data-mode="dashboard"] .topbar {
          playlist on the right. Only rendered when body[data-mode="radio"].
     -->
     <section class="hero radio-hero" id="radio-hero" aria-label="Radio">
-      <div class="radio-stage" id="radio-stage" data-tilt
+      <div class="radio-stage" id="radio-stage" data-tilt data-state="loading"
            aria-label="Late-night broadcast">
         <div class="radio-scene" aria-hidden="true">
           <div class="layer radio-bg"        data-depth="2"></div>
@@ -4314,6 +4110,37 @@ body[data-mode="dashboard"] .topbar {
       </div>
     </section>
 
+    <!-- One shared control rail follows whichever room hero is active. -->
+    <section class="master" aria-label="Master controls" data-global-controls>
+      <div class="master-slider">
+        <div class="label">
+          <span class="name">Master</span>
+          <span class="meta">overall mix</span>
+        </div>
+        <input type="range" id="master" min="0" max="100" step="1" value="70" aria-label="Master volume">
+        <span class="value" id="master-value">70%</span>
+      </div>
+      <div class="master-actions">
+        <button class="btn btn-primary" id="resume-mix" type="button">resume mix</button>
+        <button class="btn" id="silence" type="button">silence all</button>
+      </div>
+      <p class="session-notice" id="session-notice" aria-live="polite" hidden></p>
+      <div class="sleep-timer" aria-label="Sleep timer">
+        <div class="label">
+          <span class="name">Sleep timer</span>
+          <span class="meta">fade then silence</span>
+        </div>
+        <div class="timer-controls">
+          <button class="btn timer-btn" data-timer-minutes="15" type="button">15 min</button>
+          <button class="btn timer-btn" data-timer-minutes="30" type="button">30 min</button>
+          <button class="btn timer-btn" data-timer-minutes="60" type="button">60 min</button>
+          <button class="btn timer-btn" data-timer-minutes="90" type="button">90 min</button>
+          <button class="btn" id="cancel-timer" type="button">cancel</button>
+        </div>
+        <div class="timer-status" id="timer-status" aria-live="polite"></div>
+      </div>
+    </section>
+
     <!-- ─────────────────────  MIXER  ───────────────────── -->
     <section class="mixer-section" aria-label="Sound mixer">
       <div class="mixer-head">
@@ -4329,7 +4156,7 @@ body[data-mode="dashboard"] .topbar {
       <div class="scene-shelf" aria-labelledby="scene-shelf-title">
         <div class="scene-copy">
           <span class="eyebrow" id="scene-shelf-title">local scenes</span>
-          <p>Save this mix on this browser—sound choices, levels, looks, and Radio texture. Up to 12 small, versioned scenes stay here only; nothing is uploaded or synced.</p>
+          <p>Save or recall this mix in this browser. Nothing is uploaded or synced.</p>
         </div>
         <label class="scene-field">
           <span class="visually-hidden">Saved scene</span>
@@ -4567,37 +4394,6 @@ body[data-mode="dashboard"] .topbar {
 
     </section>
 
-    <!-- ─────────────────────  MASTER STRIP  ───────────────────── -->
-    <section class="master" aria-label="Master controls">
-      <div class="master-slider">
-        <div class="label">
-          <span class="name">Master</span>
-          <span class="meta">overall mix</span>
-        </div>
-        <input type="range" id="master" min="0" max="100" step="1" value="70" aria-label="Master volume">
-        <span class="value" id="master-value">70%</span>
-      </div>
-      <div class="master-actions">
-        <button class="btn btn-primary" id="resume-mix" type="button">resume mix</button>
-        <button class="btn" id="silence" type="button">silence all</button>
-      </div>
-      <p class="session-notice" id="session-notice" aria-live="polite" hidden></p>
-      <div class="sleep-timer" aria-label="Sleep timer">
-        <div class="label">
-          <span class="name">Sleep timer</span>
-          <span class="meta">fade then silence</span>
-        </div>
-        <div class="timer-controls">
-          <button class="btn timer-btn" data-timer-minutes="15" type="button">15 min</button>
-          <button class="btn timer-btn" data-timer-minutes="30" type="button">30 min</button>
-          <button class="btn timer-btn" data-timer-minutes="60" type="button">60 min</button>
-          <button class="btn timer-btn" data-timer-minutes="90" type="button">90 min</button>
-          <button class="btn" id="cancel-timer" type="button">cancel</button>
-        </div>
-        <div class="timer-status" id="timer-status" aria-live="polite"></div>
-      </div>
-    </section>
-
     <!-- ─────────────────────  FOOTER  ───────────────────── -->
     <footer>
       <div id="build-label-footer">Nocturne · loading build…</div>
@@ -4617,7 +4413,80 @@ body[data-mode="dashboard"] .topbar {
       </div>
       <button class="settings-close" id="settings-close" type="button" aria-label="Close settings">×</button>
     </div>
-    <p class="settings-copy">Choose which Nocturne modes appear in the top bar. Changes are saved on this Nocturne server in <code>config/nocturne.json</code>.</p>
+    <p class="settings-copy">Room choices stay in this browser. Setup choices are saved on this Nocturne server in <code>config/nocturne.json</code>.</p>
+    <div class="settings-tabs" role="tablist" aria-label="Settings sections">
+      <button class="settings-tab" id="settings-tab-room" type="button" role="tab" aria-selected="true" aria-controls="settings-panel-room" data-settings-tab="room">Room</button>
+      <button class="settings-tab" id="settings-tab-setup" type="button" role="tab" aria-selected="false" aria-controls="settings-panel-setup" data-settings-tab="setup">Setup</button>
+    </div>
+    <div class="settings-panel" id="settings-panel-room" role="tabpanel" aria-labelledby="settings-tab-room" data-settings-panel="room">
+    <section class="settings-section appearance-settings" id="settings-appearance-section" aria-labelledby="settings-appearance-title" hidden>
+      <h3 id="settings-appearance-title">Appearance</h3>
+      <p class="settings-note">Tune the room without changing the rain footage or your saved scenes.</p>
+      <fieldset class="appearance-group">
+        <legend>Atmosphere</legend>
+        <div class="appearance-options appearance-moods">
+          <label class="appearance-option">
+            <input type="radio" name="appearance-mood" value="rain-lantern" data-appearance-field="mood">
+            <span class="appearance-swatch" data-swatch="rain-lantern" aria-hidden="true"></span>
+            <span><strong>Rain Lantern</strong><small>sakura rose + amber</small></span>
+          </label>
+          <label class="appearance-option">
+            <input type="radio" name="appearance-mood" value="moonwater" data-appearance-field="mood">
+            <span class="appearance-swatch" data-swatch="moonwater" aria-hidden="true"></span>
+            <span><strong>Moonwater</strong><small>cyan + cool lavender</small></span>
+          </label>
+          <label class="appearance-option">
+            <input type="radio" name="appearance-mood" value="cedar-steam" data-appearance-field="mood">
+            <span class="appearance-swatch" data-swatch="cedar-steam" aria-hidden="true"></span>
+            <span><strong>Cedar Steam</strong><small>moss + warm cream</small></span>
+          </label>
+          <label class="appearance-option">
+            <input type="radio" name="appearance-mood" value="ember-room" data-appearance-field="mood">
+            <span class="appearance-swatch" data-swatch="ember-room" aria-hidden="true"></span>
+            <span><strong>Ember Room</strong><small>copper + muted plum</small></span>
+          </label>
+        </div>
+      </fieldset>
+      <fieldset class="appearance-group">
+        <legend>Typography</legend>
+        <div class="appearance-options appearance-type-options">
+          <label class="appearance-option appearance-type-option">
+            <input type="radio" name="appearance-type" value="poetic" data-appearance-field="type">
+            <span><strong class="appearance-type-sample" data-type-sample="poetic">Poetic</strong><small>editorial + quiet</small></span>
+          </label>
+          <label class="appearance-option appearance-type-option">
+            <input type="radio" name="appearance-type" value="quiet" data-appearance-field="type">
+            <span><strong class="appearance-type-sample" data-type-sample="quiet">Quiet</strong><small>soft modern sans</small></span>
+          </label>
+          <label class="appearance-option appearance-type-option">
+            <input type="radio" name="appearance-type" value="clear" data-appearance-field="type">
+            <span><strong class="appearance-type-sample" data-type-sample="clear">Clear</strong><small>system readable</small></span>
+          </label>
+        </div>
+      </fieldset>
+      <fieldset class="appearance-group">
+        <legend>Lighting</legend>
+        <div class="appearance-options appearance-light-options">
+          <label class="appearance-option">
+            <input type="radio" name="appearance-light" value="soft" data-appearance-field="light">
+            <span><strong>Soft</strong><small>quieter bloom</small></span>
+          </label>
+          <label class="appearance-option">
+            <input type="radio" name="appearance-light" value="balanced" data-appearance-field="light">
+            <span><strong>Balanced</strong><small>bedside default</small></span>
+          </label>
+          <label class="appearance-option">
+            <input type="radio" name="appearance-light" value="clear" data-appearance-field="light">
+            <span><strong>Clear</strong><small>stronger separation</small></span>
+          </label>
+        </div>
+      </fieldset>
+      <div class="settings-actions">
+        <button class="settings-action" id="reset-appearance" type="button">Reset appearance</button>
+      </div>
+    </section>
+    </div>
+    <div class="settings-panel" id="settings-panel-setup" role="tabpanel" aria-labelledby="settings-tab-setup" data-settings-panel="setup" hidden>
     <section class="settings-section" aria-labelledby="settings-build-title">
       <h3 id="settings-build-title">Build</h3>
       <p class="settings-note" id="settings-build-label">build details loading…</p>
@@ -4702,6 +4571,7 @@ body[data-mode="dashboard"] .topbar {
     <div class="settings-warning">
       Utility exposes local sketch save/edit routes on this Nocturne server. Enable it only on a trusted local network.
     </div>
+    </div>
     <p class="settings-status" id="settings-status" aria-live="polite"></p>
   </section>
 </div>
@@ -4722,6 +4592,21 @@ body[data-mode="dashboard"] .topbar {
   const SCENES_KEY = 'scenes:v1';
   const MAX_LOCAL_SCENES = 12;
   const MAX_SCENE_STORAGE_BYTES = 64 * 1024;
+  const APPEARANCE_STORAGE_KEY = 'nocturne:appearance:v1';
+  const DEFAULT_APPEARANCE = Object.freeze({
+    schema: 1, mood: 'rain-lantern', type: 'poetic', light: 'balanced'
+  });
+  const APPEARANCE_OPTIONS = Object.freeze({
+    mood: ['rain-lantern', 'moonwater', 'cedar-steam', 'ember-room'],
+    type: ['poetic', 'quiet', 'clear'],
+    light: ['soft', 'balanced', 'clear']
+  });
+  const APPEARANCE_THEME_COLORS = Object.freeze({
+    'rain-lantern': '#100b0d',
+    moonwater: '#080d14',
+    'cedar-steam': '#0a0f0c',
+    'ember-room': '#130b09'
+  });
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const observedMedia = new WeakSet();
   let activeSceneName = '';
@@ -4729,18 +4614,108 @@ body[data-mode="dashboard"] .topbar {
   let hiddenPlaybackSnapshot = null;
   let lastPlaybackSurface = 'ambient';
   let mediaUpdateTimer = null;
+  let settingsReturnFocus = null;
+
+  function normaliseAppearance(raw) {
+    if (!raw || typeof raw !== 'object' || Number(raw.schema) !== 1) {
+      return { ...DEFAULT_APPEARANCE };
+    }
+    return {
+      schema: 1,
+      mood: APPEARANCE_OPTIONS.mood.includes(raw.mood) ? raw.mood : DEFAULT_APPEARANCE.mood,
+      type: APPEARANCE_OPTIONS.type.includes(raw.type) ? raw.type : DEFAULT_APPEARANCE.type,
+      light: APPEARANCE_OPTIONS.light.includes(raw.light) ? raw.light : DEFAULT_APPEARANCE.light
+    };
+  }
+
+  function loadAppearancePreference() {
+    try {
+      return normaliseAppearance(JSON.parse(localStorage.getItem(APPEARANCE_STORAGE_KEY) || 'null'));
+    } catch (e) {
+      return { ...DEFAULT_APPEARANCE };
+    }
+  }
+
+  function saveAppearancePreference(appearance) {
+    try {
+      localStorage.setItem(APPEARANCE_STORAGE_KEY, JSON.stringify(appearance));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  let currentAppearance = loadAppearancePreference();
   let activeProfile = {
     id: 'nocturne',
     display_name: 'Nocturne',
     visuals: {
       rain_video: true, ambient_motion: true, parallax: true,
-      backdrop_blur: true, compact_assets: false, preload_strategy: 'balanced'
+      backdrop_blur: true, compact_assets: false, preload_strategy: 'balanced',
+      appearance_customization: true
     }
   };
 
   function profileFeature(name, fallback = false) {
     const visuals = activeProfile && activeProfile.visuals;
     return visuals && typeof visuals[name] === 'boolean' ? visuals[name] : fallback;
+  }
+
+  function syncAppearanceControls() {
+    document.querySelectorAll('[data-appearance-field]').forEach(input => {
+      const field = input.dataset.appearanceField;
+      input.checked = Boolean(field && input.value === currentAppearance[field]);
+    });
+  }
+
+  function applyAppearance(appearance = currentAppearance, options = {}) {
+    const { persist = false } = options;
+    currentAppearance = normaliseAppearance(appearance);
+    const enabled = profileFeature('appearance_customization', activeProfile.id !== 'nocturne-pi');
+    const root = document.documentElement;
+    root.dataset.appearanceEnabled = enabled ? 'true' : 'false';
+    root.dataset.mood = currentAppearance.mood;
+    root.dataset.type = currentAppearance.type;
+    root.dataset.light = currentAppearance.light;
+    const appearanceSection = document.getElementById('settings-appearance-section');
+    if (appearanceSection) appearanceSection.hidden = !enabled;
+    const roomTab = document.getElementById('settings-tab-room');
+    if (roomTab) roomTab.hidden = !enabled;
+    if (!enabled && roomTab?.getAttribute('aria-selected') === 'true') setSettingsTab('setup');
+    const themeColor = document.querySelector('meta[name="theme-color"]');
+    if (themeColor) {
+      themeColor.content = enabled
+        ? (APPEARANCE_THEME_COLORS[currentAppearance.mood] || APPEARANCE_THEME_COLORS['rain-lantern'])
+        : '#090a0d';
+    }
+    syncAppearanceControls();
+    return persist ? saveAppearancePreference(currentAppearance) : true;
+  }
+
+  function updateAppearance(field, value) {
+    if (!APPEARANCE_OPTIONS[field] || !APPEARANCE_OPTIONS[field].includes(value)) return;
+    const saved = applyAppearance({ ...currentAppearance, [field]: value }, { persist: true });
+    settingsStatus(
+      saved ? 'Appearance saved in this browser.' : 'Appearance applied for this tab; browser storage is unavailable.',
+      saved ? 'success' : 'error'
+    );
+  }
+
+  function wireAppearanceControls() {
+    document.querySelectorAll('[data-appearance-field]').forEach(input => {
+      input.addEventListener('change', () => {
+        if (input.checked) updateAppearance(input.dataset.appearanceField, input.value);
+      });
+    });
+    const reset = document.getElementById('reset-appearance');
+    if (reset) reset.addEventListener('click', () => {
+      const saved = applyAppearance(DEFAULT_APPEARANCE, { persist: true });
+      settingsStatus(
+        saved ? 'Appearance reset to Rain Lantern.' : 'Appearance reset for this tab; browser storage is unavailable.',
+        saved ? 'success' : 'error'
+      );
+    });
+    syncAppearanceControls();
   }
 
   function applyActiveProfile(profile) {
@@ -4751,6 +4726,7 @@ body[data-mode="dashboard"] .topbar {
     document.body.dataset.profile = id;
     const brandSub = document.querySelector('.brand-sub');
     if (brandSub) brandSub.textContent = id === 'nocturne-pi' ? 'Pi · a quiet place' : 'a quiet place';
+    applyAppearance(currentAppearance, { persist: false });
   }
 
   async function loadActiveProfile() {
@@ -6405,13 +6381,13 @@ body[data-mode="dashboard"] .topbar {
   const DEFAULT_BUILD_INFO = /* NOCTURNE:BEGIN GENERATED BUILD INFO */
 {
   "schema": "nocturne.build.v2",
-  "version": "0.1.0-alpha.12",
+  "version": "0.1.0-alpha.13-dev",
   "channel": "alpha",
-  "build_date_utc": "2026-07-13T04:07:14Z",
-  "revision": "v0.1.0-alpha.12",
-  "revision_kind": "package",
-  "source_date_utc": "2026-07-12T00:00:00-05:00",
-  "feedback_label": "v0.1.0-alpha.12 · 2026-07-12 · v0.1.0-alpha.12"
+  "build_date_utc": "2026-07-13T06:01:00Z",
+  "revision": "visual-appearance-dev",
+  "revision_kind": "manual",
+  "source_date_utc": "2026-07-13T00:00:00-05:00",
+  "feedback_label": "v0.1.0-alpha.13-dev · 2026-07-13 · visual-appearance-dev"
 }
   /* NOCTURNE:END GENERATED BUILD INFO */;
   let buildInfo = { ...DEFAULT_BUILD_INFO };
@@ -6457,6 +6433,21 @@ body[data-mode="dashboard"] .topbar {
     if (!el) return;
     el.textContent = message;
     el.className = 'settings-status' + (cls ? ' ' + cls : '');
+  }
+
+  function setSettingsTab(requested, options = {}) {
+    const { focus = false } = options;
+    const roomAvailable = !document.getElementById('settings-tab-room')?.hidden;
+    const name = requested === 'room' && roomAvailable ? 'room' : 'setup';
+    document.querySelectorAll('[data-settings-tab]').forEach(tab => {
+      const selected = tab.dataset.settingsTab === name;
+      tab.setAttribute('aria-selected', selected ? 'true' : 'false');
+      tab.tabIndex = selected ? 0 : -1;
+      if (selected && focus) tab.focus({ preventScroll: true });
+    });
+    document.querySelectorAll('[data-settings-panel]').forEach(panel => {
+      panel.hidden = panel.dataset.settingsPanel !== name;
+    });
   }
 
   function buildFeedbackLabel(info = buildInfo) {
@@ -6634,19 +6625,26 @@ body[data-mode="dashboard"] .topbar {
   function openSettings() {
     const overlay = document.getElementById('settings-overlay');
     if (!overlay) return;
+    settingsReturnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     applySettingsToUI();
+    setSettingsTab(document.getElementById('settings-tab-room')?.hidden ? 'setup' : 'room');
     overlay.hidden = false;
+    document.body.classList.add('settings-modal-open');
     settingsStatus('');
-    const first = overlay.querySelector('[data-setting-mode]');
-    if (first) first.focus({ preventScroll: true });
+    const activeTab = overlay.querySelector('[data-settings-tab][aria-selected="true"]');
+    if (activeTab) activeTab.focus({ preventScroll: true });
   }
 
   function closeSettings() {
     const overlay = document.getElementById('settings-overlay');
     if (!overlay) return;
     overlay.hidden = true;
-    const open = document.getElementById('settings-open');
-    if (open) open.focus({ preventScroll: true });
+    document.body.classList.remove('settings-modal-open');
+    const target = settingsReturnFocus && document.contains(settingsReturnFocus)
+      ? settingsReturnFocus
+      : document.getElementById('settings-open');
+    if (target) target.focus({ preventScroll: true });
+    settingsReturnFocus = null;
   }
 
   function wireSettingsControls() {
@@ -6657,13 +6655,47 @@ body[data-mode="dashboard"] .topbar {
     const searchLocationInput = document.getElementById('setting-location-search');
     const useBrowserLocation = document.getElementById('use-browser-location');
     const saveLocation = document.getElementById('save-location-settings');
+    const settingsTabs = Array.from(document.querySelectorAll('[data-settings-tab]'));
     if (open) open.addEventListener('click', openSettings);
     if (close) close.addEventListener('click', closeSettings);
     if (overlay) {
       overlay.addEventListener('click', e => { if (e.target === overlay) closeSettings(); });
     }
+    settingsTabs.forEach(tab => {
+      tab.addEventListener('click', () => setSettingsTab(tab.dataset.settingsTab));
+      tab.addEventListener('keydown', e => {
+        if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) return;
+        e.preventDefault();
+        const visibleTabs = settingsTabs.filter(item => !item.hidden);
+        const current = visibleTabs.indexOf(tab);
+        const next = e.key === 'Home' ? 0
+          : e.key === 'End' ? visibleTabs.length - 1
+          : (current + (e.key === 'ArrowRight' ? 1 : -1) + visibleTabs.length) % visibleTabs.length;
+        setSettingsTab(visibleTabs[next].dataset.settingsTab, { focus: true });
+      });
+    });
     window.addEventListener('keydown', e => {
-      if (e.key === 'Escape' && overlay && !overlay.hidden) closeSettings();
+      if (!overlay || overlay.hidden) return;
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        closeSettings();
+        return;
+      }
+      if (e.key !== 'Tab') return;
+      const dialog = overlay.querySelector('.settings-dialog');
+      const focusable = dialog ? Array.from(dialog.querySelectorAll(
+        'button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), a[href], [tabindex]:not([tabindex="-1"])'
+      )).filter(el => !el.hidden && el.getClientRects().length) : [];
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
     });
     document.querySelectorAll('[data-setting-mode]').forEach(input => {
       input.addEventListener('change', async () => {
@@ -7006,11 +7038,19 @@ body[data-mode="dashboard"] .topbar {
     radioState.loading = true;
     try {
       const res = await fetch('/api/radio', { cache: 'no-store' });
-      radioState.tracks = await res.json();
+      const payload = await res.json();
+      radioState.tracks = Array.isArray(payload) ? payload : [];
       radioState.loaded = true;
+      if (radioState.current < 0 && radioState.tracks.length) radioState.current = 0;
       renderPlaylist();
+      updateDeckDisplay();
+      highlightPlaylistRow(radioState.current);
     } catch (e) {
       console.warn('Nocturne radio: could not load tracks', e);
+      radioState.tracks = [];
+      radioState.loaded = true;
+      renderPlaylist();
+      updateDeckDisplay();
     } finally {
       radioState.loading = false;
     }
@@ -7031,6 +7071,7 @@ body[data-mode="dashboard"] .topbar {
     if (!radioState.tracks.length) {
       if (empty) empty.hidden = false;
       if (count) count.textContent = '0 tracks';
+      syncRadioPresentation();
       return;
     }
     if (empty) empty.hidden = true;
@@ -7039,14 +7080,20 @@ body[data-mode="dashboard"] .topbar {
 
     radioState.tracks.forEach((track, i) => {
       const li = document.createElement('li');
-      li.className = 'playlist-item';
-      li.dataset.index = i;
-      li.innerHTML =
+      li.className = 'playlist-entry';
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'playlist-item';
+      button.dataset.index = i;
+      button.setAttribute('aria-label', `Play ${track.name}`);
+      button.innerHTML =
         '<span class="playlist-num">' + String(i + 1).padStart(2, '0') + '</span>' +
         '<span class="playlist-name">' + escapeHtml(track.name) + '</span>';
-      li.addEventListener('click', () => playTrack(i));
+      button.addEventListener('click', () => playTrack(i));
+      li.appendChild(button);
       list.appendChild(li);
     });
+    syncRadioPresentation();
   }
 
   function ensureRadioGraph() {
@@ -7230,21 +7277,42 @@ body[data-mode="dashboard"] .topbar {
       if (title) title.textContent = '—';
       if (meta)  meta.textContent  = '— · select a track —';
       document.body.classList.remove('radio-playing');
+      syncRadioPresentation();
       return;
     }
     if (title) title.textContent = track.name;
     if (meta) {
+      const waiting = !radioState.audio || !radioState.audio.src;
       meta.textContent =
         String(radioState.current + 1).padStart(2, '0') +
         ' of ' + String(radioState.tracks.length).padStart(2, '0') +
+        (waiting ? ' · ready' : '') +
         (radioState.shuffle ? ' · shuffle' : '');
     }
+    syncRadioPresentation();
   }
 
   function highlightPlaylistRow(index) {
+    const playing = Boolean(radioState.audio && !radioState.audio.paused);
     document.querySelectorAll('.playlist-item').forEach(el => {
-      el.classList.toggle('playing', parseInt(el.dataset.index, 10) === index);
+      const selected = parseInt(el.dataset.index, 10) === index;
+      el.classList.toggle('selected', selected);
+      el.classList.toggle('playing', selected && playing);
+      if (selected) el.setAttribute('aria-current', 'true');
+      else el.removeAttribute('aria-current');
     });
+  }
+
+  function syncRadioPresentation() {
+    const stage = document.getElementById('radio-stage');
+    if (!stage) return;
+    const playing = Boolean(radioState.audio && !radioState.audio.paused);
+    stage.dataset.state = !radioState.loaded ? 'loading'
+      : !radioState.tracks.length ? 'empty'
+      : playing ? 'playing'
+      : radioState.current >= 0 ? 'selected'
+      : 'ready';
+    stage.dataset.trackCount = String(radioState.tracks.length);
   }
 
   function playTrack(index) {
@@ -7294,8 +7362,7 @@ body[data-mode="dashboard"] .topbar {
     /* First-play case: nothing loaded yet */
     if (!radioState.audio || !radioState.audio.src) {
       if (!radioState.tracks.length) return;
-      if (radioState.shuffle) nextTrack();
-      else                    playTrack(0);
+      playTrack(radioState.current >= 0 ? radioState.current : 0);
       return;
     }
     if (radioState.audio.paused) {
@@ -7318,6 +7385,8 @@ body[data-mode="dashboard"] .topbar {
       btn.setAttribute('aria-label', playing ? 'Pause' : 'Play');
     }
     document.body.classList.toggle('radio-playing', !!playing);
+    highlightPlaylistRow(radioState.current);
+    syncRadioPresentation();
     if (playing) lastPlaybackSurface = 'radio';
     scheduleMediaSessionUpdate();
   }
@@ -8202,6 +8271,7 @@ arrange(
      ───────────────────────────────────────────── */
   function bootThreeMode() {
     wireSettingsControls();
+    wireAppearanceControls();
     wireUtilityControls();
     applySettingsToUI();
     applyBuildInfo(buildInfo);

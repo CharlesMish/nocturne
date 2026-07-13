@@ -1,10 +1,10 @@
 {
   "schema": "nocturne.build.v2",
-  "version": "0.1.0-alpha.12",
+  "version": "0.1.0-alpha.13-dev",
   "channel": "alpha",
-  "build_date_utc": "2026-07-13T04:07:14Z",
-  "revision": "v0.1.0-alpha.12",
-  "revision_kind": "package",
-  "source_date_utc": "2026-07-12T00:00:00-05:00",
-  "feedback_label": "v0.1.0-alpha.12 · 2026-07-12 · v0.1.0-alpha.12"
+  "build_date_utc": "2026-07-13T06:01:00Z",
+  "revision": "visual-appearance-dev",
+  "revision_kind": "manual",
+  "source_date_utc": "2026-07-13T00:00:00-05:00",
+  "feedback_label": "v0.1.0-alpha.13-dev · 2026-07-13 · visual-appearance-dev"
 }

@@ -5,15 +5,19 @@ Nocturne uses one source tree and two presentation profiles.
 ## Nocturne
 
 The full atmospheric profile. It enables the rain video, gentle ambient motion,
-parallax, and normal asset preloading. It is intended for Raspberry Pi 4 or
-newer, ordinary computers, and cases where the Pi only serves the app while a
-phone, tablet, or laptop renders it.
+parallax, normal asset preloading, and curated appearance controls. Settings can
+coordinate the surrounding color mood, typography, and lighting density without
+changing the rain media or the saved sound mix. These browser-local preferences
+apply across Onsen, Sky, and Radio. It is intended for Raspberry Pi 4 or newer,
+ordinary computers, and cases where the Pi only serves the app while a phone,
+tablet, or laptop renders it.
 
 ## Nocturne Pi
 
 The lower-resource profile. It uses a still rain image, disables continuous
 decorative motion and parallax, removes expensive backdrop blur, and avoids
-requesting the full rain video. It is designed for Raspberry Pi 3-class,
+requesting the full rain video. It also keeps the compact mixer and omits the
+full profile's appearance controls. It is designed for Raspberry Pi 3-class,
 low-memory systems, older browsers, and local-display or kiosk use.
 
 That is a design target, not a claim that every Pi 3 configuration has been

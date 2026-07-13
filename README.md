@@ -13,13 +13,13 @@ from those systems are especially welcome.
 Current packaged alpha label:
 
 ```text
-v0.1.0-alpha.12 · 2026-07-12 · v0.1.0-alpha.12
+v0.1.0-alpha.13-dev · 2026-07-13 · visual-appearance-dev
 ```
 
 To stamp another package from a Git checkout or source archive:
 
 ```bash
-python scripts/stamp_build.py --version 0.1.0-alpha.12 --revision v0.1.0-alpha.12
+python scripts/stamp_build.py --version 0.1.0-alpha.13-dev --revision visual-appearance-dev
 ```
 <!-- NOCTURNE:END GENERATED BUILD ID -->
 
@@ -91,6 +91,9 @@ delete local sketches. Use LAN access only on a network you trust.
 - **Tonight:** eight bundled recorded CC0 sounds; generated beds are optional
   and Experimental sounds remain explicitly separated.
 - **Local scenes:** up to 12 browser-local named mixes.
+- **Curated appearance:** the full profile offers four coordinated color moods,
+  three typography treatments, and three lighting densities, stored only in
+  that browser. All bundled fonts are served locally.
 - **Two presentation profiles:** selected without forking product behavior.
 - **Offline loop preparation:** provenance-preserving crossfade tooling that
   never promotes a candidate without human audition.

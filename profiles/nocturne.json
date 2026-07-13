@@ -9,6 +9,7 @@
     "parallax": true,
     "backdrop_blur": true,
     "compact_assets": false,
+    "appearance_customization": true,
     "preload_strategy": "balanced"
   },
   "target": {
