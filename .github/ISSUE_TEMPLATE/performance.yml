@@ -1,0 +1,43 @@
+name: Performance or hardware issue
+description: Report slowness, heat, memory pressure, crashes, or display trouble.
+title: "[Hardware] "
+labels: [performance, hardware]
+body:
+  - type: input
+    id: hardware
+    attributes:
+      label: Device model and RAM
+      placeholder: "Example: Raspberry Pi 3 B+, 1 GB"
+    validations:
+      required: true
+  - type: input
+    id: os_browser
+    attributes:
+      label: Operating system and browser
+  - type: dropdown
+    id: edition
+    attributes:
+      label: Edition
+      options: [Nocturne, Nocturne Pi, Not sure]
+    validations:
+      required: true
+  - type: dropdown
+    id: deployment
+    attributes:
+      label: How is it being used?
+      options:
+        - Server only; another device displays Nocturne
+        - Host and local display/browser
+        - Not sure
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: What feels slow or fails?
+    validations:
+      required: true
+  - type: textarea
+    id: comparison
+    attributes:
+      label: Does Nocturne Pi change the behavior?

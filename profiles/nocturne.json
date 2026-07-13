@@ -1,0 +1,18 @@
+{
+  "schema": "nocturne.profile.v1",
+  "id": "nocturne",
+  "display_name": "Nocturne",
+  "description": "Full atmospheric experience for Raspberry Pi 4 or newer and ordinary computers.",
+  "visuals": {
+    "rain_video": true,
+    "ambient_motion": true,
+    "parallax": true,
+    "backdrop_blur": true,
+    "compact_assets": false,
+    "preload_strategy": "balanced"
+  },
+  "target": {
+    "guidance": "Raspberry Pi 4 or newer, ordinary computers, and remote-browser use.",
+    "tested_models": []
+  }
+}

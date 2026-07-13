@@ -1,0 +1,39 @@
+name: Hardware success report
+description: Help build an honest community compatibility table.
+title: "[Works on] "
+labels: [hardware, community-report]
+body:
+  - type: input
+    id: hardware
+    attributes:
+      label: Device model and RAM
+    validations:
+      required: true
+  - type: input
+    id: os_browser
+    attributes:
+      label: Operating system and browser
+  - type: dropdown
+    id: edition
+    attributes:
+      label: Edition
+      options: [Nocturne, Nocturne Pi]
+    validations:
+      required: true
+  - type: dropdown
+    id: deployment
+    attributes:
+      label: Usage
+      options:
+        - Server only; another device displays Nocturne
+        - Host and local display/browser
+    validations:
+      required: true
+  - type: input
+    id: duration
+    attributes:
+      label: How long did it run?
+  - type: textarea
+    id: notes
+    attributes:
+      label: Anything that did not work or felt unusual?

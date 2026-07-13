@@ -1,0 +1,38 @@
+name: Something broke
+description: Tell us what happened in plain language.
+title: "[Bug] "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: "Thanks for reporting this. You do not need to be technical."
+  - type: input
+    id: version
+    attributes:
+      label: Nocturne version
+      placeholder: "Shown in Settings"
+  - type: dropdown
+    id: edition
+    attributes:
+      label: Edition
+      options: [Nocturne, Nocturne Pi, Not sure]
+    validations:
+      required: true
+  - type: textarea
+    id: happened
+    attributes:
+      label: What happened?
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+  - type: input
+    id: setup
+    attributes:
+      label: Device, operating system, and browser

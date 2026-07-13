@@ -20,6 +20,8 @@ import hashlib
 import json
 import re
 import shutil
+import subprocess
+import sys
 from datetime import date
 from pathlib import Path
 from typing import Any
@@ -75,12 +77,12 @@ def infer_category_and_theme(slug: str) -> tuple[str, str]:
 def load_manifest() -> dict[str, Any]:
     if MANIFEST.exists():
         return json.loads(MANIFEST.read_text(encoding="utf-8"))
-    return {"version": 2, "default_slots": [], "sounds": []}
+    return {"version": 5, "default_slots": [], "excluded_sounds": [], "sounds": []}
 
 
 def save_manifest(data: dict[str, Any]) -> None:
     MANIFEST.parent.mkdir(parents=True, exist_ok=True)
-    data["version"] = max(2, int(data.get("version") or 2))
+    data["version"] = max(5, int(data.get("version") or 5))
     MANIFEST.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
 
@@ -131,6 +133,9 @@ def import_files(source_dir: Path, *, set_defaults: bool, replace: bool, dry_run
         print(f"No supported audio files found in {source_dir}")
         return 1
 
+    if set_defaults and len(files) < 8:
+        raise SystemExit("--set-defaults requires at least eight supported audio files")
+
     metadata = load_metadata_csv(metadata_csv)
     data = load_manifest()
     sounds = data.setdefault("sounds", [])
@@ -159,6 +164,11 @@ def import_files(source_dir: Path, *, set_defaults: bool, replace: bool, dry_run
             "category": entry.get("category") or category,
             "theme": entry.get("theme") if entry.get("theme") in THEMES else theme,
             "src": f"/sounds/library/{dest.name}",
+            "source_type": entry.get("source_type") or "recorded_cc0",
+            "source_label": entry.get("source_label") or "Recorded / local",
+            "availability": "bundled",
+            "status": entry.get("status") or "optional",
+            "recommended": bool(entry.get("recommended", False)),
             "license_note": entry.get("license_note") or "User-provided. Fill in source and license details before release.",
         })
         apply_metadata(entry, meta, src, dest)
@@ -180,11 +190,28 @@ def import_files(source_dir: Path, *, set_defaults: bool, replace: bool, dry_run
 
     if set_defaults:
         data["default_slots"] = imported_ids[:8]
+        selected = set(data["default_slots"] )
+        for sound in sounds:
+            if not isinstance(sound, dict):
+                continue
+            sound["recommended"] = str(sound.get("id")) in selected
+            if sound.get("status") != "experimental":
+                sound["status"] = "core" if sound["recommended"] else "optional"
         print("default_slots set to:", ", ".join(data["default_slots"]))
 
     if not dry_run:
+        max_order = 0
+        for index, sound in enumerate(sounds, start=1):
+            if not isinstance(sound, dict):
+                continue
+            order = sound.get("sort_order")
+            if not isinstance(order, int):
+                order = index * 10
+                sound["sort_order"] = order
+            max_order = max(max_order, order)
         save_manifest(data)
         print(f"Updated {MANIFEST.relative_to(ROOT)}")
+        subprocess.run([sys.executable, ROOT / "scripts" / "sync_release_data.py"], check=True, cwd=ROOT)
         if generate_credits:
             from write_audio_credits import write_audio_docs
             write_audio_docs(ROOT)

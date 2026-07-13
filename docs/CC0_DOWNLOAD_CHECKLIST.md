@@ -1,5 +1,7 @@
 # Nocturne CC0 candidate download checklist
 
+> **Historical intake checklist.** Alpha.9 already contains the reviewed public files and exclusion records. Use `sounds/sound_library.json` and `AUDIO_PROVENANCE.md` for current release state; do not infer public/default status from unchecked boxes here.
+
 Patched: removed `thunder-rain-window-soft.wav` because the source file is too large for the core pack.
 
 Download the original file from each Freesound page while logged in, then screenshot the page showing title, creator, and CC0 license.

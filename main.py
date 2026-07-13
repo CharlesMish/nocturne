@@ -35,8 +35,10 @@ from __future__ import annotations
 import os
 import time
 import json
+import math
 import re
 import shutil
+import tempfile
 from pathlib import Path
 from urllib.parse import quote
 from typing import Any
@@ -48,6 +50,8 @@ from starlette.responses import PlainTextResponse
 
 ROOT = Path(__file__).parent
 BUILD_INFO_PATH = ROOT / "nocturne_build.json"
+PROFILE_POINTER_PATH = ROOT / "nocturne_profile.json"
+PROFILES_DIR = ROOT / "profiles"
 STATIC_DIR = ROOT / "static"
 SOUNDS_DIR = ROOT / "sounds"
 RADIO_DIR = SOUNDS_DIR / "radio"
@@ -70,15 +74,98 @@ class NocturneSoundsStaticFiles(StaticFiles):
 
 AUDIO_EXTS = {".mp3", ".ogg", ".m4a", ".wav", ".opus", ".webm", ".flac"}
 
+
+DEFAULT_PROFILE_ID = "nocturne"
+VALID_PROFILE_IDS = {"nocturne", "nocturne-pi"}
+
+
+def _profile_id() -> str:
+    """Resolve the active visual profile without forking application behavior."""
+    requested = os.getenv("NOCTURNE_PROFILE", "").strip()
+    if not requested and PROFILE_POINTER_PATH.exists():
+        try:
+            raw = json.loads(PROFILE_POINTER_PATH.read_text(encoding="utf-8"))
+            if isinstance(raw, dict):
+                requested = str(raw.get("profile", "")).strip()
+        except (OSError, json.JSONDecodeError):
+            requested = ""
+    return requested if requested in VALID_PROFILE_IDS else DEFAULT_PROFILE_ID
+
+
+def _load_profile() -> dict[str, Any]:
+    profile_id = _profile_id()
+    path = PROFILES_DIR / f"{profile_id}.json"
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+        if not isinstance(raw, dict):
+            raise ValueError("profile must be an object")
+    except (OSError, json.JSONDecodeError, ValueError):
+        raw = {
+            "schema": "nocturne.profile.v1",
+            "id": DEFAULT_PROFILE_ID,
+            "display_name": "Nocturne",
+            "description": "Full atmospheric experience.",
+            "visuals": {
+                "rain_video": True,
+                "ambient_motion": True,
+                "parallax": True,
+                "backdrop_blur": True,
+                "compact_assets": False,
+                "preload_strategy": "balanced",
+            },
+            "target": {"guidance": "General-purpose profile.", "tested_models": []},
+        }
+    raw["id"] = profile_id
+    return raw
+
 # --------------------------------------------------------------------------- #
 #  Config (env-driven, with sane defaults).
 # --------------------------------------------------------------------------- #
-LATITUDE = float(os.getenv("NOCTURNE_LAT", "41.8781"))
-LONGITUDE = float(os.getenv("NOCTURNE_LON", "-87.6298"))
+DEFAULT_LATITUDE = 41.8781
+DEFAULT_LONGITUDE = -87.6298
+DEFAULT_WEATHER_TTL = 600
+
+
+def _warn_invalid_env(name: str, raw: str, fallback: int | float) -> None:
+    print(f"Warning: ignoring invalid {name}={raw!r}; using {fallback}.", flush=True)
+
+
+def _env_float(name: str, fallback: float, *, minimum: float, maximum: float) -> float:
+    raw = os.getenv(name)
+    if raw is None:
+        return fallback
+    try:
+        value = float(raw)
+    except ValueError:
+        _warn_invalid_env(name, raw, fallback)
+        return fallback
+    if not math.isfinite(value) or not minimum <= value <= maximum:
+        _warn_invalid_env(name, raw, fallback)
+        return fallback
+    return value
+
+
+def _env_positive_int(name: str, fallback: int) -> int:
+    raw = os.getenv(name)
+    if raw is None:
+        return fallback
+    try:
+        value = int(raw)
+    except ValueError:
+        _warn_invalid_env(name, raw, fallback)
+        return fallback
+    if value < 1:
+        _warn_invalid_env(name, raw, fallback)
+        return fallback
+    return value
+
+
+LATITUDE = _env_float("NOCTURNE_LAT", DEFAULT_LATITUDE, minimum=-90, maximum=90)
+LONGITUDE = _env_float("NOCTURNE_LON", DEFAULT_LONGITUDE, minimum=-180, maximum=180)
 LOCATION_NAME = os.getenv("NOCTURNE_LOCATION_NAME", "Chicago")
 TIMEZONE = os.getenv("NOCTURNE_TIMEZONE", "America/Chicago")
 TEMPERATURE_UNIT = os.getenv("NOCTURNE_TEMPERATURE_UNIT", "fahrenheit")
-WEATHER_TTL = int(os.getenv("NOCTURNE_WEATHER_TTL", "600"))
+WEATHER_TTL = _env_positive_int("NOCTURNE_WEATHER_TTL", DEFAULT_WEATHER_TTL)
 
 # In-memory weather cache (no DB needed for a single-process bedside service).
 _weather_cache: dict[str, Any] = {"data": None, "fetched_at": 0.0, "error": None}
@@ -200,10 +287,26 @@ def _load_settings() -> dict[str, Any]:
 def _save_settings(settings: dict[str, Any]) -> dict[str, Any]:
     settings = _merge_settings(settings)
     CONFIG_DIR.mkdir(parents=True, exist_ok=True)
-    SETTINGS_PATH.write_text(
-        json.dumps(settings, indent=2, ensure_ascii=False) + "\n",
-        encoding="utf-8",
-    )
+    payload = json.dumps(settings, indent=2, ensure_ascii=False) + "\n"
+    temp_path: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            encoding="utf-8",
+            dir=CONFIG_DIR,
+            prefix=f".{SETTINGS_PATH.name}.",
+            suffix=".tmp",
+            delete=False,
+        ) as handle:
+            temp_path = Path(handle.name)
+            handle.write(payload)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temp_path, SETTINGS_PATH)
+    except BaseException:
+        if temp_path is not None:
+            temp_path.unlink(missing_ok=True)
+        raise
     return settings
 
 
@@ -228,12 +331,14 @@ app = FastAPI(title="Nocturne")
 
 
 DEFAULT_BUILD_INFO: dict[str, str] = {
+    "schema": "nocturne.build.v2",
     "version": "unknown",
     "channel": "alpha",
-    "build_date_utc": "2026-06-09",
-    "commit": "unknown",
-    "commit_date_utc": "2026-06-09",
-    "feedback_label": "unknown build · unknown date · unknown commit",
+    "build_date_utc": "unknown",
+    "revision": "unknown",
+    "revision_kind": "unknown",
+    "source_date_utc": "unknown",
+    "feedback_label": "unknown build · unknown date · unknown revision",
 }
 
 
@@ -252,30 +357,41 @@ def _load_build_info() -> dict[str, str]:
     info = {**DEFAULT_BUILD_INFO, **{k: str(v) for k, v in data.items() if isinstance(v, (str, int, float))}}
     if os.getenv("NOCTURNE_VERSION"):
         info["version"] = os.environ["NOCTURNE_VERSION"]
-    if os.getenv("NOCTURNE_COMMIT"):
-        info["commit"] = os.environ["NOCTURNE_COMMIT"]
+    if os.getenv("NOCTURNE_REVISION"):
+        info["revision"] = os.environ["NOCTURNE_REVISION"]
+    elif os.getenv("NOCTURNE_COMMIT"):
+        # Backward-compatible environment name for existing service files.
+        info["revision"] = os.environ["NOCTURNE_COMMIT"]
     if os.getenv("NOCTURNE_BUILD_DATE"):
         info["build_date_utc"] = os.environ["NOCTURNE_BUILD_DATE"]
-    if os.getenv("NOCTURNE_COMMIT_DATE"):
-        info["commit_date_utc"] = os.environ["NOCTURNE_COMMIT_DATE"]
+    if os.getenv("NOCTURNE_SOURCE_DATE"):
+        info["source_date_utc"] = os.environ["NOCTURNE_SOURCE_DATE"]
+    elif os.getenv("NOCTURNE_COMMIT_DATE"):
+        info["source_date_utc"] = os.environ["NOCTURNE_COMMIT_DATE"]
 
-    commit_day = info.get("commit_date_utc", "")[:10] or info.get("build_date_utc", "")[:10]
-    info["feedback_label"] = info.get("feedback_label") or f"v{info['version']} · {commit_day} · {info['commit']}"
+    source_day = info.get("source_date_utc", "")[:10] or info.get("build_date_utc", "")[:10] or "unknown-date"
+    revision = info.get("revision") or info.get("commit") or "unknown"
+    # Derive the label every time so environment overrides cannot leave a stale
+    # precomputed string behind.
+    info["feedback_label"] = f"v{info['version']} · {source_day} · {revision}"
     return {k: str(v) for k, v in info.items()}
 
 
 def _local_ready_url() -> str:
     host = os.getenv("NOCTURNE_HOST", "127.0.0.1")
     port = os.getenv("NOCTURNE_PORT", "8000")
+    scheme = os.getenv("NOCTURNE_SCHEME", "http").lower()
+    if scheme not in {"http", "https"}:
+        scheme = "http"
     open_host = "127.0.0.1" if host in {"0.0.0.0", "::"} else host
-    return f"http://{open_host}:{port}/"
+    return f"{scheme}://{open_host}:{port}/"
 
 
 @app.on_event("startup")
 def print_ready_message() -> None:
     # Uvicorn already prints bind details; this adds a friendlier copy/paste line
     # for non-technical alpha testers and Windows launcher users.
-    print(f"Nocturne is ready at {_local_ready_url()}", flush=True)
+    print(f"Nocturne is ready at {_local_ready_url()} [{_profile_id()}]", flush=True)
 
 
 # --------------------------------------------------------------------------- #
@@ -287,9 +403,15 @@ def health() -> dict[str, bool]:
 
 
 @app.get("/api/version")
-def version() -> dict[str, str]:
+def version() -> dict[str, Any]:
     """Copyable build identity for alpha feedback reports."""
-    return _load_build_info()
+    return {**_load_build_info(), "profile": _profile_id()}
+
+
+@app.get("/api/profile")
+def profile() -> dict[str, Any]:
+    """Active presentation profile; no private configuration is exposed."""
+    return _load_profile()
 
 
 @app.get("/api/config")
