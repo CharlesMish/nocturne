@@ -9,6 +9,27 @@ an alarm clock, or a promise that a phone browser will remain alive overnight.
 Windows and target Raspberry Pi testing remain pending for Alpha 12; reports
 from those systems are especially welcome.
 
+## A look inside Nocturne
+
+The full Nocturne profile is one quiet instrument with three related rooms.
+Onsen keeps the cinematic rain scene close to the shared master and timer rail.
+
+[![Nocturne Onsen in the Rain Lantern appearance, with a cinematic rain scene above the master mix and sleep timer](docs/screenshots/onsen-rain-lantern.webp)](docs/screenshots/onsen-rain-lantern.webp)
+
+| Sky | Radio |
+|:---:|:---:|
+| [![Nocturne Sky showing a crescent moon, local observing card, master mix, and sleep timer](docs/screenshots/sky-observing.webp)](docs/screenshots/sky-observing.webp) | [![Nocturne Radio showing a selected local track, warm tape deck controls, playlist, master mix, and sleep timer](docs/screenshots/radio-bedside-deck.webp)](docs/screenshots/radio-bedside-deck.webp) |
+| Moon phase and a compact local observing card. | A warm local deck that waits for you to press play. |
+
+<p align="center">
+  <a href="docs/screenshots/appearance-room.png"><img src="docs/screenshots/appearance-room.png" alt="Nocturne Room settings with four atmosphere moods, three typography treatments, and three lighting densities" width="624"></a>
+</p>
+<p align="center"><em>Room settings coordinate atmosphere, typography, and lighting in this browser without recoloring the rain footage.</em></p>
+
+These are deterministic sample captures with no personal location or Radio
+library. They show the full profile; [Nocturne Pi](docs/PROFILES.md) keeps its
+reduced visual path and does not expose appearance controls.
+
 <!-- NOCTURNE:BEGIN GENERATED BUILD ID -->
 Current packaged alpha label:
 

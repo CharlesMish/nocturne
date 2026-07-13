@@ -13,8 +13,8 @@
     "feedback_label": "v0.1.0-alpha.13-dev · 2026-07-13 · visual-appearance-dev"
   },
   "generated_at_utc": "2026-07-13T06:01:00Z",
-  "file_count": 107,
-  "total_payload_bytes_excluding_manifest": 12397083,
+  "file_count": 112,
+  "total_payload_bytes_excluding_manifest": 12772008,
   "manifest_self_excluded": true,
   "evidence_detached": true,
   "detached_evidence_file_count": 3,
@@ -84,8 +84,8 @@
     },
     {
       "path": "CHANGELOG.md",
-      "size_bytes": 4370,
-      "sha256": "db5c74e61088845e3cd03db0e7f2907a4e1f494d5e9657a17396906e9b6123e6"
+      "size_bytes": 4518,
+      "sha256": "a99fb9f7a0021416a7ab8d489e9cfce71f1d13865b3e18024ab0ff6a738808eb"
     },
     {
       "path": "Fetch Ambient Media.bat",
@@ -119,8 +119,8 @@
     },
     {
       "path": "README.md",
-      "size_bytes": 5939,
-      "sha256": "bf8fc9361807d30a1b9be2b189167309579dc201a1f8f10f78a7e4afacfc981e"
+      "size_bytes": 7449,
+      "sha256": "34f6231e16fd9d4095ab8235752b50c265d9652a667185d5229d20e47566f5d9"
     },
     {
       "path": "Start Nocturne LAN.bat",
@@ -218,6 +218,31 @@
       "sha256": "a8ab12e4624c0d6780409e8b48f835dc9c955323470b3b33b317c57dbd97a3d3"
     },
     {
+      "path": "docs/screenshots/README.md",
+      "size_bytes": 1187,
+      "sha256": "cde497c77dfcf498d2a60f954e343a8875ec4b14de9bc5f67146e6802c1037cf"
+    },
+    {
+      "path": "docs/screenshots/appearance-room.png",
+      "size_bytes": 223685,
+      "sha256": "19d0aa2fcb36293975af296a41189710efa36b9f992aa5d3e4ee6a64c49cb3b3"
+    },
+    {
+      "path": "docs/screenshots/onsen-rain-lantern.webp",
+      "size_bytes": 92432,
+      "sha256": "927d7b88f75a2b697058976c9e86e243a2a4da10fbec48a88b869fd58ad80f3b"
+    },
+    {
+      "path": "docs/screenshots/radio-bedside-deck.webp",
+      "size_bytes": 30620,
+      "sha256": "0f2c4c65db6ca3a50a00fcf52e4a9907014851f000a40fb9e300b4152f9bb7f0"
+    },
+    {
+      "path": "docs/screenshots/sky-observing.webp",
+      "size_bytes": 24712,
+      "sha256": "8b6d65ca6def824fb7ddd24dee88dd29387f8d0490faa8ed986ca0e373ca6452"
+    },
+    {
       "path": "install.py",
       "size_bytes": 10414,
       "sha256": "1ee0da8d7760fd10d84d8414da665e340cf04fde13e23cdda78d0dfb95a93041"
@@ -289,8 +314,8 @@
     },
     {
       "path": "scripts/browser_smoke.py",
-      "size_bytes": 37730,
-      "sha256": "a8ef2d1f297fcdaf5c8301ad3e61ee96a060de8c6d785b74f09c4755ed20f667"
+      "size_bytes": 38361,
+      "sha256": "f0144e55b703a84898b3c1406213393a51e0972cac4d24927495fb7abed60a38"
     },
     {
       "path": "scripts/fetch_media.py",

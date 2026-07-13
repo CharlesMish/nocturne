@@ -27,6 +27,8 @@
 - Preserved the compact Nocturne Pi layout, still-scene path, disabled
   appearance controls, and reduced-motion/compositing boundary.
 - Replaced the external font request with locally packaged OFL typefaces.
+- Added a compact README showcase of Onsen, Sky, Radio, and the browser-local
+  Room appearance controls using deterministic full-profile captures.
 
 ## 0.1.0-alpha.12 — first public field-test alpha
 
