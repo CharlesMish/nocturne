@@ -1,20 +1,20 @@
 {
   "schema": "nocturne.release-manifest.v2",
   "profile": "product-source",
-  "package": "nocturne-alpha12-codex-ready-v0.4.0-dev",
+  "package": "nocturne-v0.1.0-alpha.12",
   "build": {
     "schema": "nocturne.build.v2",
-    "version": "0.1.0-alpha.12-dev",
+    "version": "0.1.0-alpha.12",
     "channel": "alpha",
-    "build_date_utc": "2026-07-12T23:16:22Z",
-    "revision": "codex-profile-split-v0.4.0-dev",
-    "revision_kind": "manual",
+    "build_date_utc": "2026-07-13T04:07:14Z",
+    "revision": "v0.1.0-alpha.12",
+    "revision_kind": "package",
     "source_date_utc": "2026-07-12T00:00:00-05:00",
-    "feedback_label": "v0.1.0-alpha.12-dev · 2026-07-12 · codex-profile-split-v0.4.0-dev"
+    "feedback_label": "v0.1.0-alpha.12 · 2026-07-12 · v0.1.0-alpha.12"
   },
-  "generated_at_utc": "2026-07-12T23:16:22Z",
+  "generated_at_utc": "2026-07-13T04:07:14Z",
   "file_count": 100,
-  "total_payload_bytes_excluding_manifest": 12120570,
+  "total_payload_bytes_excluding_manifest": 12120630,
   "manifest_self_excluded": true,
   "evidence_detached": true,
   "detached_evidence_file_count": 3,
@@ -69,8 +69,8 @@
     },
     {
       "path": "ALPHA_FEEDBACK.md",
-      "size_bytes": 1290,
-      "sha256": "f66924772addf7972b1a4972cf20ac1af7e1416c5910c6466b8098faf1e09f64"
+      "size_bytes": 1252,
+      "sha256": "3a7f81c3663fb02521f0d5e779659c0b9bb2eccf8d77861e1c5ab17f3418924c"
     },
     {
       "path": "AUDIO_CREDITS.md",
@@ -84,8 +84,8 @@
     },
     {
       "path": "CHANGELOG.md",
-      "size_bytes": 2450,
-      "sha256": "dd15b3930113f3efe7a0b779854b3a2e660feaca8f850d806309771db2f6117e"
+      "size_bytes": 2608,
+      "sha256": "4f7fd706e6772d36e784141f1a0b9edda1a232d49b3874338d468a9dd4983948"
     },
     {
       "path": "Fetch Ambient Media.bat",
@@ -119,8 +119,8 @@
     },
     {
       "path": "README.md",
-      "size_bytes": 5697,
-      "sha256": "8e4f3bd683722ece0e70855b9888e9b8ff72f06b7760c9da06101690debfded2"
+      "size_bytes": 5709,
+      "sha256": "5ae9b9686bec9ffa31b752d8d4ed80af7b113b6f0690cfc4dec3359445bfce13"
     },
     {
       "path": "Start Nocturne LAN.bat",
@@ -244,8 +244,8 @@
     },
     {
       "path": "nocturne_build.json",
-      "size_bytes": 355,
-      "sha256": "dab6d5cd73f7555974a537b29429a0e1feb302bc9988fd31fe99d7da1ec72708"
+      "size_bytes": 318,
+      "sha256": "d1ca934c6a3f971ed2ab0aefb610df6d0f37f38043b713613ba8b7e972b7802d"
     },
     {
       "path": "nocturne_profile.json",
@@ -279,8 +279,8 @@
     },
     {
       "path": "scripts/README.md",
-      "size_bytes": 3329,
-      "sha256": "2a9cc5abf4cf150cfc7b39a257cd59cd995807dcc6b44a45e397cab1ef807bb4"
+      "size_bytes": 3334,
+      "sha256": "f892db8cade885583ddc0c1a3578a5a6e523fd3bb00c95faaad2945e8d11e3eb"
     },
     {
       "path": "scripts/bake_seamless_loop.py",
@@ -314,8 +314,8 @@
     },
     {
       "path": "scripts/make_dual_release.py",
-      "size_bytes": 7928,
-      "sha256": "f9add353da58907d05b7d847bee6888c69e0a44b4d11da977dfe39f2ad317706"
+      "size_bytes": 7933,
+      "sha256": "4fa37345b78bfab54361c4bb2269afa6dd75fe83b73e35e5f6c24325997850f5"
     },
     {
       "path": "scripts/make_release.py",
@@ -474,8 +474,8 @@
     },
     {
       "path": "sounds/sound_library.json",
-      "size_bytes": 30572,
-      "sha256": "e91987d18d78c34c390fb88e9b800bc25c3a93f934bb1a41aac4a7ebd2fb492e"
+      "size_bytes": 30568,
+      "sha256": "837852a77be927a13f1b71a4a39cbd8554dc76c56e920a07a4a29c4de3b03f26"
     },
     {
       "path": "static/.gitkeep",
@@ -514,8 +514,8 @@
     },
     {
       "path": "static/index.html",
-      "size_bytes": 302325,
-      "sha256": "344c849a2598fe465f78de8474994d44cc9424cd77e1547950babc7286720208"
+      "size_bytes": 302284,
+      "sha256": "60e55e74ed8cd03ac1ad8af852999f5c233aee43d192373316e33be51e966215"
     },
     {
       "path": "static/manifest.webmanifest",

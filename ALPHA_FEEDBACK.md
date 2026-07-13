@@ -7,13 +7,13 @@ than a polished review.
 Current packaged alpha label:
 
 ```text
-v0.1.0-alpha.12-dev · 2026-07-12 · codex-profile-split-v0.4.0-dev
+v0.1.0-alpha.12 · 2026-07-12 · v0.1.0-alpha.12
 ```
 
 To stamp another package from a Git checkout or source archive:
 
 ```bash
-python scripts/stamp_build.py --version 0.1.0-alpha.12-dev --revision codex-profile-split-v0.4.0-dev
+python scripts/stamp_build.py --version 0.1.0-alpha.12 --revision v0.1.0-alpha.12
 ```
 <!-- NOCTURNE:END GENERATED BUILD ID -->
 
