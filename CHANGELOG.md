@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.0-alpha.12-dev — dual-profile hardening
+## 0.1.0-alpha.12 — first public field-test alpha
 
 - Added the shared Nocturne and Nocturne Pi presentation profiles while keeping
   one runtime and one product codebase.
@@ -12,6 +12,8 @@
   the unauthenticated trusted-LAN boundary.
 - Kept Raspberry Pi, browser background, accessibility, listening-comfort, and
   overnight behavior explicitly field-test pending.
+- Published the first dual-edition field-test package for ordinary computers
+  while keeping Windows and target Raspberry Pi installation results pending.
 
 ## 0.1.0-alpha.11 — field-readiness polish
 

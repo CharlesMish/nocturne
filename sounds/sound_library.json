@@ -1,6 +1,6 @@
 {
   "version": 6,
-  "notes": "Canonical local ambience library for Nocturne alpha.12-dev. Tonight remains eight bundled recorded CC0 files. Generated beds are optional and honestly labeled; experimental sounds require the explicit Experimental shelf. Quarantined originals and seam-baked repair candidates remain server-denied and are detached to the companion evidence bundle in the slim tester release until human audition.",
+  "notes": "Canonical local ambience library for Nocturne alpha.12. Tonight remains eight bundled recorded CC0 files. Generated beds are optional and honestly labeled; experimental sounds require the explicit Experimental shelf. Quarantined originals and seam-baked repair candidates remain server-denied and are detached to the companion evidence bundle in the slim tester release until human audition.",
   "default_slots": [
     "rain-heavy-open-window",
     "rain-balcony-peaceful",

@@ -1,10 +1,10 @@
 {
   "schema": "nocturne.build.v2",
-  "version": "0.1.0-alpha.12-dev",
+  "version": "0.1.0-alpha.12",
   "channel": "alpha",
-  "build_date_utc": "2026-07-12T23:16:22Z",
-  "revision": "codex-profile-split-v0.4.0-dev",
-  "revision_kind": "manual",
+  "build_date_utc": "2026-07-13T04:07:14Z",
+  "revision": "v0.1.0-alpha.12",
+  "revision_kind": "package",
   "source_date_utc": "2026-07-12T00:00:00-05:00",
-  "feedback_label": "v0.1.0-alpha.12-dev · 2026-07-12 · codex-profile-split-v0.4.0-dev"
+  "feedback_label": "v0.1.0-alpha.12 · 2026-07-12 · v0.1.0-alpha.12"
 }

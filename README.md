@@ -4,21 +4,22 @@ Nocturne is a local-first bedside sound instrument: an eight-channel ambient
 mixer, a moon-and-weather Sky, and a personal Radio that plays files from your
 own machine. There is no account, cloud library, analytics service, or feed.
 
-This repository is currently a **development alpha** prepared for the next
-Codex implementation and verification pass. It is not a medical product, an
-alarm clock, or a promise that a phone browser will remain alive overnight.
+This repository contains a **field-test alpha**. It is not a medical product,
+an alarm clock, or a promise that a phone browser will remain alive overnight.
+Windows and target Raspberry Pi testing remain pending for Alpha 12; reports
+from those systems are especially welcome.
 
 <!-- NOCTURNE:BEGIN GENERATED BUILD ID -->
 Current packaged alpha label:
 
 ```text
-v0.1.0-alpha.12-dev · 2026-07-12 · codex-profile-split-v0.4.0-dev
+v0.1.0-alpha.12 · 2026-07-12 · v0.1.0-alpha.12
 ```
 
 To stamp another package from a Git checkout or source archive:
 
 ```bash
-python scripts/stamp_build.py --version 0.1.0-alpha.12-dev --revision codex-profile-split-v0.4.0-dev
+python scripts/stamp_build.py --version 0.1.0-alpha.12 --revision v0.1.0-alpha.12
 ```
 <!-- NOCTURNE:END GENERATED BUILD ID -->
 

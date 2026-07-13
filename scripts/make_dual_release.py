@@ -79,7 +79,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=ROOT)
     parser.add_argument("--output-dir", type=Path, required=True)
-    parser.add_argument("--release-id", required=True, help="archive suffix, e.g. v0.4.0-dev")
+    parser.add_argument("--release-id", required=True, help="archive suffix, e.g. v0.1.0-alpha.12")
     parser.add_argument("--evidence-source", type=Path, help="optional evidence-branch snapshot to include")
     return parser.parse_args()
 

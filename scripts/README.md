@@ -49,7 +49,7 @@ verification output and an optional history tree.
 ```bash
 python scripts/make_dual_release.py \
   --output-dir outputs \
-  --release-id v0.4.0-dev \
+  --release-id v0.1.0-alpha.12 \
   --evidence-source ../nocturne-evidence-branch
 ```
 
