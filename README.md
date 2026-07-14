@@ -22,7 +22,7 @@ Onsen keeps the cinematic rain scene close to the shared master and timer rail.
 | Moon phase and a compact local observing card. | A warm local deck that waits for you to press play. |
 
 <p align="center">
-  <a href="docs/screenshots/appearance-room.png"><img src="docs/screenshots/appearance-room.png" alt="Nocturne Room settings with four atmosphere moods, three typography treatments, and three lighting densities" width="624"></a>
+  <a href="docs/screenshots/appearance-room.png"><img src="docs/screenshots/appearance-room.png" alt="Nocturne Room settings with four atmosphere moods, three typography treatments, and three lighting densities" width="609"></a>
 </p>
 <p align="center"><em>Room settings coordinate atmosphere, typography, and lighting in this browser without recoloring the rain footage.</em></p>
 

@@ -13,8 +13,8 @@
     "feedback_label": "v0.1.0-alpha.13-dev · 2026-07-13 · visual-appearance-dev"
   },
   "generated_at_utc": "2026-07-13T06:01:00Z",
-  "file_count": 114,
-  "total_payload_bytes_excluding_manifest": 12777547,
+  "file_count": 115,
+  "total_payload_bytes_excluding_manifest": 12779324,
   "manifest_self_excluded": true,
   "evidence_detached": true,
   "detached_evidence_file_count": 3,
@@ -89,8 +89,8 @@
     },
     {
       "path": "CHANGELOG.md",
-      "size_bytes": 5025,
-      "sha256": "3f6e9d45812e6559a2a2d2af4d0c0b97fa6a601a90ce6a62cd207324a20c455e"
+      "size_bytes": 5410,
+      "sha256": "aeffa5e84e6d9c67f59e53065c99298f78b8827ec378a38465fb936f9e560077"
     },
     {
       "path": "Install Nocturne.bat",
@@ -120,7 +120,7 @@
     {
       "path": "README.md",
       "size_bytes": 7451,
-      "sha256": "fbe441a7ddf0dccf319c9c8277d5e1a721679646737e7f8a85d59393f4774df2"
+      "sha256": "5c7ad588ae730fe8dc9894e9d61d4ab378b0bd29d2603d9686b789fdd9401a43"
     },
     {
       "path": "Start Nocturne LAN.bat",
@@ -161,6 +161,11 @@
       "path": "constraints.txt",
       "size_bytes": 944,
       "sha256": "31afbb27c0761f6add1fc402ce4d9fae5d348a1270f684cf217adc978da5b705"
+    },
+    {
+      "path": "docs/ALPHA_FOLLOWUPS.md",
+      "size_bytes": 1781,
+      "sha256": "5dd5b6a563778050d7b40520ed896cc46c950faac12e6da02c8cb7ced5e5982c"
     },
     {
       "path": "docs/CC0_DOWNLOAD_CHECKLIST.md",
@@ -229,23 +234,23 @@
     },
     {
       "path": "docs/screenshots/appearance-room.png",
-      "size_bytes": 223685,
-      "sha256": "19d0aa2fcb36293975af296a41189710efa36b9f992aa5d3e4ee6a64c49cb3b3"
+      "size_bytes": 217192,
+      "sha256": "77284e3f7a989c73c43df517ad2c50311747d5ab96e4fbdaf0abb95aab6a48eb"
     },
     {
       "path": "docs/screenshots/onsen-rain-lantern.webp",
-      "size_bytes": 92432,
-      "sha256": "927d7b88f75a2b697058976c9e86e243a2a4da10fbec48a88b869fd58ad80f3b"
+      "size_bytes": 92504,
+      "sha256": "ca57ad854faf5b83aa5f27f553de782f87c0c5b5c11f3a5867f4f5f9fd18d23d"
     },
     {
       "path": "docs/screenshots/radio-bedside-deck.webp",
-      "size_bytes": 30620,
-      "sha256": "0f2c4c65db6ca3a50a00fcf52e4a9907014851f000a40fb9e300b4152f9bb7f0"
+      "size_bytes": 29638,
+      "sha256": "b82e1a1930f0381176d14b8193df167cac372a720a11ed9d7b0d1e74f16324cd"
     },
     {
       "path": "docs/screenshots/sky-observing.webp",
-      "size_bytes": 24712,
-      "sha256": "8b6d65ca6def824fb7ddd24dee88dd29387f8d0490faa8ed986ca0e373ca6452"
+      "size_bytes": 23356,
+      "sha256": "5222640b6a62fc777b01eee383df2ee82b752341e2488834144213559ad71b39"
     },
     {
       "path": "install.py",
@@ -309,8 +314,8 @@
     },
     {
       "path": "scripts/README.md",
-      "size_bytes": 4104,
-      "sha256": "b05a2c0b7ba707d28fa78399e9d5b3459808af0b7a3f3bcaf985b0b30eecdfe1"
+      "size_bytes": 4303,
+      "sha256": "d2b9868152e831b58066928883f7ed634c7ef0594440e01d3d3df02744af62fb"
     },
     {
       "path": "scripts/bake_seamless_loop.py",
@@ -319,8 +324,8 @@
     },
     {
       "path": "scripts/browser_smoke.py",
-      "size_bytes": 38361,
-      "sha256": "f0144e55b703a84898b3c1406213393a51e0972cac4d24927495fb7abed60a38"
+      "size_bytes": 45876,
+      "sha256": "8473b81979a2bcd58b725a4bffb866d945bd4a6de1f3976471975599ca19b4b7"
     },
     {
       "path": "scripts/fetch_media.py",
@@ -594,8 +599,8 @@
     },
     {
       "path": "static/nocturne-polish.css",
-      "size_bytes": 32149,
-      "sha256": "b2ddb74d2394470f11a4a017e8525aa7385b05d9071b00a2f8dfec52b24db27d"
+      "size_bytes": 32805,
+      "sha256": "3fca39281e00bf0a6606ab48082206bbbbc289d851421ffbeb395aa4f8161faf"
     },
     {
       "path": "static/rain-still.webp",

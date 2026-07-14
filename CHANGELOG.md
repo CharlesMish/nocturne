@@ -36,6 +36,11 @@
 - Replaced the external font request with locally packaged OFL typefaces.
 - Added a compact README showcase of Onsen, Sky, Radio, and the browser-local
   Room appearance controls using deterministic full-profile captures.
+- Raised quiet secondary-copy and compact-action legibility without changing
+  the room composition, profile split, or disabled-by-default optional modes.
+- Extended deterministic browser QA through 340 px, optional Utility/Dashboard
+  states, and explicit Nocturne Pi motion/blur guards; recorded the remaining
+  field-evidence and stylesheet follow-ups in `docs/ALPHA_FOLLOWUPS.md`.
 
 ## 0.1.0-alpha.12 — first public field-test alpha
 

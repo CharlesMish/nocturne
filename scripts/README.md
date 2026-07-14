@@ -34,7 +34,10 @@ once those targets are exercised in CI or on hardware.
 | Require all locally generated WAVs | `python check_audio_contract.py --installed` and `node scripts/release-audit.mjs --installed` |
 | Stamp a source/archive build | `python scripts/stamp_build.py --version 0.1.0-alpha.N --revision <label>` |
 
-`browser_smoke.py` requires Python Playwright and a Chromium executable, but neither is a Nocturne runtime dependency.
+`browser_smoke.py` requires Python Playwright and Chromium, but neither is a
+Nocturne runtime dependency. It honors `--chromium` and `CHROMIUM_BIN`, searches
+the ordinary executable path, then uses Playwright's installed Chromium. Install
+that QA-only browser with `python -m playwright install chromium` when needed.
 
 ## Audio tools
 

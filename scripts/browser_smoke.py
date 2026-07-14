@@ -33,7 +33,7 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def find_chromium(explicit: str | None) -> str:
+def find_chromium(explicit: str | None, playwright_path: str | None = None) -> str:
     candidates = [
         explicit,
         os.environ.get("CHROMIUM_BIN"),
@@ -41,11 +41,15 @@ def find_chromium(explicit: str | None) -> str:
         shutil.which("chromium-browser"),
         shutil.which("google-chrome"),
         shutil.which("google-chrome-stable"),
+        playwright_path,
     ]
     for candidate in candidates:
         if candidate and Path(candidate).is_file():
             return str(Path(candidate).resolve())
-    raise RuntimeError("No Chromium executable found. Pass --chromium or set CHROMIUM_BIN.")
+    raise RuntimeError(
+        "No Chromium executable found. Pass --chromium, set CHROMIUM_BIN, "
+        "or run `python -m playwright install chromium`."
+    )
 
 
 def main() -> int:
@@ -71,7 +75,6 @@ def main() -> int:
     try:
         from playwright.sync_api import Route, sync_playwright
 
-        chromium_path = find_chromium(args.chromium)
         html = (root / "static" / "index.html").read_text(encoding="utf-8")
         css = (root / "static" / "nocturne-polish.css").read_text(encoding="utf-8")
         manifest = json.loads((root / "sounds" / "sound_library.json").read_text(encoding="utf-8"))
@@ -119,6 +122,22 @@ def main() -> int:
             {"name": "First Light Tape", "url": "/sounds/library/campfire-loop-stereo.mp3"},
             {"name": "Rain Window Dub", "url": "/sounds/library/rain-city-pooling.mp3"},
         ]
+        utility_songs = [
+            {
+                "slug": "evening-loop",
+                "title": "Evening Loop",
+                "artist": "Nocturne",
+                "bpm": 72,
+                "key": "C minor",
+                "tags": ["local", "bedside"],
+                "updatedAt": "2026-07-14T00:00:00Z",
+            }
+        ]
+        utility_song = {
+            "slug": "evening-loop",
+            "meta": {key: value for key, value in utility_songs[0].items() if key != "slug"},
+            "code": 'note("<c3 eb3 g3>").slow(4)',
+        }
         weather_failure = False
         weather_stale = True
 
@@ -183,6 +202,12 @@ def main() -> int:
             if path == "/api/radio":
                 route.fulfill(status=200, body=json.dumps(radio_tracks), content_type="application/json")
                 return
+            if path == "/api/songs":
+                route.fulfill(status=200, body=json.dumps(utility_songs), content_type="application/json")
+                return
+            if path == "/api/songs/evening-loop":
+                route.fulfill(status=200, body=json.dumps(utility_song), content_type="application/json")
+                return
             if path == "/api/weather":
                 if weather_failure:
                     route.fulfill(status=200, body=json.dumps({"ok": False}), content_type="application/json")
@@ -212,9 +237,17 @@ def main() -> int:
                 else:
                     route.fulfill(status=404, body="")
                 return
+            if path == "/dashboard.html":
+                route.fulfill(
+                    status=200,
+                    body=(root / "static" / "dashboard.html").read_text(encoding="utf-8"),
+                    content_type="text/html",
+                )
+                return
             route.fulfill(status=404, body="{}", content_type="application/json")
 
         with sync_playwright() as playwright:
+            chromium_path = find_chromium(args.chromium, playwright.chromium.executable_path)
             browser = playwright.chromium.launch(
                 headless=True,
                 executable_path=chromium_path,
@@ -243,10 +276,16 @@ def main() -> int:
               });
               Object.defineProperty(window, 'isSecureContext', { configurable: true, value: true });
               window.__nocturneAudioObjects = 0;
+              window.__nocturneAudioPlayCalls = 0;
               const NativeAudio = window.Audio;
               window.Audio = function(...args) {
                 window.__nocturneAudioObjects += 1;
-                return new NativeAudio(...args);
+                const audio = new NativeAudio(...args);
+                audio.play = () => {
+                  window.__nocturneAudioPlayCalls += 1;
+                  return Promise.resolve();
+                };
+                return audio;
               };
               window.Audio.prototype = NativeAudio.prototype;
             }""")
@@ -293,6 +332,28 @@ def main() -> int:
                 checks.append("Nocturne Pi does not request the disabled rain video")
                 assert appearance_enabled == "false" and not appearance_section.is_visible()
                 checks.append("Nocturne Pi keeps curated appearance controls disabled")
+                pi_rendering = page.evaluate("""() => {
+                  const style = selector => getComputedStyle(document.querySelector(selector));
+                  return {
+                    grain: style('.grain').display,
+                    rain: style('.ambient-rain').display,
+                    petals: style('.ambient-petals').display,
+                    reelAnimation: style('.reel').animationName,
+                    settingsBlur: style('.settings-dialog').backdropFilter,
+                    settingsWebkitBlur: style('.settings-dialog').webkitBackdropFilter
+                  };
+                }""")
+                assert {key: pi_rendering[key] for key in (
+                    "grain", "rain", "petals", "reelAnimation", "settingsBlur"
+                )} == {
+                    "grain": "none",
+                    "rain": "none",
+                    "petals": "none",
+                    "reelAnimation": "none",
+                    "settingsBlur": "none",
+                }, pi_rendering
+                assert pi_rendering["settingsWebkitBlur"] in (None, "none"), pi_rendering
+                checks.append("Nocturne Pi suppresses decorative layers, reel motion, and dialog blur")
             else:
                 assert appearance_enabled == "true" and appearance_section.is_visible() is False
 
@@ -384,7 +445,9 @@ def main() -> int:
             page.wait_for_function("() => document.querySelectorAll('#scene-select option').length === 1")
             checks.append("local scenes can be deleted without affecting the sound catalog")
 
-            page.screenshot(path=str(artifacts / "desktop-onsen.png"), full_page=True)
+            page.evaluate("scrollTo(0, 0)")
+            page.wait_for_function("scrollY === 0")
+            page.screenshot(path=str(artifacts / "desktop-onsen.png"), full_page=False)
 
             if profile_id == "nocturne":
                 # Sky keeps its moon and observing card separate, including stale weather labeling.
@@ -457,6 +520,19 @@ def main() -> int:
             page.wait_for_selector("#sound-picker:not([hidden])")
             checks.append("sound picker opens from a mixer slot")
 
+            if profile_id == "nocturne":
+                clarity_sizes = page.evaluate("""() => Object.fromEntries(Object.entries({
+                  change: '.slot-change',
+                  category: '.sound-chip',
+                  appearanceDetail: '.appearance-option small',
+                  platformDetail: '.platform-card span'
+                }).map(([name, selector]) => [name, parseFloat(getComputedStyle(document.querySelector(selector)).fontSize)]))""")
+                assert clarity_sizes["change"] >= 11.5, clarity_sizes
+                assert clarity_sizes["category"] >= 10.8, clarity_sizes
+                assert clarity_sizes["appearanceDetail"] >= 11.5, clarity_sizes
+                assert clarity_sizes["platformDetail"] >= 11.5, clarity_sizes
+                checks.append("quiet secondary actions and supporting copy retain measured text floors")
+
             category_labels = page.locator("#sound-picker-categories .sound-chip").all_text_contents()
             assert category_labels[:5] == ["tonight", "all", "recorded", "generated", "experimental"], category_labels
             checks.append("picker hierarchy begins with Tonight, All, Recorded, Generated, Experimental")
@@ -519,6 +595,7 @@ def main() -> int:
 
             if profile_id == "nocturne":
                 page.evaluate("scrollTo(0, 0)")
+                page.wait_for_function("scrollY === 0")
                 for mood in ("rain-lantern", "moonwater", "cedar-steam", "ember-room"):
                     page.locator("#settings-open").click()
                     page.wait_for_selector("#settings-overlay:not([hidden])")
@@ -584,6 +661,20 @@ def main() -> int:
             page.screenshot(path=str(artifacts / "mobile-mixer.png"), full_page=False)
             checks.append("390 px mobile viewport has a two-column mixer with no horizontal overflow")
 
+            page.set_viewport_size({"width": 340, "height": 740})
+            page.locator(".mixer-section").scroll_into_view_if_needed()
+            page.wait_for_timeout(100)
+            narrow_overflow = page.evaluate("document.documentElement.scrollWidth <= window.innerWidth + 1")
+            narrow_columns = page.locator("#mixer-grid").evaluate(
+                "e => getComputedStyle(e).gridTemplateColumns.split(' ').filter(Boolean).length"
+            )
+            assert narrow_overflow and narrow_columns == 1, {
+                "overflow": narrow_overflow,
+                "columns": narrow_columns,
+            }
+            page.screenshot(path=str(artifacts / "narrow-mixer.png"), full_page=False)
+            checks.append("340 px compact viewport has a one-column mixer with no horizontal overflow")
+
             if profile_id == "nocturne":
                 page.emulate_media(reduced_motion="reduce")
                 motion_duration = page.locator(".ambient-petals .petal").first.evaluate("e => getComputedStyle(e).animationDuration")
@@ -600,6 +691,40 @@ def main() -> int:
                 assert page.locator("#playlist-empty").is_visible()
                 checks.append("Radio has an intentional empty-folder state")
 
+                # Exercise optional modes without changing their packaged disabled defaults.
+                default_settings["modes"]["utility"] = True
+                default_settings["modes"]["dashboard"] = True
+                page.emulate_media(reduced_motion="no-preference")
+                page.set_viewport_size({"width": 1440, "height": 1000})
+                page.set_content(html, wait_until="domcontentloaded")
+                page.wait_for_function("document.body.style.opacity !== '0'")
+                page.wait_for_function("document.querySelectorAll('.mode-btn[data-mode]:not([hidden])').length === 5")
+                optional_modes = page.locator('.mode-btn[data-mode]:visible').evaluate_all(
+                    "els => els.map(el => el.dataset.mode)"
+                )
+                assert optional_modes == ["onsen", "sky", "radio", "utility", "dashboard"], optional_modes
+                audio_play_calls_before_optional = page.evaluate("window.__nocturneAudioPlayCalls")
+
+                page.locator('.mode-btn[data-mode="utility"]').click()
+                page.wait_for_function("document.querySelector('#utility-now-title').textContent === 'Evening Loop'")
+                assert page.locator("#utility-hero").is_visible()
+                assert page.locator("#utility-code-editor").input_value() == utility_song["code"]
+                assert page.evaluate("document.documentElement.scrollWidth <= window.innerWidth + 1")
+                page.screenshot(path=str(artifacts / "desktop-utility.png"), full_page=False)
+                checks.append("enabled Utility renders its local library and editor without viewport overflow")
+
+                page.locator('.mode-btn[data-mode="dashboard"]').click()
+                page.frame_locator("#dashboard-frame").locator(".clock").wait_for(state="visible")
+                assert page.locator("#dashboard-hero").is_visible()
+                assert page.evaluate("document.documentElement.scrollWidth <= window.innerWidth + 1")
+                page.screenshot(path=str(artifacts / "desktop-dashboard.png"), full_page=False)
+                checks.append("enabled Dashboard lazily loads its packaged frame without viewport overflow")
+
+                unexpected_requests = [url for url in request_urls_seen if not url.startswith(BASE_URL)]
+                assert not unexpected_requests, unexpected_requests
+                assert page.evaluate("window.__nocturneAudioPlayCalls") == audio_play_calls_before_optional
+                checks.append("browser smoke makes no external requests; Utility and Dashboard start no audio")
+
             browser.close()
 
         assert not page_errors, page_errors
@@ -613,8 +738,11 @@ def main() -> int:
             "verification-artifacts/desktop-platform-settings.png",
             "verification-artifacts/desktop-tonight-picker.png",
             "verification-artifacts/mobile-mixer.png",
+            "verification-artifacts/narrow-mixer.png",
             "verification-artifacts/tablet-sky.png" if profile_id == "nocturne" else None,
             "verification-artifacts/mobile-sky.png" if profile_id == "nocturne" else None,
+            "verification-artifacts/desktop-utility.png" if profile_id == "nocturne" else None,
+            "verification-artifacts/desktop-dashboard.png" if profile_id == "nocturne" else None,
         ] + mood_screenshots
         report["screenshots"] = [path for path in report["screenshots"] if path]
         report_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
