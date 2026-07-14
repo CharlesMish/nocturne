@@ -6,7 +6,7 @@ own machine. There is no account, cloud library, analytics service, or feed.
 
 This repository contains a **field-test alpha**. It is not a medical product,
 an alarm clock, or a promise that a phone browser will remain alive overnight.
-Windows and target Raspberry Pi testing remain pending for Alpha 12; reports
+Windows and target Raspberry Pi testing remain pending for this alpha; reports
 from those systems are especially welcome.
 
 ## A look inside Nocturne

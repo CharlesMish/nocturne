@@ -36,6 +36,7 @@ from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parent
 VENV = ROOT / ".venv"
+CONSTRAINTS = ROOT / "constraints.txt"
 
 
 def _bin(name: str) -> Path:
@@ -189,7 +190,16 @@ def main() -> int:
 
     if not args.skip_deps:
         run([python, "-m", "pip", "install", "--upgrade", "pip"])
-        run([python, "-m", "pip", "install", "-r", ROOT / "requirements.txt"])
+        run([
+            python,
+            "-m",
+            "pip",
+            "install",
+            "-r",
+            ROOT / "requirements.txt",
+            "-c",
+            CONSTRAINTS,
+        ])
     else:
         try:
             run([python, "-c", "import fastapi, httpx, numpy, uvicorn"])

@@ -2,6 +2,13 @@
 
 ## 0.1.0-alpha.13-dev — curated room appearance
 
+- Hardened the intake boundary against mixed-case and normalized traversal
+  aliases, and migrated FastAPI startup output to the lifespan API.
+- Made installer dependency resolution repeatable through documented,
+  Python-aware direct constraints while retaining cross-platform selection.
+- Removed stale numbered release labels, added an active-release drift audit,
+  normalized Windows launchers to CRLF, and demoted the legacy Pixabay wrapper
+  to `scripts/legacy/` without removing the underlying tool.
 - Added four coordinated atmosphere moods, three typography treatments, and
   three lighting densities to the full Nocturne profile.
 - Kept appearance browser-local and separate from saved audio scenes, server

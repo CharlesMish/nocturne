@@ -7,7 +7,19 @@ python3 install.py
 .venv/bin/python run_nocturne.py
 ```
 
-The normal installer creates `.venv`, installs `requirements.txt`, creates local folders/config, and generates the 17 procedural beds. `--skip-deps` is only for an already prepared `.venv`; the installer now checks that environment before continuing.
+The normal installer creates `.venv`, installs the readable direct dependencies
+from `requirements.txt` using the known-good versions in `constraints.txt`,
+creates local folders/config, and generates the 17 procedural beds. `--skip-deps`
+is only for an already prepared `.venv`; the installer checks that environment
+before continuing.
+
+The constraints pin the runtime dependency graph tested by this source snapshot.
+NumPy uses a Python 3.10-specific pin because newer NumPy releases require
+Python 3.11, and platform-only packages retain explicit markers. This is
+intentionally not a hash-locked, platform-specific artifact lock: Windows,
+macOS, Linux, and Raspberry Pi still select compatible upstream wheels or source
+distributions. A future packaging pass can publish per-platform hashed locks
+once those targets are exercised in CI or on hardware.
 
 ## Release integrity
 
@@ -36,6 +48,10 @@ The normal installer creates `.venv`, installs `requirements.txt`, creates local
 | Regenerate audio credit/provenance docs | `python scripts/write_audio_credits.py` |
 | Legacy optional Pixabay compatibility | `python scripts/fetch_media.py --init` then `python scripts/fetch_media.py --yes` |
 
+The optional Windows wrapper for that compatibility workflow is deliberately
+demoted to `scripts/legacy/Fetch Ambient Media.bat`; it is not part of normal
+installation.
+
 Use `docs/FREESOUND_CC0_WORKFLOW.md` for the curation workflow. The legacy fetcher does not manage the assignable sound catalog or Radio tracks.
 
 `make_release.py` excludes generated WAVs, local settings and media, transient
@@ -49,7 +65,7 @@ verification output and an optional history tree.
 ```bash
 python scripts/make_dual_release.py \
   --output-dir outputs \
-  --release-id v0.1.0-alpha.12 \
+  --release-id <release-id> \
   --evidence-source ../nocturne-evidence-branch
 ```
 

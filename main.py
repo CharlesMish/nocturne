@@ -33,13 +33,16 @@ Configuration (env vars, set in nocturne.service):
 from __future__ import annotations
 
 import os
+import posixpath
 import time
 import json
 import math
 import re
 import shutil
 import tempfile
+from contextlib import asynccontextmanager
 from pathlib import Path
+from pathlib import PurePosixPath
 from urllib.parse import quote
 from typing import Any
 
@@ -68,8 +71,13 @@ class NocturneSoundsStaticFiles(StaticFiles):
     """
 
     async def get_response(self, path: str, scope):  # type: ignore[override]
-        if Path(path).parts[:1] == ("inbox",):
-            return PlainTextResponse("Not found", status_code=404)
+        # Normalize URL separators and dot segments before StaticFiles performs
+        # any filesystem lookup. Casefolding closes the intake alias on common
+        # case-insensitive Windows and macOS filesystems.
+        normalized = posixpath.normpath("/" + path.replace("\\", "/")).lstrip("/")
+        first_part = PurePosixPath(normalized).parts[:1]
+        if first_part and first_part[0].casefold() == "inbox":
+            return PlainTextResponse("Sound intake is not public", status_code=404)
         return await super().get_response(path, scope)
 
 AUDIO_EXTS = {".mp3", ".ogg", ".m4a", ".wav", ".opus", ".webm", ".flac"}
@@ -328,9 +336,6 @@ def _require_utility_enabled() -> None:
         raise HTTPException(status_code=404, detail="not found")
 
 
-app = FastAPI(title="Nocturne")
-
-
 DEFAULT_BUILD_INFO: dict[str, str] = {
     "schema": "nocturne.build.v2",
     "version": "unknown",
@@ -388,11 +393,19 @@ def _local_ready_url() -> str:
     return f"{scheme}://{open_host}:{port}/"
 
 
-@app.on_event("startup")
 def print_ready_message() -> None:
     # Uvicorn already prints bind details; this adds a friendlier copy/paste line
     # for non-technical alpha testers and Windows launcher users.
     print(f"Nocturne is ready at {_local_ready_url()} [{_profile_id()}]", flush=True)
+
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    print_ready_message()
+    yield
+
+
+app = FastAPI(title="Nocturne", lifespan=lifespan)
 
 
 # --------------------------------------------------------------------------- #

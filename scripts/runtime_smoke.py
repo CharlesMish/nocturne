@@ -7,6 +7,8 @@ import os
 import subprocess
 import sys
 import tempfile
+from contextlib import redirect_stdout
+from io import StringIO
 from pathlib import Path
 from unittest.mock import patch
 
@@ -60,7 +62,8 @@ def main() -> int:
         nocturne.SONGS_DIR = temp_root / "songs"
         nocturne._clear_weather_cache()
 
-        with TestClient(nocturne.app) as client:
+        ready_output = StringIO()
+        with redirect_stdout(ready_output), TestClient(nocturne.app) as client:
             response = client.get("/health")
             expect(response.status_code == 200 and response.json() == {"ok": True}, "health endpoint returns ok", checks)
 
@@ -111,10 +114,26 @@ def main() -> int:
                 asset = client.get(source)
                 expect(asset.status_code == 200 and len(asset.content) > 0, f"default asset is served: {sound_id}", checks)
 
-            quarantine = client.get("/sounds/inbox/quarantine-seam-risk/rain-inside-house.mp3")
-            expect(quarantine.status_code == 404, "original seam-risk quarantine is denied", checks)
-            baked = client.get("/sounds/inbox/seam-baked/rain-inside-house-seam-baked.m4a")
-            expect(baked.status_code == 404, "seam-baked audition candidate is also denied", checks)
+            for casing in ("inbox", "Inbox", "INBOX", "iNbOx"):
+                denied = client.get(f"/sounds/{casing}/README.md")
+                expect(
+                    denied.status_code == 404
+                    and denied.text == "Sound intake is not public"
+                    and denied.headers.get("content-type", "").startswith("text/plain"),
+                    f"custom intake denial handles first-segment casing: {casing}",
+                    checks,
+                )
+            for path in (
+                "/sounds/%69nbox/README.md",
+                "/sounds/library/%2e%2e/inbox/README.md",
+                "/sounds/library/%2E%2E/Inbox/README.md",
+            ):
+                denied = client.get(path)
+                expect(
+                    denied.status_code == 404 and denied.text == "Sound intake is not public",
+                    f"encoded/traversal intake path is denied by the custom guard: {path}",
+                    checks,
+                )
 
             settings = client.get("/api/settings").json()
             expect(settings["modes"] == {"onsen": True, "sky": True, "radio": True, "utility": False, "dashboard": False}, "default profile exposes only Onsen, Sky, and Radio", checks)
@@ -146,6 +165,12 @@ def main() -> int:
                 raise AssertionError("simulated atomic replacement failure did not propagate")
             expect(nocturne.SETTINGS_PATH.read_bytes() == before_failure, "failed settings replacement preserves the previous file", checks)
             expect(not list(nocturne.CONFIG_DIR.glob(temp_pattern)), "failed settings replacement cleans up its temporary file", checks)
+
+        expect(
+            f"Nocturne is ready at {nocturne._local_ready_url()} [{nocturne._profile_id()}]" in ready_output.getvalue(),
+            "lifespan startup preserves the ready-message output",
+            checks,
+        )
 
     report = {
         "schema": "nocturne.runtime-smoke.v1",

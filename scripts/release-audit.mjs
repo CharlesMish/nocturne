@@ -328,6 +328,30 @@ for (const name of ["README.md", "ALPHA_FEEDBACK.md"]) {
   }
 }
 
+const activeReleaseTexts = [
+  ["README.md", readFileSync(join(root, "README.md"), "utf8")],
+  ["ALPHA_FEEDBACK.md", readFileSync(join(root, "ALPHA_FEEDBACK.md"), "utf8")],
+  ["sounds/sound_library.json notes", String(manifest.notes ?? "")],
+  ["scripts/README.md", readFileSync(join(root, "scripts", "README.md"), "utf8")],
+  ["scripts/make_dual_release.py", readFileSync(join(root, "scripts", "make_dual_release.py"), "utf8")],
+  ["static/index.html rain-video cache key", indexText.match(/rain\.mp4\?v=([^"']+)/)?.[1] ?? ""],
+];
+const currentAlpha = String(build.version ?? "").match(/alpha\.(\d+)/i)?.[1];
+if (!currentAlpha) {
+  errors.push("Canonical build version does not contain an alpha sequence number.");
+} else {
+  for (const [name, text] of activeReleaseTexts) {
+    for (const match of text.matchAll(/alpha(?:\.|[ _-])?(\d+)/gi)) {
+      if (match[1] !== currentAlpha) {
+        errors.push(`${name} contains stale active alpha reference ${match[0]}; current build is alpha.${currentAlpha}.`);
+      }
+    }
+  }
+  if (!errors.some((message) => message.includes("stale active alpha reference"))) {
+    passes.push("Active release surfaces contain no stale numbered alpha references.");
+  }
+}
+
 if (!existsSync(polishPath)) errors.push("Served polish stylesheet is missing: static/nocturne-polish.css");
 for (const [name, text] of [["static/index.html", indexText], ["static/dashboard.html", dashboardText]]) {
   if (!/href=["']\/nocturne-polish\.css["']/.test(text)) errors.push(`${name} does not load /nocturne-polish.css.`);
@@ -410,7 +434,7 @@ for (const ref of runtimeSoundRefs) {
   errors.push(`Missing runtime sound reference: ${ref}`);
 }
 
-if (!/Path\(path\)\.parts\[:1\]\s*==\s*\("inbox",\)/.test(mainText)) errors.push("main.py does not visibly deny the sounds/inbox subtree.");
+if (!/first_part\[0\]\.casefold\(\)\s*==\s*["']inbox["']/.test(mainText)) errors.push("main.py does not visibly deny case variants of the sounds/inbox subtree.");
 else passes.push("The public sound route denies the complete sounds/inbox quarantine tree.");
 
 // Parse inline scripts for JavaScript syntax without executing browser behavior.
