@@ -1,20 +1,22 @@
 {
   "schema": "nocturne.release-manifest.v2",
   "profile": "product-source",
-  "package": "NOCTURNE_ALPHA13_HARDENING_RC",
+  "package": "nocturne-v0.1.0-alpha.13",
   "build": {
     "schema": "nocturne.build.v2",
-    "version": "0.1.0-alpha.13-dev",
+    "version": "0.1.0-alpha.13",
     "channel": "alpha",
-    "build_date_utc": "2026-07-13T06:01:00Z",
-    "revision": "visual-appearance-dev",
-    "revision_kind": "manual",
-    "source_date_utc": "2026-07-13T00:00:00-05:00",
-    "feedback_label": "v0.1.0-alpha.13-dev · 2026-07-13 · visual-appearance-dev"
+    "build_date_utc": "2026-08-01T16:34:39Z",
+    "revision": "23ad7d7",
+    "revision_kind": "git",
+    "source_date_utc": "2026-08-01T11:34:16-05:00",
+    "feedback_label": "v0.1.0-alpha.13 · 2026-08-01 · 23ad7d7",
+    "commit": "23ad7d7",
+    "commit_date_utc": "2026-08-01T11:34:16-05:00"
   },
-  "generated_at_utc": "2026-07-13T06:01:00Z",
+  "generated_at_utc": "2026-08-01T16:34:39Z",
   "file_count": 120,
-  "total_payload_bytes_excluding_manifest": 12833879,
+  "total_payload_bytes_excluding_manifest": 12833875,
   "manifest_self_excluded": true,
   "evidence_detached": true,
   "detached_evidence_file_count": 3,
@@ -79,8 +81,8 @@
     },
     {
       "path": "ALPHA_FEEDBACK.md",
-      "size_bytes": 1272,
-      "sha256": "569d08d8dd8ef7417b2597190ba7825f0edaf51ce7a44f3128c126a85c538a8c"
+      "size_bytes": 1236,
+      "sha256": "99742ab9685f4ec10d644adbc09341e4be9664c7028d6409ac61e059657bb5aa"
     },
     {
       "path": "AUDIO_CREDITS.md",
@@ -124,8 +126,8 @@
     },
     {
       "path": "README.md",
-      "size_bytes": 8902,
-      "sha256": "7732333fc14f90a358a2c4a71c5838737e1d1aa489d830cbc3307ee1043790b5"
+      "size_bytes": 8866,
+      "sha256": "24f82d0048f0ae14ebf6f6f6f0b89e16c43891a6a38831c0cd5ea0b21db59069"
     },
     {
       "path": "Start Nocturne LAN.bat",
@@ -284,8 +286,8 @@
     },
     {
       "path": "nocturne_build.json",
-      "size_bytes": 337,
-      "sha256": "64edc1fe002d3e377229588c8647fe95d7768e86a9c9e369cebe01f890aa6e63"
+      "size_bytes": 371,
+      "sha256": "9a3bae2ff9d442fe981f1b8fbc3534e24d17f7c8fdfa8242d33521b35df3eb5a"
     },
     {
       "path": "nocturne_profile.json",
@@ -614,8 +616,8 @@
     },
     {
       "path": "static/index.html",
-      "size_bytes": 313833,
-      "sha256": "09dffd3e87c511951d3936c59956799c7398dd5b74c7b0328cc27fb067632a29"
+      "size_bytes": 313867,
+      "sha256": "61c55bf9538847144d2bc916633412fdf003a6d760af612b1f29050d68f61f81"
     },
     {
       "path": "static/manifest.webmanifest",

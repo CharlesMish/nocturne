@@ -7,13 +7,13 @@ than a polished review.
 Current packaged alpha label:
 
 ```text
-v0.1.0-alpha.13-dev · 2026-07-13 · visual-appearance-dev
+v0.1.0-alpha.13 · 2026-08-01 · 23ad7d7
 ```
 
 To stamp another package from a Git checkout or source archive:
 
 ```bash
-python scripts/stamp_build.py --version 0.1.0-alpha.13-dev --revision visual-appearance-dev
+python scripts/stamp_build.py --version 0.1.0-alpha.13 --revision 23ad7d7
 ```
 <!-- NOCTURNE:END GENERATED BUILD ID -->
 
