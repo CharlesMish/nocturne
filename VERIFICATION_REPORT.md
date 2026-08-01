@@ -60,8 +60,12 @@ The backend has no separate pytest/unittest suite; `runtime_smoke.py` and
 | first final-tree `browser_smoke.py --profile nocturne` run | FAIL — the newly added test inspected retained historical mock events instead of only the active schedule; no page/console error was present |
 | corrected `.venv/bin/python scripts/browser_smoke.py --profile nocturne` | PASS — 50 checks, 0 console errors, 0 page errors |
 | corrected `.venv/bin/python scripts/browser_smoke.py --profile nocturne-pi` | PASS — 39 checks, 0 console errors, 0 page errors |
+| post-review `.venv/bin/python scripts/browser_smoke.py --profile nocturne` | PASS — 50 checks, 0 console errors, 0 page errors |
+| post-review `.venv/bin/python scripts/browser_smoke.py --profile nocturne-pi` | PASS — 40 checks, including computed static-hero and no-MP4 assertions; 0 console errors, 0 page errors |
 | extracted RC `browser_smoke.py --profile nocturne` | PASS — 50 checks |
 | extracted RC `browser_smoke.py --profile nocturne-pi` | PASS — 39 checks |
+| post-review rebuilt/extracted RC `browser_smoke.py --profile nocturne` | PASS — 50 checks |
+| post-review rebuilt/extracted RC `browser_smoke.py --profile nocturne-pi` | PASS — 40 checks, including visible packaged still and no MP4 request |
 
 The deterministic browser clock/audio shim verifies the gain hold/ramp times,
 immediate short fade, interval non-interference, cancel/replace cleanup, manual
@@ -69,8 +73,9 @@ master rescheduling, visible return before expiry, and completion after expiry.
 It does not simulate OS suspension guarantees.
 
 Visual inspection of captured desktop/mobile/profile evidence found the full
-profile coherent with no overflow regressions. It also exposed the deferred Pi
-black-hero follow-up described in `IMPLEMENTATION_REPORT.md`.
+profile coherent with no overflow regressions. Post-review inspection confirms
+the Pi hero now visibly renders the packaged rain still instead of a plain
+black stage.
 
 ## Installer and dependency evidence
 
@@ -151,8 +156,8 @@ Builder command:
 
 | Artifact | Bytes | SHA-256 |
 |---|---:|---|
-| `NOCTURNE_ALPHA13_HARDENING_RC.zip` | 12,102,804 | `fed5e25e48be50d84abe920c33f09d10597d8ad4e9941730f51e7a9e1f420d03` |
-| `NOCTURNE_ALPHA13_HARDENING_EVIDENCE.zip` | 11,518,929 | `7d9cbfb067ff097f57612091bec4f5214ac1155bacbce6d0262701672d0b54b8` |
+| `NOCTURNE_ALPHA13_HARDENING_RC.zip` | 12,102,995 | `72095d33fc136c5d1aeab703d1a331179ae07d86239de12546344307419bcbd9` |
+| `NOCTURNE_ALPHA13_HARDENING_EVIDENCE.zip` | 13,258,131 | `31ea7d5b7a2b29c7e42409cf26570932135d45a89df2e48c98db591f5d8f540b` |
 
 - `unzip -t` on both archives: PASS.
 - First `shasum -a 256 -c dist/...sha256` invocation from the repository root:
@@ -175,7 +180,7 @@ extracted tree, all of these passed:
 - path-safety smoke (24 checks);
 - release-builder smoke (27 checks);
 - `compileall`;
-- both browser profiles (50 and 39 checks).
+- both browser profiles (50 and 40 checks after the post-review rebuild).
 
 ## Old-version search
 

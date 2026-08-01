@@ -2,6 +2,9 @@
 
 ## 0.1.0-alpha.13-dev — curated room appearance
 
+- Restored the intended Nocturne Pi static rain hero by resolving its
+  background-image cascade against the global video-loading fallback, with a
+  browser assertion that the still is visible and the MP4 remains unrequested.
 - Reduced optional procedural-bed generation to a 60-second default, kept
   explicit longer overrides, and made only this generation step fail-soft with
   truthful install outcomes and a retry command.

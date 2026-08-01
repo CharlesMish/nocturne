@@ -138,6 +138,15 @@ the non-public inbox. Installer, audit, CI, browser, and 60-second generation
 behavior are documented. The alpha.13 development changelog was updated without
 changing build identity.
 
+### H — post-review Pi fallback repair
+
+The intended Nocturne Pi static hero rule already referenced the packaged
+`rain-still.webp`, but a global video-loading background used `!important` and
+won the cascade. The Pi-specific declaration now also carries `!important`,
+restoring the existing static presentation without enabling motion or changing
+layout. Browser coverage asserts the computed background contains the packaged
+still and that `rain.mp4` remains unrequested.
+
 ## Deferred findings and limitations
 
 - No authentication/account, Host-header/DNS-rebinding redesign, service
@@ -149,10 +158,6 @@ changing build identity.
   or the workflow is dispatched.
 - The clean dependency install was exercised locally on Python 3.14/macOS arm64;
   the declared 3.10/3.12 matrix still needs its first hosted run.
-- Visual review found the Nocturne Pi video-disabled hero can appear as a plain
-  black panel because the global clean-video CSS hides the painted fallback and
-  the disabled video never receives the reveal class. Fixing that presentation
-  would change visual behavior and was deferred from this frozen hardening pass.
 - Real Windows launcher/path behavior, Raspberry Pi 3 memory/performance,
   screen-reader use, phone lock/background behavior, listening comfort, and an
   overnight session remain field-test pending.

@@ -11,6 +11,8 @@
   encoded/traversal alias through the custom quarantine guard.
 - Scheduled timer fading with one Web Audio ramp while keeping wall-clock
   expiry and safe cancel/return/master-volume reconciliation.
+- Restored the intended static rain hero in Nocturne Pi without requesting the
+  disabled MP4 or adding motion.
 - Made release audit non-mutating by default, codified launcher endings, added
   focused smokes and Python 3.10/3.12 CI, and corrected release documentation.
 
@@ -19,7 +21,8 @@
 - Source, installed, and freshly extracted source audio/release contracts.
 - 85 runtime, 13 profile, 21 installer, 24 path, and 27 release-builder checks.
 - Both browser profiles in the working tree and extracted RC, with no page or
-  console errors and deterministic sleep-timer timing coverage.
+  console errors, deterministic sleep-timer timing coverage, and an explicit Pi
+  static-background assertion.
 - Real 17-file default generation on Apple Silicon: 4.10 seconds, 80.08 MiB
   output, about 341.45 MiB maximum RSS.
 - Clean constrained dependency installation on macOS arm64/Python 3.14.
@@ -32,8 +35,6 @@
 - Real screen-reader use, phone lock/background return, listening comfort,
   loop audition, and overnight behavior.
 - The first hosted Python 3.10/3.12 CI matrix run after an authorized push.
-- A small visual follow-up: the Pi video-disabled hero can show a plain black
-  panel because the global video cleanup hides its painted fallback.
 
 ## Deferred
 

@@ -421,6 +421,12 @@ def main() -> int:
             if profile_id == "nocturne-pi":
                 assert "/rain.mp4" not in requests_seen, requests_seen
                 checks.append("Nocturne Pi does not request the disabled rain video")
+                pi_stage_background = page.locator("#video-stage").evaluate(
+                    "stage => getComputedStyle(stage).backgroundImage"
+                )
+                assert "rain-still.webp" in pi_stage_background, pi_stage_background
+                assert "/rain-still.webp" in requests_seen, requests_seen
+                checks.append("Nocturne Pi visibly uses the packaged static rain hero")
                 assert appearance_enabled == "false" and not appearance_section.is_visible()
                 checks.append("Nocturne Pi keeps curated appearance controls disabled")
                 pi_rendering = page.evaluate("""() => {

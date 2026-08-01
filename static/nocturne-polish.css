@@ -867,7 +867,7 @@ body[data-profile="nocturne-pi"] #bg-video {
   display: none !important;
 }
 body[data-profile="nocturne-pi"] .video-stage {
-  background: #090a0d url('/rain-still.webp') center / cover no-repeat;
+  background: #090a0d url('/rain-still.webp') center / cover no-repeat !important;
 }
 body[data-profile="nocturne-pi"] .scene {
   opacity: 0.34;

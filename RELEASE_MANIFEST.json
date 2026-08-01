@@ -14,7 +14,7 @@
   },
   "generated_at_utc": "2026-07-13T06:01:00Z",
   "file_count": 120,
-  "total_payload_bytes_excluding_manifest": 12832634,
+  "total_payload_bytes_excluding_manifest": 12833284,
   "manifest_self_excluded": true,
   "evidence_detached": true,
   "detached_evidence_file_count": 3,
@@ -94,8 +94,8 @@
     },
     {
       "path": "CHANGELOG.md",
-      "size_bytes": 6399,
-      "sha256": "e4dd0a5ac93846b110c3c951932dbc23661be98957c60907f53b29547373b09a"
+      "size_bytes": 6625,
+      "sha256": "ec8e36cafe48546d012924dcacc707cf7fbe691ad2d44e8eeff79ffa089271b7"
     },
     {
       "path": "Install Nocturne.bat",
@@ -329,8 +329,8 @@
     },
     {
       "path": "scripts/browser_smoke.py",
-      "size_bytes": 55024,
-      "sha256": "55980094aa321c3d46fe4a2a2dfe40afa2ff495c69e3eade94fdb2c2801e8ff6"
+      "size_bytes": 55437,
+      "sha256": "331e1d01b0f5f5d11b33f66d0b066086c24774e31e397ab9a2e3433d46438ca5"
     },
     {
       "path": "scripts/fetch_media.py",
@@ -624,8 +624,8 @@
     },
     {
       "path": "static/nocturne-polish.css",
-      "size_bytes": 32805,
-      "sha256": "3fca39281e00bf0a6606ab48082206bbbbc289d851421ffbeb395aa4f8161faf"
+      "size_bytes": 32816,
+      "sha256": "b2f293b1e1bb00f67b957d23827855705a1435cd46262e0c4612b3c15e0ca7e3"
     },
     {
       "path": "static/rain-still.webp",
