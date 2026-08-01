@@ -277,13 +277,104 @@ def main() -> int:
               Object.defineProperty(window, 'isSecureContext', { configurable: true, value: true });
               window.__nocturneAudioObjects = 0;
               window.__nocturneAudioPlayCalls = 0;
+              window.__nocturneAudioPauseCalls = 0;
+              window.__nocturneNow = Date.now();
+              Date.now = () => window.__nocturneNow;
+              window.__nocturneAudioParamEvents = [];
+
+              class FakeAudioParam {
+                constructor(context, value = 1) {
+                  this.context = context;
+                  this.value = value;
+                  this.scheduled = [];
+                }
+                record(type, value, time, extra = null) {
+                  const event = {type, value, time, extra};
+                  window.__nocturneAudioParamEvents.push(event);
+                  return event;
+                }
+                cancelScheduledValues(time) {
+                  this.record('cancel', null, time);
+                  this.scheduled = this.scheduled.filter(event => event.time < time);
+                }
+                setValueAtTime(value, time) {
+                  const event = this.record('set', value, time);
+                  this.scheduled.push(event);
+                  if (time <= this.context.currentTime) this.value = value;
+                }
+                linearRampToValueAtTime(value, time) {
+                  const event = this.record('ramp', value, time);
+                  this.scheduled.push(event);
+                }
+                setTargetAtTime(value, time, constant) {
+                  const event = this.record('target', value, time, constant);
+                  this.scheduled.push(event);
+                  this.value = value;
+                }
+              }
+              class FakeNode {
+                connect(node) { return node; }
+                disconnect() {}
+              }
+              class FakeAudioContext {
+                constructor() {
+                  this.currentTime = 100;
+                  this.state = 'running';
+                  this.destination = new FakeNode();
+                  this.gainCount = 0;
+                  window.__nocturneAudioContext = this;
+                }
+                createGain() {
+                  const node = new FakeNode();
+                  node.gain = new FakeAudioParam(this, 1);
+                  this.gainCount += 1;
+                  if (this.gainCount === 1) window.__nocturneMasterParam = node.gain;
+                  return node;
+                }
+                createMediaElementSource() { return new FakeNode(); }
+                createBiquadFilter() {
+                  const node = new FakeNode();
+                  node.frequency = new FakeAudioParam(this, 0);
+                  node.Q = new FakeAudioParam(this, 0);
+                  return node;
+                }
+                createConvolver() { return new FakeNode(); }
+                createAnalyser() {
+                  const node = new FakeNode();
+                  node.frequencyBinCount = 32;
+                  node.getByteFrequencyData = array => array.fill(0);
+                  return node;
+                }
+                createBuffer() { return {getChannelData: () => new Float32Array(1)}; }
+                resume() { this.state = 'running'; return Promise.resolve(); }
+              }
+              window.AudioContext = FakeAudioContext;
+              window.webkitAudioContext = FakeAudioContext;
+              window.__nocturneAdvanceClock = ms => {
+                window.__nocturneNow += ms;
+                if (window.__nocturneAudioContext) window.__nocturneAudioContext.currentTime += ms / 1000;
+              };
+              window.__nocturneTimerState = () => ({
+                now: window.__nocturneNow,
+                contextTime: window.__nocturneAudioContext?.currentTime,
+                value: window.__nocturneMasterParam?.value,
+                scheduled: (window.__nocturneMasterParam?.scheduled || []).map(event => ({...event})),
+                events: window.__nocturneAudioParamEvents.map(event => ({...event})),
+                status: document.querySelector('#timer-status')?.textContent || '',
+                master: document.querySelector('#master')?.value || ''
+              });
               const NativeAudio = window.Audio;
               window.Audio = function(...args) {
                 window.__nocturneAudioObjects += 1;
                 const audio = new NativeAudio(...args);
+                const nativePause = audio.pause.bind(audio);
                 audio.play = () => {
                   window.__nocturneAudioPlayCalls += 1;
                   return Promise.resolve();
+                };
+                audio.pause = () => {
+                  window.__nocturneAudioPauseCalls += 1;
+                  nativePause();
                 };
                 return audio;
               };
@@ -364,6 +455,84 @@ def main() -> int:
             assert page.evaluate("window.isSecureContext") is True
             assert page.locator('link[rel="manifest"][href="/manifest.webmanifest"]').count() == 1
             checks.append("packaged UI has a manifest and runs in a secure test context")
+
+            # Sleep timing is wall-clock based, while audible fading is one
+            # Web Audio schedule. The fake clock/context keeps this deterministic.
+            timer_15 = page.locator('[data-timer-minutes="15"]')
+            page.evaluate("window.__nocturneAudioParamEvents.length = 0")
+            timer_15.click()
+            timer_state = page.evaluate("window.__nocturneTimerState()")
+            ramps = [event for event in timer_state["scheduled"] if event["type"] == "ramp"]
+            sets = [event for event in timer_state["scheduled"] if event["type"] == "set"]
+            assert len(ramps) == 1 and abs(ramps[0]["time"] - 1000) < 0.001, timer_state
+            assert len(sets) == 2 and abs(sets[-1]["time"] - 940) < 0.001, timer_state
+            checks.append("sleep timer schedules a held base gain and one final Web Audio ramp")
+
+            event_count = len(timer_state["events"])
+            page.wait_for_timeout(650)
+            assert len(page.evaluate("window.__nocturneTimerState().events")) == event_count
+            checks.append("sleep timer status ticks do not rewrite audible gain")
+
+            page.locator("#cancel-timer").click()
+            cancelled = page.evaluate("window.__nocturneTimerState()")
+            assert not [event for event in cancelled["scheduled"] if event["type"] == "ramp"]
+            assert abs(cancelled["value"] - 0.7) < 0.001 and cancelled["master"] == "70"
+            checks.append("sleep timer cancellation clears automation and restores its base level")
+
+            timer_15.click()
+            page.locator('[data-timer-minutes="30"]').click()
+            replaced = page.evaluate("window.__nocturneTimerState()")
+            ramps = [event for event in replaced["scheduled"] if event["type"] == "ramp"]
+            assert len(ramps) == 1 and abs(ramps[0]["time"] - 1900) < 0.001, replaced
+            checks.append("replacing a sleep timer leaves only the new gain schedule")
+
+            page.locator("#master").evaluate(
+                "e => { e.value = '40'; e.dispatchEvent(new Event('input', {bubbles:true})); }"
+            )
+            changed = page.evaluate("window.__nocturneTimerState()")
+            base_sets = [event for event in changed["scheduled"] if event["type"] == "set"]
+            assert base_sets and all(abs(event["value"] - 0.4) < 0.001 for event in base_sets), changed
+            checks.append("manual master changes update the timer base and replace its schedule")
+
+            page.evaluate("""() => {
+              window.__nocturneAdvanceClock(300000);
+              Object.defineProperty(document, 'hidden', {configurable:true, value:false});
+              document.dispatchEvent(new Event('visibilitychange'));
+            }""")
+            returned = page.evaluate("window.__nocturneTimerState()")
+            ramps = [event for event in returned["scheduled"] if event["type"] == "ramp"]
+            assert len(ramps) == 1 and abs(ramps[0]["time"] - 1900) < 0.001, returned
+            assert "remaining" in returned["status"]
+            checks.append("visible return before expiry preserves and reschedules the timer")
+
+            page.locator("#cancel-timer").click()
+            page.evaluate("""() => {
+              const button = document.querySelector('[data-timer-minutes="15"]');
+              button.dataset.timerMinutes = '0.5';
+              button.click();
+            }""")
+            short_timer = page.evaluate("window.__nocturneTimerState()")
+            short_sets = [
+                event for event in short_timer["scheduled"]
+                if event["type"] == "set" and event["time"] >= short_timer["contextTime"]
+            ]
+            short_ramps = [event for event in short_timer["scheduled"] if event["type"] == "ramp"]
+            assert len(short_ramps) == 1 and abs(short_ramps[0]["time"] - 430) < 0.001, short_timer
+            assert short_sets and all(abs(event["time"] - 400) < 0.001 for event in short_sets), short_timer
+            checks.append("a timer shorter than the fade duration begins its scheduled fade immediately")
+
+            pauses_before_expiry = page.evaluate("window.__nocturneAudioPauseCalls")
+            page.evaluate("""() => {
+              window.__nocturneAdvanceClock(31000);
+              window.dispatchEvent(new Event('pageshow'));
+            }""")
+            expired = page.evaluate("window.__nocturneTimerState()")
+            assert expired["status"].startswith("timer finished") and expired["master"] == "40", expired
+            assert abs(expired["value"] - 0.4) < 0.001, expired
+            assert page.evaluate("window.__nocturneAudioPauseCalls") > pauses_before_expiry
+            checks.append("expired return finishes playback and restores gain for the next resume")
+
+            page.evaluate("""document.querySelector('[data-timer-minutes="0.5"]').dataset.timerMinutes = '15'""")
 
             page.locator("#settings-open").click()
             page.wait_for_selector("#settings-overlay:not([hidden])")

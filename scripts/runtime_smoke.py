@@ -27,6 +27,12 @@ def expect(condition: bool, message: str, checks: list[str]) -> None:
 
 def main() -> int:
     checks: list[str] = []
+    bundled_song = nocturne._read_song("evening-loop")
+    expect(
+        isinstance(bundled_song["meta"], dict) and isinstance(bundled_song["code"], str),
+        "bundled Utility song metadata and code remain readable",
+        checks,
+    )
     invalid_env = os.environ.copy()
     invalid_env.update({
         "NOCTURNE_LAT": "north",
@@ -148,8 +154,170 @@ def main() -> int:
             expect(enabled.status_code == 200 and enabled.json()["modes"]["utility"] is True, "Utility can be deliberately enabled", checks)
             expect(client.get("/api/songs").status_code == 200, "Utility route becomes available only after enablement", checks)
 
+            base_payload = {
+                "slug": "base-song",
+                "meta": {
+                    "title": "Base song",
+                    "artist": "Nocturne",
+                    "bpm": 72,
+                    "key": "C minor",
+                    "tags": ["local"],
+                    "notes": "fixture",
+                    "transpose": 0,
+                    "createdAt": "caller-controlled",
+                },
+                "code": 'note("c3")',
+            }
+            created = client.post("/api/songs", json=base_payload)
+            expect(created.status_code == 200, "Utility create accepts a valid object body", checks)
+            stored_base = client.get("/api/songs/base-song").json()
+            expect(
+                stored_base["meta"]["createdAt"] != "caller-controlled"
+                and stored_base["meta"]["updatedAt"],
+                "Utility timestamps remain server-managed",
+                checks,
+            )
+            updated = client.put(
+                "/api/songs/base-song",
+                json={"meta": {**base_payload["meta"], "title": "Updated"}, "code": 'note("d3")'},
+            )
+            expect(updated.status_code == 200, "Utility update accepts a valid object body", checks)
+            duplicated = client.post(
+                "/api/songs/base-song/duplicate",
+                json={"newSlug": "base-song-copy", "title": "Copied"},
+            )
+            expect(duplicated.status_code == 200, "Utility duplicate accepts a valid object body", checks)
+            numeric_slug = client.post(
+                "/api/songs",
+                json={"slug": 7, "meta": {"title": "invalid slug"}, "code": "x"},
+            )
+            expect(numeric_slug.status_code == 400, "Utility rejects a non-string slug without HTTP 500", checks)
+
+            invalid_json_bodies = {
+                "array": "[]",
+                "string": '"text"',
+                "number": "1",
+                "null": "null",
+                "malformed": '{"broken":',
+            }
+            write_routes = (
+                ("POST", "/api/songs"),
+                ("PUT", "/api/songs/base-song"),
+                ("POST", "/api/songs/base-song/duplicate"),
+            )
+            for method, path in write_routes:
+                for label, raw in invalid_json_bodies.items():
+                    rejected = client.request(
+                        method,
+                        path,
+                        content=raw,
+                        headers={"content-type": "application/json"},
+                    )
+                    expect(
+                        rejected.status_code == 400,
+                        f"{method} {path} rejects {label} JSON with HTTP 400",
+                        checks,
+                    )
+
+            oversized_meta = client.post(
+                "/api/songs",
+                json={"slug": "large-meta", "meta": {"notes": "x" * (nocturne.MAX_SONG_META_BYTES + 1)}, "code": "x"},
+            )
+            expect(oversized_meta.status_code == 413, "Utility rejects metadata above 32 KiB", checks)
+            deep_meta = {"a": {"b": {"c": {"d": {"e": "too deep"}}}}}
+            excessive_depth = client.post(
+                "/api/songs",
+                json={"slug": "deep-meta", "meta": deep_meta, "code": "x"},
+            )
+            expect(excessive_depth.status_code == 400, "Utility rejects metadata beyond four container levels", checks)
+            oversized_code = client.post(
+                "/api/songs",
+                json={"slug": "large-code", "meta": {"title": "large"}, "code": "x" * (nocturne.MAX_SONG_CODE_BYTES + 1)},
+            )
+            expect(oversized_code.status_code == 413, "Utility preserves the 256 KiB code cap", checks)
+
+            before_song_failure = nocturne._read_song("base-song")
+            real_replace = os.replace
+            song_folder = nocturne.SONGS_DIR / "base-song"
+
+            def fail_staged_song_replace(source, destination):
+                source_path = Path(source)
+                if Path(destination) == song_folder and source_path.name.endswith(".tmp"):
+                    raise OSError("simulated staged song replacement failure")
+                return real_replace(source, destination)
+
+            try:
+                with patch.object(nocturne.os, "replace", side_effect=fail_staged_song_replace):
+                    nocturne._write_song(
+                        "base-song",
+                        {"title": "should not replace"},
+                        'note("e3")',
+                        created_at=before_song_failure["meta"]["createdAt"],
+                    )
+            except OSError:
+                pass
+            else:
+                raise AssertionError("simulated staged song replacement failure did not propagate")
+            expect(
+                nocturne._read_song("base-song") == before_song_failure,
+                "failed staged update preserves the previous readable song pair",
+                checks,
+            )
+            expect(
+                not list(nocturne.SONGS_DIR.glob(".*.tmp"))
+                and not list(nocturne.SONGS_DIR.glob(".*.backup")),
+                "song writes leave no staging files after success or simulated failure",
+                checks,
+            )
+
+            with patch.object(nocturne, "_clear_weather_cache", wraps=nocturne._clear_weather_cache) as clear_cache:
+                unchanged = client.put("/api/settings", json={"modes": {"utility": True}})
+                expect(unchanged.status_code == 200 and clear_cache.call_count == 0, "omitting location leaves it unchanged without clearing weather", checks)
+
+                starting_location = unchanged.json()["location"]
+                label_only = client.put("/api/settings", json={"location": {"label": "Bedroom"}})
+                expected_label_only = {**starting_location, "label": "Bedroom"}
+                expect(label_only.status_code == 200 and label_only.json()["location"] == expected_label_only, "label-only location update preserves omitted fields", checks)
+                expect(clear_cache.call_count == 1, "weather cache clears after a real location change", checks)
+
+                repeated = client.put("/api/settings", json={"location": {"label": "Bedroom"}})
+                expect(repeated.status_code == 200 and clear_cache.call_count == 1, "weather cache does not clear when resulting location is unchanged", checks)
+
+                coordinate_only = client.put("/api/settings", json={"location": {"latitude": 12.5}})
+                expect(
+                    coordinate_only.status_code == 200
+                    and coordinate_only.json()["location"] == {**expected_label_only, "latitude": 12.5},
+                    "coordinate-only location update preserves omitted fields",
+                    checks,
+                )
+
+                complete_location = {
+                    "label": "Boundary",
+                    "latitude": -90,
+                    "longitude": 180,
+                    "timezone": "UTC",
+                    "temperature_unit": "celsius",
+                }
+                complete = client.put("/api/settings", json={"location": complete_location})
+                expect(complete.status_code == 200 and complete.json()["location"] == complete_location, "complete finite boundary location is accepted", checks)
+
+            for raw, label in (
+                ('{"location":{"latitude":91}}', "out-of-range latitude"),
+                ('{"location":{"longitude":-181}}', "out-of-range longitude"),
+                ('{"location":{"latitude":NaN}}', "NaN latitude"),
+                ('{"location":{"latitude":Infinity}}', "positive infinity latitude"),
+                ('{"location":{"longitude":-Infinity}}', "negative infinity longitude"),
+                ('{"location":{"latitude":true}}', "boolean latitude"),
+            ):
+                invalid_location = client.put(
+                    "/api/settings",
+                    content=raw,
+                    headers={"content-type": "application/json"},
+                )
+                expect(invalid_location.status_code == 400, f"settings reject {label}", checks)
+
             persisted = json.loads(nocturne.SETTINGS_PATH.read_text(encoding="utf-8"))
-            expect(persisted == enabled.json(), "settings are atomically persisted as valid JSON", checks)
+            expect(persisted == client.get("/api/settings").json(), "settings are atomically persisted as valid JSON", checks)
             temp_pattern = f".{nocturne.SETTINGS_PATH.name}.*.tmp"
             expect(not list(nocturne.CONFIG_DIR.glob(temp_pattern)), "successful settings writes leave no temporary file", checks)
 

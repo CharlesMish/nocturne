@@ -5,6 +5,8 @@ __pycache__/
 # Generated release/review bundles
 dist/
 review_bundles/
+verification-artifacts/
+verification-logs/
 /*.zip
 
 # Root-level scratch media never belongs to the product package

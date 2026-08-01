@@ -12,7 +12,7 @@ Nocturne's Onsen/Sky mixer has eight active slots. The public catalog can be lar
 - two install-generated **Experimental** thunder candidates;
 - three non-public exclusion records: an original seam-risk source, its transformed audition candidate, and one unshipped historical mismatch record.
 
-The browser contains a generated fallback for resilience. Never hand-maintain it as a second catalog: run `python scripts/sync_release_data.py` after manifest edits and `--check` before release.
+The browser contains a generated fallback for resilience. Never hand-maintain it as a second catalog: run `python3 scripts/sync_release_data.py` after manifest edits and `.venv/bin/python scripts/sync_release_data.py --check` before release.
 
 ## Status and availability fields
 
@@ -51,10 +51,10 @@ Recorded release entries should additionally carry creator, source URL/title, li
 ## Import and synchronization
 
 ```bash
-python scripts/import_sound_pack.py sounds/inbox \
+python3 scripts/import_sound_pack.py sounds/inbox \
   --metadata-csv audio_sources.csv \
   --generate-credits
-python scripts/sync_release_data.py --check
+.venv/bin/python scripts/sync_release_data.py --check
 node scripts/release-audit.mjs --source
 ```
 

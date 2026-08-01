@@ -37,6 +37,7 @@ from urllib.parse import urlparse
 ROOT = Path(__file__).resolve().parent
 VENV = ROOT / ".venv"
 CONSTRAINTS = ROOT / "constraints.txt"
+DEFAULT_NOISE_SECONDS = 60
 
 
 def _bin(name: str) -> Path:
@@ -66,11 +67,11 @@ def run_fetch_media(cmd: list[str | Path]) -> None:
     # Optional ambience must never block installation. The fetcher may fail
     # because Pixabay changed page markup, rejected a headless request, returned
     # HTML for a CDN URL, or because one file failed while others succeeded.
-    # In all of those cases Nocturne should still finish with generated noise.
+    # In all of those cases Nocturne should still finish with its bundled pack.
     print("\nOptional ambient MP3s were not all downloaded.")
-    print("Nocturne is still installed and will run with the procedural starter pack.")
+    print("Nocturne is still installed and will run with the bundled Core Sound Pack.")
     print("To add the full ambience set later:")
-    print("  1. python scripts/fetch_media.py --init --open-source-pages")
+    print("  1. python3 scripts/fetch_media.py --init --open-source-pages")
     print("  2. Paste fresh cdn.pixabay.com/audio/...mp3 or cdn.pixabay.com/download/audio/...mp3 URLs into media_sources.json if needed")
     print("  3. python3 install.py --fetch-media")
 
@@ -147,7 +148,29 @@ def manifest_has_source_pages(path: Path) -> bool:
     return False
 
 
-def main() -> int:
+def _procedural_retry_command(seconds: int) -> str:
+    if platform.system().lower().startswith("win"):
+        python = r".venv\Scripts\python.exe"
+    else:
+        python = ".venv/bin/python"
+    return f"{python} scripts/generate_noise.py --seconds {seconds}"
+
+
+def run_generate_noise(python: Path, seconds: int) -> str:
+    """Run optional procedural generation without undoing required setup."""
+    try:
+        run([python, ROOT / "scripts" / "generate_noise.py", "--seconds", str(seconds)])
+    except (OSError, subprocess.CalledProcessError) as exc:
+        detail = f"exit {exc.returncode}" if isinstance(exc, subprocess.CalledProcessError) else str(exc)
+        print(f"\nOptional procedural sound generation failed ({detail}).")
+        print("Nocturne remains usable with the bundled curated Core Sound Pack.")
+        print("Try procedural generation later with:")
+        print(f"  {_procedural_retry_command(seconds)}")
+        return "failed"
+    return "generated"
+
+
+def main(argv: list[str] | None = None) -> int:
     if sys.version_info < (3, 10):
         print("Nocturne needs Python 3.10 or newer.")
         print(f"You are running Python {sys.version.split()[0]}.")
@@ -156,13 +179,18 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Install Nocturne locally.")
     parser.add_argument("--skip-deps", action="store_true", help="reuse an existing prepared .venv; do not run pip")
     parser.add_argument("--skip-noise", action="store_true", help="do not generate procedural starter beds")
-    parser.add_argument("--noise-seconds", type=int, default=180, help="duration per generated starter file; default: 180")
+    parser.add_argument(
+        "--noise-seconds",
+        type=int,
+        default=DEFAULT_NOISE_SECONDS,
+        help=f"duration per generated starter file; default: {DEFAULT_NOISE_SECONDS}",
+    )
     parser.add_argument("--fetch-media", action="store_true", help="force download of ambience from media_sources.json (or .default.json)")
     parser.add_argument("--no-fetch-media", action="store_true", help="never attempt to download third-party MP3s, even if a manifest with real URLs exists")
     parser.add_argument("--overwrite-media", action="store_true", help="replace existing downloaded media")
     parser.add_argument("--host", default="127.0.0.1", help="host printed in the final run command")
     parser.add_argument("--port", default="8000", help="port printed in the final run command")
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     if args.noise_seconds < 1:
         parser.error("--noise-seconds must be at least 1")
 
@@ -208,8 +236,7 @@ def main() -> int:
             print("Rerun without --skip-deps so pip can prepare it.")
             return 2
 
-    if not args.skip_noise:
-        run([python, ROOT / "scripts" / "generate_noise.py", "--seconds", str(args.noise_seconds)])
+    generation_outcome = "skipped by user" if args.skip_noise else run_generate_noise(python, args.noise_seconds)
 
     # Media fetch decision: legacy Pixabay fetching is explicit-only.
     media_manifest = ROOT / "media_sources.json"
@@ -232,12 +259,18 @@ def main() -> int:
     elif args.fetch_media and not chosen_manifest:
         print("\nLegacy media fetch requested, but no media_sources manifest was found.")
     elif not args.no_fetch_media:
-        print("\nSkipping legacy third-party MP3 download; procedural starter pack was generated.")
+        print("\nSkipping legacy third-party MP3 download; it is not required for normal installation.")
         if chosen_manifest and not has_real_urls:
             print(f"{chosen_manifest.name} is a deprecated placeholder manifest with no direct download URLs.")
         print("Preferred path for real rain/fire/night sounds is the bundled Core Sound Pack in sounds/library/.")
 
     print("\nNocturne is installed.")
+    if generation_outcome == "generated":
+        print(f"Procedural beds: generated ({args.noise_seconds} seconds per file).")
+    elif generation_outcome == "skipped by user":
+        print("Procedural beds: skipped by user; the bundled Core Sound Pack is ready.")
+    else:
+        print("Procedural beds: generation failed; the bundled Core Sound Pack is ready.")
     if platform.system().lower().startswith("win"):
         print("Run it with:")
         print(f"  .venv\\Scripts\\python.exe run_nocturne.py --host {args.host} --port {args.port}")

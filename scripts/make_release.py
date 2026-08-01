@@ -18,6 +18,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterable
 
+from path_safety import resolve_catalog_path
+
 ROOT = Path(__file__).resolve().parents[1]
 TRANSIENT_NAMES = {
     "release-audit.json",
@@ -32,6 +34,10 @@ ROOT_MEDIA_SUFFIXES = {".aac", ".flac", ".m4a", ".mp3", ".mp4", ".ogg", ".opus",
 LOCAL_ONLY_PATHS = {
     Path("media_sources.json"),
     Path("sounds/MEDIA_MANIFEST.generated.json"),
+    Path("IMPLEMENTATION_REPORT.md"),
+    Path("VERIFICATION_REPORT.md"),
+    Path("CHANGE_SUMMARY.md"),
+    Path("NOCTURNE_ALPHA13_HARDENING.patch"),
 }
 CONFIG_PRODUCT_FILES = {
     Path("config/.gitkeep"),
@@ -60,8 +66,9 @@ def generated_audio_paths(root: Path) -> set[Path]:
         if sound.get("availability") != "install_generated":
             continue
         src = str(sound.get("src", ""))
-        if src.startswith("/sounds/"):
-            paths.add((root / src.lstrip("/")).resolve())
+        if not src.startswith("/sounds/"):
+            raise ValueError(f"Generated sound path is outside /sounds/: {src}")
+        paths.add(resolve_catalog_path(root, src.lstrip("/"), root / "sounds", "generated sound path"))
     return paths
 
 
@@ -116,9 +123,13 @@ def detached_evidence_records(root: Path) -> list[dict[str, object]]:
         for raw_path, raw_size, raw_hash in candidates:
             if not raw_path:
                 continue
-            path = str(raw_path)
-            if not path.startswith("sounds/inbox/"):
-                raise ValueError(f"Detached evidence path is outside sounds/inbox/: {path}")
+            candidate = resolve_catalog_path(
+                root,
+                str(raw_path),
+                root / "sounds" / "inbox",
+                "detached evidence path",
+            )
+            path = candidate.relative_to(root.resolve()).as_posix()
             if raw_size is None or not raw_hash:
                 raise ValueError(f"Detached evidence metadata is incomplete: {path}")
             records.append({"path": path, "size_bytes": int(raw_size), "sha256": str(raw_hash)})
@@ -128,7 +139,12 @@ def detached_evidence_records(root: Path) -> list[dict[str, object]]:
 def detached_evidence_files(root: Path) -> list[Path]:
     files: list[Path] = []
     for record in detached_evidence_records(root):
-        path = root / str(record["path"])
+        path = resolve_catalog_path(
+            root,
+            str(record["path"]),
+            root / "sounds" / "inbox",
+            "detached evidence path",
+        )
         if not path.is_file():
             continue
         if path.stat().st_size != record["size_bytes"] or sha256(path) != record["sha256"]:

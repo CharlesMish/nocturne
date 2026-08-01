@@ -1,7 +1,7 @@
 {
   "schema": "nocturne.release-manifest.v2",
   "profile": "product-source",
-  "package": "nocturne-v0.1.0-alpha.13-dev",
+  "package": "NOCTURNE_ALPHA13_HARDENING_RC",
   "build": {
     "schema": "nocturne.build.v2",
     "version": "0.1.0-alpha.13-dev",
@@ -13,8 +13,8 @@
     "feedback_label": "v0.1.0-alpha.13-dev · 2026-07-13 · visual-appearance-dev"
   },
   "generated_at_utc": "2026-07-13T06:01:00Z",
-  "file_count": 115,
-  "total_payload_bytes_excluding_manifest": 12779324,
+  "file_count": 120,
+  "total_payload_bytes_excluding_manifest": 12832634,
   "manifest_self_excluded": true,
   "evidence_detached": true,
   "detached_evidence_file_count": 3,
@@ -39,8 +39,8 @@
   "files": [
     {
       "path": ".gitattributes",
-      "size_bytes": 20,
-      "sha256": "65b1023623fb87849b0d7e7a39141bd9d2662d98dcd55fefc9e8bf1683d2d934"
+      "size_bytes": 111,
+      "sha256": "310dff7a8893ac643c020c47cf89f9cfb47a777978a99bf9bfc4f488809a8255"
     },
     {
       "path": ".github/ISSUE_TEMPLATE/bug.yml",
@@ -63,14 +63,19 @@
       "sha256": "330ca5fb70f32b7fa92d185e42f37d9a69cb1c0cc50a329c60c969ce5929356f"
     },
     {
+      "path": ".github/workflows/deterministic.yml",
+      "size_bytes": 1876,
+      "sha256": "857551790e8a5fb384ffcf89268fdd5c76ad0195df8a2baefb72bc2273e3d9ab"
+    },
+    {
       "path": ".gitignore",
-      "size_bytes": 952,
-      "sha256": "891369c4aa3e5e6ab7a95a391c0628b4860d73bf5b1f0299cd195dbece020728"
+      "size_bytes": 995,
+      "sha256": "6a976095880a20e143c320504c79ee12d61459bb1f510127f7054359ff36ae23"
     },
     {
       "path": "AGENTS.md",
-      "size_bytes": 1084,
-      "sha256": "4d7ba30664e22386d2590800cf7ad8cf2f2f1a272f7a779a95d4ee5cb4f5af42"
+      "size_bytes": 1749,
+      "sha256": "53e093a44650da68b3f20fe3da3c7c104c9dfb27b08dd7f43d4c1a87c671f511"
     },
     {
       "path": "ALPHA_FEEDBACK.md",
@@ -89,8 +94,8 @@
     },
     {
       "path": "CHANGELOG.md",
-      "size_bytes": 5410,
-      "sha256": "aeffa5e84e6d9c67f59e53065c99298f78b8827ec378a38465fb936f9e560077"
+      "size_bytes": 6399,
+      "sha256": "e4dd0a5ac93846b110c3c951932dbc23661be98957c60907f53b29547373b09a"
     },
     {
       "path": "Install Nocturne.bat",
@@ -119,8 +124,8 @@
     },
     {
       "path": "README.md",
-      "size_bytes": 7451,
-      "sha256": "5c7ad588ae730fe8dc9894e9d61d4ab378b0bd29d2603d9686b789fdd9401a43"
+      "size_bytes": 8338,
+      "sha256": "57d177ea97c7b181eb19e1863f59bef2630a225dc107d1690e2f63c7ad4a7c6a"
     },
     {
       "path": "Start Nocturne LAN.bat",
@@ -199,8 +204,8 @@
     },
     {
       "path": "docs/PROCEDURAL_STARTER_SOUNDS.md",
-      "size_bytes": 1671,
-      "sha256": "72dbc196a2b2bcb2d9f6d65e4f4c713a7fceba7a112b5970a5bbb9f6ae0d818a"
+      "size_bytes": 2097,
+      "sha256": "6fb068e9625567b84516bf773a5367d49cf907aac6f37588b4faea290a8ff94d"
     },
     {
       "path": "docs/PROFILES.md",
@@ -224,8 +229,8 @@
     },
     {
       "path": "docs/SOUND_LIBRARY.md",
-      "size_bytes": 2581,
-      "sha256": "a8ab12e4624c0d6780409e8b48f835dc9c955323470b3b33b317c57dbd97a3d3"
+      "size_bytes": 2639,
+      "sha256": "31775da2e0ea277a1b4c9e26d3f5a23a79773b8b83805fb0df56cee390f841f0"
     },
     {
       "path": "docs/screenshots/README.md",
@@ -254,8 +259,8 @@
     },
     {
       "path": "install.py",
-      "size_bytes": 10579,
-      "sha256": "8bbd07965090d47754ff46b0405e9acb680456a41eba0aa63e414fd78386e0dc"
+      "size_bytes": 12064,
+      "sha256": "cb8376105fadee87362d02a1b2ba0e7a90182b6edfff4d406a13bed0845a3bc3"
     },
     {
       "path": "install.sh",
@@ -264,8 +269,8 @@
     },
     {
       "path": "main.py",
-      "size_bytes": 28047,
-      "sha256": "21d278727c4880854783dbb433c1a1df1f38137ba74f9d1450dca707bdbd8e3a"
+      "size_bytes": 32926,
+      "sha256": "02412e67f6d828721c2bc466e19973972682e9866ef09281843052dac8ebb285"
     },
     {
       "path": "media_sources.default.json",
@@ -314,8 +319,8 @@
     },
     {
       "path": "scripts/README.md",
-      "size_bytes": 4303,
-      "sha256": "d2b9868152e831b58066928883f7ed634c7ef0594440e01d3d3df02744af62fb"
+      "size_bytes": 5695,
+      "sha256": "43fb01be242009cbb371580ca81af6d9fa260403ba5fbf7663e7ade018de4ec9"
     },
     {
       "path": "scripts/bake_seamless_loop.py",
@@ -324,8 +329,8 @@
     },
     {
       "path": "scripts/browser_smoke.py",
-      "size_bytes": 45876,
-      "sha256": "8473b81979a2bcd58b725a4bffb866d945bd4a6de1f3976471975599ca19b4b7"
+      "size_bytes": 55024,
+      "sha256": "55980094aa321c3d46fe4a2a2dfe40afa2ff495c69e3eade94fdb2c2801e8ff6"
     },
     {
       "path": "scripts/fetch_media.py",
@@ -334,18 +339,23 @@
     },
     {
       "path": "scripts/finalize_core_sound_pack.py",
-      "size_bytes": 10724,
-      "sha256": "d68f20d005dd1b6a82f38625cc468d1d13eb7cac520b3e70d2f54ac09792676d"
+      "size_bytes": 11064,
+      "sha256": "604cc3f9b5aaff70ab06e1751108141ed9a92465c2673e96d9c31991f9acd838"
     },
     {
       "path": "scripts/generate_noise.py",
-      "size_bytes": 22462,
-      "sha256": "09cdd4ed0cdc779858da7f2059cd6a0bdf048f6b88bba8619a42c5279807bbc8"
+      "size_bytes": 22788,
+      "sha256": "420dd2cfa001a4fa42ad2337aff3ebbfd5b40ce64c69b3aafb5068ad276aa4bd"
     },
     {
       "path": "scripts/import_sound_pack.py",
       "size_bytes": 9795,
       "sha256": "7eb9094affcc4c942d49fda7e84eacd43571f2594c33d35ff13d9606a0a7feaf"
+    },
+    {
+      "path": "scripts/installer_smoke.py",
+      "size_bytes": 6165,
+      "sha256": "dee101bd230ffd8f13f35cdf0f8ccb840c75dee1a6d0fd8b31dfd1eff0ae44ce"
     },
     {
       "path": "scripts/legacy/Fetch Ambient Media.bat",
@@ -359,8 +369,23 @@
     },
     {
       "path": "scripts/make_release.py",
-      "size_bytes": 13230,
-      "sha256": "7714da4c66f35f7430cb41d23a23e0d1e105037effd04afe4489e809b56b19a3"
+      "size_bytes": 13778,
+      "sha256": "6380d0a1e8e182ca2b711deb538f38e6d2cf99c592f9d239c8836a49310af681"
+    },
+    {
+      "path": "scripts/path_safety.mjs",
+      "size_bytes": 1436,
+      "sha256": "13c81a289ff2ebaca04415cf54cdeffcc86968a8ed65aa26b90d81b5884bf6f9"
+    },
+    {
+      "path": "scripts/path_safety.py",
+      "size_bytes": 1882,
+      "sha256": "e9128a2ed2429040aa55e4307de8ca1f1b08e5ac33d7e98854bd3adfb999e9ae"
+    },
+    {
+      "path": "scripts/path_safety_smoke.py",
+      "size_bytes": 5927,
+      "sha256": "b77f6bfb135d9255d05432957f11753450f0b5d6383ca4531ccc9bcaded6c874"
     },
     {
       "path": "scripts/profile_smoke.py",
@@ -369,23 +394,23 @@
     },
     {
       "path": "scripts/release-audit.mjs",
-      "size_bytes": 26760,
-      "sha256": "3af1d70049b4fe7e56993fa5a7e9028595826896ed37b07dd5065450de2c4343"
+      "size_bytes": 28069,
+      "sha256": "121585f23617b01258b8b920c1c9827696f4b81f00d7db2bcc0acbc38a2d14d3"
     },
     {
       "path": "scripts/release_builder_smoke.py",
-      "size_bytes": 5316,
-      "sha256": "c35258fdf99d10c952192daa828571cc8265dca886bdf9c234e23843d1c07b05"
+      "size_bytes": 8254,
+      "sha256": "03ab7a702a234751c25d573fece85e263d6cd98318728eda0b0c384f72f0cbf3"
     },
     {
       "path": "scripts/rename_freesound_downloads.py",
-      "size_bytes": 11740,
-      "sha256": "34c7b0a2cf40d921c3bc80c6596fd704f4d24d5bc9aa58e9597b725bd8628628"
+      "size_bytes": 12288,
+      "sha256": "7a56834fa71ef06c372f628d369151d2032a1c3179443c8239202f70ac9320cf"
     },
     {
       "path": "scripts/runtime_smoke.py",
-      "size_bytes": 9549,
-      "sha256": "727e3bbda46f30fe8bc836d80b0a36fac7019395fe4038e39710bde35fcf2fa8"
+      "size_bytes": 18022,
+      "sha256": "c3a58a17209ab8a362e6077147846adea8c8a8e1ce806df6b5c3d1ca62bf018b"
     },
     {
       "path": "scripts/stamp_build.py",
@@ -589,8 +614,8 @@
     },
     {
       "path": "static/index.html",
-      "size_bytes": 312354,
-      "sha256": "366ad11712c021a6ecbff66a79a9138040e291600aefd7a7f821f530de541185"
+      "size_bytes": 313833,
+      "sha256": "09dffd3e87c511951d3936c59956799c7398dd5b74c7b0328cc27fb067632a29"
     },
     {
       "path": "static/manifest.webmanifest",

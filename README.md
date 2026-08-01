@@ -83,6 +83,10 @@ Linux / Raspberry Pi:
 ./.venv/bin/python run_nocturne.py
 ```
 
+The installer attempts 17 optional procedural beds at 60 seconds each. The
+bundled curated Core Sound Pack works immediately if generation is skipped or
+fails; use `python3 install.py --noise-seconds 180` to request longer beds.
+
 Run the Pi profile explicitly:
 
 ```bash
@@ -136,7 +140,7 @@ be technical. A useful hardware report includes:
 Use the GitHub issue templates or run:
 
 ```bash
-python scripts/support_report.py
+python3 scripts/support_report.py
 ```
 
 The report is created locally for review and is never uploaded automatically.
@@ -165,12 +169,23 @@ evidence bundle. See [Repository surfaces](docs/REPOSITORY_SURFACES.md).
 Useful source checks:
 
 ```bash
-python scripts/sync_release_data.py --check
-python check_audio_contract.py --source
+.venv/bin/python scripts/sync_release_data.py --check
+.venv/bin/python check_audio_contract.py --source
 node scripts/release-audit.mjs --source
-python scripts/runtime_smoke.py
-python scripts/profile_smoke.py
+.venv/bin/python scripts/runtime_smoke.py
+.venv/bin/python scripts/profile_smoke.py
+.venv/bin/python scripts/installer_smoke.py
+.venv/bin/python scripts/path_safety_smoke.py
+.venv/bin/python scripts/release_builder_smoke.py
+.venv/bin/python -m compileall -q .
 ```
+
+The audit prints to stdout without creating a root report. Use
+`--report verification-artifacts/release-audit.json` only when retaining an
+artifact deliberately. GitHub Actions runs the deterministic source suite on
+Python 3.10 and 3.12; browser smoke is isolated as QA-only because Playwright
+and Chromium are not runtime dependencies. Run both profiles before a UI
+release claim when Chromium is available, or record `NOT RUN` honestly.
 
 These checks do not establish listening comfort, Pi 3 performance, real
 screen-reader quality, phone lock-screen survival, battery/heat behavior, or an

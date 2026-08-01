@@ -45,6 +45,7 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[1]
 SOUNDS_DIR = ROOT / "sounds"
 SAMPLE_RATE = 44_100
+DEFAULT_SECONDS = 60
 
 # Conservative peaks keep stacked mixer channels gentle.
 PEAKS = {
@@ -444,17 +445,32 @@ def save_wav(path: Path, audio: np.ndarray) -> None:
         f.writeframes(audio_int16.tobytes())
 
 
-def main() -> int:
+def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Generate Nocturne procedural starter ambience.")
-    parser.add_argument("--seconds", type=int, default=180, help="duration per file; default: 180")
+    parser.add_argument(
+        "--seconds",
+        type=int,
+        default=DEFAULT_SECONDS,
+        help=f"duration per file; default: {DEFAULT_SECONDS}",
+    )
     parser.add_argument("--seed", type=int, default=20260609, help="deterministic random seed")
     parser.add_argument("--overwrite", action="store_true", help="replace existing files")
     parser.add_argument("--no-loop-blend", action="store_true", help="skip tail/head crossfade (files keep full --seconds length)")
     parser.add_argument("--only", nargs="*", choices=sorted(PEAKS), help="generate only the named files")
-    args = parser.parse_args()
+    return parser
+
+
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    parser = build_parser()
+    args = parser.parse_args(argv)
 
     if args.seconds < 1:
-        raise SystemExit("--seconds must be at least 1")
+        parser.error("--seconds must be at least 1")
+    return args
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = parse_args(argv)
 
     SOUNDS_DIR.mkdir(exist_ok=True)
     n = SAMPLE_RATE * args.seconds

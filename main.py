@@ -1,6 +1,12 @@
 """
 Nocturne — five-mode sleep app (onsen, sky, radio, utility, dashboard).
 
+Audio layout:
+  * sounds/library/ — bundled curated recordings used by Tonight/Core
+  * sounds/*.wav   — optional procedural beds generated during installation
+  * sounds/radio/  — owner-supplied personal Radio tracks
+  * sounds/inbox/  — non-public curation and quarantine intake
+
 Modes:
   * Onsen: the original ambient mixer + looping rain video
   * Sky:   the ambient mixer + a moon-phase / local-weather visual
@@ -10,8 +16,8 @@ Modes:
 
 Endpoints:
   GET  /              — the web UI
-  GET  /api/sounds    — ambient mixer files in ./sounds/ (one level deep, so
-                        ./sounds/radio/ is automatically excluded)
+  GET  /api/sounds    — compatibility listing for optional generated root audio
+                        in ./sounds/ (curated library and Radio have own surfaces)
   GET  /api/radio     — tracks in ./sounds/radio/
   GET  /api/weather   — cached current weather from Open-Meteo (graceful fail)
   GET  /api/geocode   — small city/place search via Open-Meteo Geocoding
@@ -40,6 +46,7 @@ import math
 import re
 import shutil
 import tempfile
+import uuid
 from contextlib import asynccontextmanager
 from pathlib import Path
 from pathlib import PurePosixPath
@@ -197,6 +204,8 @@ DEFAULT_SETTINGS: dict[str, Any] = {
 }
 VALID_MODE_KEYS = set(DEFAULT_SETTINGS["modes"].keys())
 MAX_SONG_CODE_BYTES = 256 * 1024
+MAX_SONG_META_BYTES = 32 * 1024
+MAX_SONG_META_DEPTH = 4
 MAX_LOCATION_LABEL_LEN = 80
 MAX_TIMEZONE_LEN = 80
 
@@ -208,12 +217,24 @@ def _settings_copy() -> dict[str, Any]:
 async def _json_body(request: Request) -> Any:
     try:
         return await request.json()
-    except json.JSONDecodeError as exc:
+    except (json.JSONDecodeError, UnicodeDecodeError, RecursionError) as exc:
         raise HTTPException(status_code=400, detail="invalid JSON body") from exc
 
 
-def _validate_location(raw: Any, *, strict: bool = False) -> dict[str, Any]:
-    fallback = _settings_copy()["location"]
+async def _json_object_body(request: Request) -> dict[str, Any]:
+    payload = await _json_body(request)
+    if not isinstance(payload, dict):
+        raise HTTPException(status_code=400, detail="JSON body must be an object")
+    return payload
+
+
+def _validate_location(
+    raw: Any,
+    *,
+    strict: bool = False,
+    fallback: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    fallback = json.loads(json.dumps(fallback if fallback is not None else _settings_copy()["location"]))
     if not isinstance(raw, dict):
         if strict:
             raise HTTPException(status_code=400, detail="location must be an object")
@@ -252,6 +273,10 @@ def _validate_location(raw: Any, *, strict: bool = False) -> dict[str, Any]:
                 raise HTTPException(status_code=400, detail=f"{key} must be a number")
             continue
         value = float(value)
+        if not math.isfinite(value):
+            if strict:
+                raise HTTPException(status_code=400, detail=f"{key} must be finite")
+            continue
         if value < low or value > high:
             if strict:
                 raise HTTPException(status_code=400, detail=f"{key} must be between {low} and {high}")
@@ -463,7 +488,11 @@ async def put_settings(request: Request) -> dict[str, Any]:
             current["modes"][key] = value
     incoming_location = payload.get("location")
     if incoming_location is not None:
-        current["location"] = _validate_location(incoming_location, strict=True)
+        current["location"] = _validate_location(
+            incoming_location,
+            strict=True,
+            fallback=current["location"],
+        )
     if not any(current["modes"].values()):
         raise HTTPException(status_code=400, detail="at least one mode must remain enabled")
     saved = _save_settings(current)
@@ -485,8 +514,12 @@ def _audio_entry(path: Path, url_prefix: str) -> dict[str, str]:
 
 @app.get("/api/sounds")
 def list_sounds() -> list[dict[str, str]]:
-    """Ambient mixer files. iterdir() is non-recursive, so ./sounds/radio/
-    is automatically excluded — its contents live in /api/radio."""
+    """Compatibility listing for optional install-generated root audio.
+
+    The curated catalog lives in sounds/library/ and Radio lives in
+    sounds/radio/. This non-recursive endpoint remains useful after installation
+    generates procedural WAV beds directly under sounds/.
+    """
     if not SOUNDS_DIR.exists():
         return []
     return [
@@ -516,8 +549,8 @@ def list_radio() -> list[dict[str, str]]:
 VALID_SLUG = re.compile(r"^[a-z0-9][a-z0-9-]{0,59}$")
 
 
-def _check_slug(slug: str) -> None:
-    if not VALID_SLUG.fullmatch(slug or ""):
+def _check_slug(slug: Any) -> None:
+    if not isinstance(slug, str) or not VALID_SLUG.fullmatch(slug):
         raise HTTPException(status_code=400, detail="invalid slug")
 
 
@@ -539,23 +572,120 @@ def _read_song(slug: str) -> dict[str, Any]:
         raise HTTPException(status_code=404, detail="not found")
     except json.JSONDecodeError as exc:
         raise HTTPException(status_code=500, detail=f"bad meta.json for {slug}: {exc}")
+    if not isinstance(meta, dict):
+        raise HTTPException(status_code=500, detail=f"bad meta.json for {slug}: expected object")
     return {"slug": slug, "meta": meta, "code": code}
 
 
-def _write_song(slug: str, meta: dict[str, Any], code: str) -> None:
-    if len(str(code).encode("utf-8")) > MAX_SONG_CODE_BYTES:
+def _validate_song_meta_value(value: Any, *, depth: int = 0) -> None:
+    if isinstance(value, (dict, list)):
+        if depth >= MAX_SONG_META_DEPTH:
+            raise HTTPException(status_code=400, detail="song metadata is nested too deeply")
+        if isinstance(value, dict) and not all(isinstance(key, str) for key in value):
+            raise HTTPException(status_code=400, detail="song metadata keys must be strings")
+        items = value.values() if isinstance(value, dict) else value
+        for item in items:
+            _validate_song_meta_value(item, depth=depth + 1)
+        return
+    if value is None or isinstance(value, (str, bool, int)):
+        return
+    if isinstance(value, float) and math.isfinite(value):
+        return
+    raise HTTPException(status_code=400, detail="song metadata contains an invalid JSON value")
+
+
+def _prepare_song_files(
+    meta: Any,
+    code: Any,
+    *,
+    created_at: str | None = None,
+) -> tuple[str, str]:
+    if not isinstance(meta, dict) or not isinstance(code, str):
+        raise HTTPException(status_code=400, detail="meta object and code string required")
+    if len(code.encode("utf-8")) > MAX_SONG_CODE_BYTES:
         raise HTTPException(status_code=413, detail="song code is too large")
-    folder = _song_dir(slug)
-    folder.mkdir(parents=True, exist_ok=True)
+
+    _validate_song_meta_value(meta)
     now = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
-    meta = dict(meta or {})
-    meta["updatedAt"] = now
-    meta.setdefault("createdAt", now)
-    (folder / "meta.json").write_text(
-        json.dumps(meta, indent=2, ensure_ascii=False) + "\n",
-        encoding="utf-8",
-    )
-    (folder / "code.js").write_text(str(code), encoding="utf-8")
+    prepared = dict(meta)
+    prepared.pop("createdAt", None)
+    prepared.pop("updatedAt", None)
+    prepared["createdAt"] = created_at or now
+    prepared["updatedAt"] = now
+    _validate_song_meta_value(prepared)
+    try:
+        canonical = json.dumps(
+            prepared,
+            ensure_ascii=False,
+            allow_nan=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+    except (TypeError, ValueError) as exc:
+        raise HTTPException(status_code=400, detail="song metadata must be valid JSON") from exc
+    if len(canonical) > MAX_SONG_META_BYTES:
+        raise HTTPException(status_code=413, detail="song metadata is too large")
+    return json.dumps(prepared, indent=2, ensure_ascii=False, allow_nan=False) + "\n", code
+
+
+def _write_text_fsynced(path: Path, payload: str) -> None:
+    with path.open("w", encoding="utf-8", newline="\n") as handle:
+        handle.write(payload)
+        handle.flush()
+        os.fsync(handle.fileno())
+
+
+def _fsync_directory(path: Path) -> None:
+    try:
+        descriptor = os.open(path, os.O_RDONLY)
+    except OSError:
+        return
+    try:
+        os.fsync(descriptor)
+    except OSError:
+        pass
+    finally:
+        os.close(descriptor)
+
+
+def _write_song(
+    slug: str,
+    meta: Any,
+    code: Any,
+    *,
+    created_at: str | None = None,
+) -> None:
+    folder = _song_dir(slug)
+    meta_payload, code_payload = _prepare_song_files(meta, code, created_at=created_at)
+    SONGS_DIR.mkdir(parents=True, exist_ok=True)
+    stage = Path(tempfile.mkdtemp(prefix=f".{slug}.", suffix=".tmp", dir=SONGS_DIR))
+    backup = SONGS_DIR / f".{slug}.{uuid.uuid4().hex}.backup"
+    previous_moved = False
+    try:
+        _write_text_fsynced(stage / "meta.json", meta_payload)
+        _write_text_fsynced(stage / "code.js", code_payload)
+        _fsync_directory(stage)
+        if folder.exists():
+            os.replace(folder, backup)
+            previous_moved = True
+        try:
+            os.replace(stage, folder)
+        except BaseException:
+            if previous_moved and backup.exists() and not folder.exists():
+                os.replace(backup, folder)
+                previous_moved = False
+            raise
+        _fsync_directory(SONGS_DIR)
+        if backup.exists():
+            shutil.rmtree(backup)
+            previous_moved = False
+    finally:
+        if stage.exists():
+            shutil.rmtree(stage)
+        # A successful rollback removes the backup. If rollback itself failed,
+        # retain the complete previous pair rather than deleting recoverable data.
+        if backup.exists() and folder.exists():
+            shutil.rmtree(backup)
 
 
 @app.get("/api/songs")
@@ -572,6 +702,8 @@ def list_songs() -> list[dict[str, Any]]:
             meta = json.loads((folder / "meta.json").read_text(encoding="utf-8"))
         except Exception:
             continue
+        if not isinstance(meta, dict):
+            continue
         songs.append({"slug": folder.name, **meta})
     songs.sort(key=lambda item: item.get("updatedAt", ""), reverse=True)
     return songs
@@ -586,7 +718,7 @@ def get_song(slug: str) -> dict[str, Any]:
 @app.post("/api/songs")
 async def create_song(request: Request) -> dict[str, str]:
     _require_utility_enabled()
-    payload = await _json_body(request)
+    payload = await _json_object_body(request)
     slug = payload.get("slug", "")
     _check_slug(slug)
     folder = SONGS_DIR / slug
@@ -605,15 +737,12 @@ async def update_song(slug: str, request: Request) -> dict[str, str]:
     _require_utility_enabled()
     _check_slug(slug)
     existing = _read_song(slug)
-    payload = await _json_body(request)
+    payload = await _json_object_body(request)
     meta = payload.get("meta")
     code = payload.get("code")
     if not isinstance(meta, dict) or not isinstance(code, str):
         raise HTTPException(status_code=400, detail="meta and code required")
-    meta = dict(meta)
-    if existing["meta"].get("createdAt"):
-        meta["createdAt"] = existing["meta"]["createdAt"]
-    _write_song(slug, meta, code)
+    _write_song(slug, meta, code, created_at=existing["meta"].get("createdAt"))
     return {"slug": slug}
 
 
@@ -621,13 +750,16 @@ async def update_song(slug: str, request: Request) -> dict[str, str]:
 async def duplicate_song(slug: str, request: Request) -> dict[str, str]:
     _require_utility_enabled()
     src = _read_song(slug)
-    payload = await _json_body(request)
+    payload = await _json_object_body(request)
     new_slug = payload.get("newSlug", "")
     _check_slug(new_slug)
     if (SONGS_DIR / new_slug).exists():
         raise HTTPException(status_code=409, detail="newSlug already exists")
     new_meta = dict(src["meta"])
-    new_meta["title"] = payload.get("title") or f"{new_meta.get('title') or slug} (copy)"
+    title = payload.get("title")
+    if title is not None and not isinstance(title, str):
+        raise HTTPException(status_code=400, detail="title must be a string")
+    new_meta["title"] = title or f"{new_meta.get('title') or slug} (copy)"
     new_meta.pop("createdAt", None)
     _write_song(new_slug, new_meta, src["code"])
     return {"slug": new_slug}

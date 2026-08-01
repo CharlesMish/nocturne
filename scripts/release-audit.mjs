@@ -8,20 +8,47 @@
  * provenance filenames or narrative documentation.
  */
 import { createHash } from "node:crypto";
-import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
-import { dirname, extname, join, relative, resolve, sep } from "node:path";
+import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import { dirname, extname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+import { resolveCatalogPath } from "./path_safety.mjs";
 
-const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const argv = new Set(process.argv.slice(2));
-const installedMode = argv.has("--installed");
-const unknownArgs = [...argv].filter((arg) => arg !== "--installed" && arg !== "--source");
-if (unknownArgs.length) {
-  console.error(`Unknown argument(s): ${unknownArgs.join(", ")}`);
+let root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+let installedMode = false;
+let sourceMode = false;
+let reportArgument = null;
+const rawArgs = process.argv.slice(2);
+for (let index = 0; index < rawArgs.length; index += 1) {
+  const arg = rawArgs[index];
+  if (arg === "--installed") installedMode = true;
+  else if (arg === "--source") sourceMode = true;
+  else if (arg === "--report" || arg === "--root") {
+    const value = rawArgs[index + 1];
+    if (!value) {
+      console.error(`${arg} requires a path`);
+      process.exit(2);
+    }
+    index += 1;
+    if (arg === "--report") reportArgument = value;
+    else root = resolve(value);
+  } else {
+    console.error(`Unknown argument: ${arg}`);
+    process.exit(2);
+  }
+}
+if (installedMode && sourceMode) {
+  console.error("Choose either --source or --installed, not both.");
   process.exit(2);
 }
 const mode = installedMode ? "installed" : "source";
-const ignoredDirs = new Set(["node_modules", ".git", ".venv", "dist", "build", ".next", "coverage", ".cache", "__pycache__"]);
+const ignoredDirs = new Set(["node_modules", ".git", ".venv", "dist", "build", ".next", "coverage", ".cache", "__pycache__", "verification-artifacts", "verification-logs", "review_bundles"]);
+const ignoredFiles = new Set([
+  "release-audit.json",
+  "IMPLEMENTATION_REPORT.md",
+  "VERIFICATION_REPORT.md",
+  "CHANGE_SUMMARY.md",
+  "NOCTURNE_ALPHA13_HARDENING.patch",
+]);
 const audioExt = new Set([".mp3", ".wav", ".ogg", ".m4a", ".aac", ".flac", ".opus", ".webm"]);
 const errors = [];
 const warnings = [];
@@ -34,7 +61,7 @@ function rel(path) {
 function walk(dir) {
   const out = [];
   for (const name of readdirSync(dir)) {
-    if (ignoredDirs.has(name)) continue;
+    if (ignoredDirs.has(name) || ignoredFiles.has(name)) continue;
     const path = join(dir, name);
     const stat = statSync(path);
     if (stat.isDirectory()) out.push(...walk(path));
@@ -59,9 +86,26 @@ function sha256(path) {
 }
 
 function resolvePublicPath(src) {
-  if (src.startsWith("/sounds/")) return join(root, src.slice(1));
-  if (src.startsWith("/")) return join(root, "static", src.slice(1));
+  try {
+    if (src.startsWith("/sounds/")) {
+      return resolveCatalogPath(root, src.slice(1), join(root, "sounds"), `public sound path ${src}`);
+    }
+    if (src.startsWith("/")) {
+      return resolveCatalogPath(root, `static/${src.slice(1)}`, join(root, "static"), `public static path ${src}`);
+    }
+  } catch (error) {
+    errors.push(error.message);
+  }
   return null;
+}
+
+function resolveInboxPath(value, label) {
+  try {
+    return resolveCatalogPath(root, value, join(root, "sounds", "inbox"), label);
+  } catch (error) {
+    errors.push(error.message);
+    return null;
+  }
 }
 
 function extractGeneratedJson(text, begin, end, label) {
@@ -246,8 +290,8 @@ for (const item of excluded) {
   if (item?.retention && !detached) errors.push(`Unknown retention profile for ${id}: ${item.retention}`);
   if (item?.quarantine_path) {
     const q = String(item.quarantine_path);
-    if (!q.startsWith("sounds/inbox/")) errors.push(`Quarantine path for ${id} is outside sounds/inbox/: ${q}`);
-    const path = join(root, q);
+    const path = resolveInboxPath(q, `quarantine path for ${id}`);
+    if (!path) continue;
     if (!existsSync(path)) {
       if (detached && validateDetachedRecord(q, item.sha256, item.file_size_bytes, id)) {
         passes.push(`${id} payload is intentionally detached to the companion evidence bundle.`);
@@ -261,10 +305,9 @@ for (const item of excluded) {
   }
   if (item?.transform_sidecar) {
     const sidecarRel = String(item.transform_sidecar);
-    const sidecarPath = join(root, sidecarRel);
-    if (!sidecarRel.startsWith("sounds/inbox/")) {
-      errors.push(`Transform sidecar for ${id} is outside sounds/inbox/: ${sidecarRel}`);
-    } else if (!existsSync(sidecarPath)) {
+    const sidecarPath = resolveInboxPath(sidecarRel, `transform sidecar for ${id}`);
+    if (!sidecarPath) continue;
+    if (!existsSync(sidecarPath)) {
       if (detached && validateDetachedRecord(
         sidecarRel,
         item.transform_sidecar_sha256,
@@ -498,6 +541,10 @@ const report = {
     "Audition the seam-baked candidate repeatedly before moving it out of sounds/inbox/.",
   ],
 };
-writeFileSync(join(root, "release-audit.json"), `${JSON.stringify(report, null, 2)}\n`);
+if (reportArgument) {
+  const reportPath = isAbsolute(reportArgument) ? reportArgument : resolve(root, reportArgument);
+  mkdirSync(dirname(reportPath), { recursive: true });
+  writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`);
+}
 console.log(JSON.stringify(report, null, 2));
 if (uniqueErrors.length) process.exitCode = 1;
