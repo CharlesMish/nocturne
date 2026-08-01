@@ -16,6 +16,21 @@ No real Windows, Raspberry Pi, screen-reader, phone lock/background, listening,
 or overnight environment was used. Those results are not inferred from smoke
 tests.
 
+## Owner acceptance
+
+**PASS on macOS, August 1, 2026.** The owner installed the full Nocturne
+profile from a fresh extracted candidate and exercised normal playback,
+multiple simultaneous channels, room switching, Radio, appearance behavior,
+sleep-timer start/cancel/completion, resume behavior, Utility gating, reload
+behavior, and additional unscripted interactions. No blocking defect was
+observed.
+
+The Nocturne Pi profile passed automated source and extracted-package browser
+coverage, including the visible static `rain-still.webp` hero and confirmation
+that `rain.mp4` is not requested. No physical Raspberry Pi installation was
+performed, and these automated results do not establish Raspberry Pi 3
+resource margins.
+
 ## Baseline
 
 Before editing, the working tree was clean. The prepared interpreter produced:

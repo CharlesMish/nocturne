@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.0-alpha.13-dev — curated room appearance
+## 0.1.0-alpha.13 — release hardening and curated room appearance (2026-08-01)
 
 - Restored the intended Nocturne Pi static rain hero by resolving its
   background-image cascade against the global video-loading fallback, with a

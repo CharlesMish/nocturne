@@ -4,10 +4,16 @@ Nocturne is a local-first bedside sound instrument: an eight-channel ambient
 mixer, a moon-and-weather Sky, and a personal Radio that plays files from your
 own machine. There is no account, cloud library, analytics service, or feed.
 
-This repository contains a **field-test alpha**. It is not a medical product,
+This repository contains a **field-test alpha**. The full profile passed its
+owner acceptance run on macOS on August 1, 2026. It is not a medical product,
 an alarm clock, or a promise that a phone browser will remain alive overnight.
-Windows and target Raspberry Pi testing remain pending for this alpha; reports
-from those systems are especially welcome.
+
+[Download the current packages from GitHub Releases](https://github.com/CharlesMish/nocturne/releases).
+Choose the standard Nocturne package for the animated presentation or Nocturne
+Pi for the reduced-motion, static-media profile. Real Windows launch testing,
+physical Raspberry Pi behavior and Pi 3 resource margin, screen-reader use,
+phone lock/background return, extended overnight operation, listening comfort,
+and manual loop audition across the full catalog remain pending field tests.
 
 ## A look inside Nocturne
 
@@ -81,6 +87,12 @@ Linux / Raspberry Pi:
 ```bash
 ./install.sh
 ./.venv/bin/python run_nocturne.py
+```
+
+After installation, the direct launch command on macOS or Linux is:
+
+```bash
+.venv/bin/python run_nocturne.py
 ```
 
 The installer attempts 17 optional procedural beds at 60 seconds each. The

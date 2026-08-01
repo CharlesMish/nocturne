@@ -14,7 +14,7 @@
   },
   "generated_at_utc": "2026-07-13T06:01:00Z",
   "file_count": 120,
-  "total_payload_bytes_excluding_manifest": 12833284,
+  "total_payload_bytes_excluding_manifest": 12833879,
   "manifest_self_excluded": true,
   "evidence_detached": true,
   "detached_evidence_file_count": 3,
@@ -94,8 +94,8 @@
     },
     {
       "path": "CHANGELOG.md",
-      "size_bytes": 6625,
-      "sha256": "ec8e36cafe48546d012924dcacc707cf7fbe691ad2d44e8eeff79ffa089271b7"
+      "size_bytes": 6656,
+      "sha256": "ce3a329eb4c9645c69fb2ea070347d16d32db18ff46dd08c422e19a3acecb789"
     },
     {
       "path": "Install Nocturne.bat",
@@ -124,8 +124,8 @@
     },
     {
       "path": "README.md",
-      "size_bytes": 8338,
-      "sha256": "57d177ea97c7b181eb19e1863f59bef2630a225dc107d1690e2f63c7ad4a7c6a"
+      "size_bytes": 8902,
+      "sha256": "7732333fc14f90a358a2c4a71c5838737e1d1aa489d830cbc3307ee1043790b5"
     },
     {
       "path": "Start Nocturne LAN.bat",
