@@ -3896,15 +3896,15 @@ body[data-mode="dashboard"] .topbar {
 
         <!-- A small readout — context, not a dashboard. -->
         <div class="sky-readout">
-          <div class="readout-row">
-            <span class="readout-label">tonight</span>
-            <span class="readout-value" id="sky-condition">—</span>
-          </div>
-          <div class="readout-row">
+          <div class="readout-row readout-moon">
             <span class="readout-label">moon</span>
             <span class="readout-value" id="sky-moon">—</span>
           </div>
-          <div class="readout-row">
+          <div class="readout-row readout-tonight">
+            <span class="readout-label">tonight</span>
+            <span class="readout-value" id="sky-condition">—</span>
+          </div>
+          <div class="readout-row readout-where">
             <span class="readout-label">where</span>
             <span class="readout-value" id="sky-location">—</span>
           </div>
@@ -3997,7 +3997,9 @@ body[data-mode="dashboard"] .topbar {
           </div>
           <ol class="playlist-list" id="playlist-list" role="list"></ol>
           <div class="playlist-empty" id="playlist-empty" hidden>
-            no tracks yet — drop audio into <code>sounds/radio/</code>
+            <span class="playlist-empty-glyph" aria-hidden="true">◉</span>
+            <span class="playlist-empty-line">the deck is waiting for your tapes</span>
+            <span class="playlist-empty-hint"><code>sounds/radio/</code></span>
           </div>
         </div>
       </div>

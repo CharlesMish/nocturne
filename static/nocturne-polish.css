@@ -59,6 +59,10 @@
   --appearance-border-strong: rgb(var(--accent-rgb) / 0.38);
   --appearance-glow: rgb(var(--ambient-rgb) / 0.28);
   --appearance-glow-soft: rgb(var(--accent-rgb) / 0.12);
+  --radius-instrument: 3px;
+  --radius-well: 10px;
+  --radius-panel: 14px;
+  --radius-overlay: 20px;
 }
 
 html[data-appearance-enabled="true"][data-mood="moonwater"] {
@@ -358,6 +362,7 @@ body.sound-picker-open {
 }
 .settings-dialog,
 .sound-picker-panel {
+  border-radius: var(--radius-overlay);
   border-color: var(--appearance-border-strong);
   background: linear-gradient(180deg, var(--surface-2), var(--surface-1));
   box-shadow: 0 28px 110px rgb(0 0 0 / 0.74), inset 0 1px 0 rgb(255 245 225 / 0.07);
@@ -415,7 +420,7 @@ body.sound-picker-open {
   min-height: 62px;
   padding: 0.68rem 0.72rem;
   border: 1px solid var(--hairline);
-  border-radius: 15px;
+  border-radius: var(--radius-panel);
   cursor: pointer;
   transition: border-color 180ms var(--ease-soft), background 180ms var(--ease-soft), transform 180ms var(--ease-soft);
 }
@@ -482,8 +487,11 @@ body[data-profile="nocturne"] .settings-open {
   min-height: 42px;
 }
 body[data-profile="nocturne"] .mode-btn[aria-selected="true"] {
-  border-color: var(--appearance-border-strong);
+  border-color: rgb(var(--accent-soft-rgb) / 0.42);
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.07), 0 7px 22px -16px var(--appearance-glow);
+}
+body[data-profile="nocturne"] .mode-btn[aria-selected="true"] .mode-label {
+  color: rgb(var(--accent-soft-rgb));
 }
 body[data-profile="nocturne"][data-mode="sky"] :where(.ambient-rain, .ambient-petals),
 body[data-profile="nocturne"][data-mode="radio"] :where(.ambient-rain, .ambient-petals) {
@@ -522,8 +530,10 @@ body[data-profile="nocturne"] .video-stage::after {
 body[data-profile="nocturne"] .master {
   margin-top: clamp(0.75rem, 1.5vw, 1.1rem) !important;
   padding: clamp(1rem, 1.6vw, 1.3rem) clamp(1rem, 2vw, 1.6rem);
-  background: linear-gradient(180deg, var(--surface-2), var(--surface-1));
-  border-color: var(--appearance-border);
+  background: linear-gradient(180deg, rgb(255 246 230 / 0.05), rgb(255 246 230 / 0.03));
+  border-color: var(--hairline);
+  border-radius: var(--radius-panel);
+  box-shadow: inset 0 1px 0 rgb(255 246 230 / 0.045);
 }
 body[data-profile="nocturne"] .master :where(.btn, .timer-btn) { min-height: 40px; }
 body[data-profile="nocturne"] .mixer-section { margin-top: clamp(1.5rem, 3vw, 2.3rem) !important; }
@@ -534,7 +544,7 @@ body[data-profile="nocturne"] .scene-shelf {
   align-items: center;
   margin: 0.8rem 0 1.25rem;
   padding: 0.75rem 0.85rem;
-  border-radius: 16px;
+  border-radius: var(--radius-panel);
 }
 body[data-profile="nocturne"] .scene-copy p {
   margin: 0.18rem 0 0;
@@ -674,7 +684,7 @@ body[data-profile="nocturne"] .sky-readout {
   gap: 0;
   padding: 0.9rem 1rem;
   border: 1px solid rgb(205 220 240 / 0.14);
-  border-radius: 16px;
+  border-radius: var(--radius-panel);
   background: linear-gradient(145deg, rgb(13 18 30 / 0.82), rgb(7 9 16 / 0.72));
   box-shadow: 0 18px 48px -32px rgb(0 0 0 / 0.9), inset 0 1px 0 rgb(255 255 255 / 0.045);
   text-shadow: none;
@@ -682,15 +692,39 @@ body[data-profile="nocturne"] .sky-readout {
 }
 body[data-profile="nocturne"] .sky-readout .readout-row {
   display: grid;
-  grid-template-columns: 4.6rem minmax(0, 1fr);
+  grid-template-columns: 4.2rem minmax(0, 1fr);
+  align-items: start;
   gap: 0.7rem;
   padding: 0.48rem 0;
 }
 body[data-profile="nocturne"] .sky-readout .readout-row + .readout-row { border-top: 1px solid rgb(220 230 245 / 0.08); }
 body[data-profile="nocturne"] .sky-readout .readout-label { color: #8c95a6; }
-body[data-profile="nocturne"] .sky-readout .readout-value { color: #e8e9e8; line-height: 1.4; }
+body[data-profile="nocturne"] .sky-readout .readout-value {
+  min-width: 0;
+  color: #e8e9e8;
+  line-height: 1.4;
+  overflow-wrap: break-word;
+}
+body[data-profile="nocturne"] .sky-readout #sky-moon {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.02rem;
+  letter-spacing: 0.005em;
+  color: rgb(var(--accent-soft-rgb));
+}
+body[data-profile="nocturne"] .sky-readout .readout-where .readout-value {
+  color: var(--text-faint);
+  font-size: 0.72rem;
+}
 
 /* Radio is a compact tactile deck with clear empty/selected/playing states. */
+.deck-slider {
+  grid-template-columns: 6.4em minmax(0, 1fr) 3.2em;
+}
+.deck-slider .deck-slider-label {
+  white-space: nowrap;
+  letter-spacing: 0.1em;
+}
 body[data-profile="nocturne"] .radio-stage {
   min-height: 500px;
   height: auto;
@@ -703,10 +737,10 @@ body[data-profile="nocturne"] .radio-stage {
 body[data-profile="nocturne"] .deck {
   gap: 0.7rem;
   padding: clamp(0.9rem, 1.5vw, 1.15rem);
-  border-radius: 16px;
+  border-radius: var(--radius-well);
 }
-body[data-profile="nocturne"] .deck-playlist { border-radius: 16px; min-height: 0; }
-body[data-profile="nocturne"] .deck-display { min-height: 76px; border-radius: 10px; }
+body[data-profile="nocturne"] .deck-playlist { border-radius: var(--radius-well); min-height: 0; }
+body[data-profile="nocturne"] .deck-display { min-height: 76px; border-radius: var(--radius-instrument); }
 body[data-profile="nocturne"] .deck-reels { padding: 0.15rem 0; }
 body[data-profile="nocturne"] .reel { width: 56px; height: 56px; }
 body[data-profile="nocturne"] .deck-btn { width: 44px; height: 44px; }
@@ -733,11 +767,38 @@ body[data-profile="nocturne"] .playlist-item.playing {
   background: rgb(var(--accent-rgb) / 0.12);
   border-left-color: var(--lantern);
 }
-body[data-profile="nocturne"] .playlist-empty {
+.playlist-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.55rem;
   margin: auto;
-  max-width: 32ch;
-  padding: 2rem 1.2rem;
-  line-height: 1.7;
+  max-width: 34ch;
+  padding: 2rem 1.4rem;
+  line-height: 1.5;
+}
+.playlist-empty[hidden] { display: none; }
+.playlist-empty-glyph {
+  font-size: 1.15rem;
+  line-height: 1;
+  color: rgb(var(--accent-rgb) / 0.5);
+  text-shadow: 0 0 14px rgb(var(--accent-rgb) / 0.35);
+}
+.playlist-empty-line {
+  font-family: var(--font-display);
+  font-size: 1.02rem;
+  color: var(--text-muted);
+}
+.playlist-empty-hint {
+  font-family: var(--font-mono);
+  font-style: normal;
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  color: var(--text-faint);
+}
+.playlist-empty-hint code {
+  font-size: 0.66rem;
+  color: var(--lantern-soft);
 }
 body[data-profile="nocturne"] .radio-stage[data-track-count="1"] .deck-playlist { align-self: center; min-height: 160px; }
 body[data-profile="nocturne"] .radio-stage[data-state="empty"] { grid-template-columns: minmax(0, 1fr) minmax(260px, 0.65fr); }
@@ -789,7 +850,7 @@ body[data-profile="nocturne"] .sound-picker { padding: clamp(0.65rem, 2vw, 1.5re
 body[data-profile="nocturne"] .sound-picker-panel {
   width: min(920px, 100%);
   max-height: calc(100dvh - clamp(1.3rem, 4vw, 3rem));
-  border-radius: 24px;
+  border-radius: var(--radius-overlay);
 }
 body[data-profile="nocturne"] .sound-picker-head p { color: var(--text-muted); line-height: 1.45; }
 body[data-profile="nocturne"] .sound-search input {
@@ -803,7 +864,11 @@ body[data-profile="nocturne"] .sound-chip {
   font-size: 0.68rem;
 }
 body[data-profile="nocturne"] .sound-chip.active { color: #100d0b; background: rgb(var(--accent-soft-rgb)); }
-body[data-profile="nocturne"] .sound-option { border-color: rgb(255 255 255 / 0.11); background: rgb(7 7 9 / 0.58); }
+body[data-profile="nocturne"] .sound-option {
+  border-radius: var(--radius-panel);
+  border-color: rgb(255 255 255 / 0.11);
+  background: rgb(7 7 9 / 0.58);
+}
 body[data-profile="nocturne"] .sound-option-name { color: var(--text); font-size: 1.12rem; }
 body[data-profile="nocturne"] .sound-option-meta { color: var(--text-muted); line-height: 1.45; }
 body[data-profile="nocturne"] .sound-option-path { color: var(--text-faint); }
@@ -842,7 +907,7 @@ body[data-profile="nocturne"] .utility-editor-frame::before { color: rgb(var(--a
   }
   body[data-profile="nocturne"] .deck-playlist { min-height: 210px; max-height: 340px; }
   body[data-profile="nocturne"] .radio-stage[data-state="empty"] { grid-template-columns: 1fr; }
-  body[data-profile="nocturne"] .sound-picker-panel { border-radius: 18px; }
+  body[data-profile="nocturne"] .sound-picker-panel { border-radius: var(--radius-overlay); }
   body[data-profile="nocturne"] .sound-picker-head,
   body[data-profile="nocturne"] .sound-picker-tools,
   body[data-profile="nocturne"] .sound-list { padding: 0.85rem; }
