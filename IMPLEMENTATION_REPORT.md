@@ -154,10 +154,12 @@ still and that `rain.mp4` remains unrequested.
   redesign, synthesis streaming rewrite, or `/api/sounds` removal was added.
 - FastAPI already uses lifespan in this starting tree; no lifecycle migration
   was needed in this pass.
-- CI is committed but cannot produce hosted evidence until the branch is pushed
-  or the workflow is dispatched.
-- The clean dependency install was exercised locally on Python 3.14/macOS arm64;
-  the declared 3.10/3.12 matrix still needs its first hosted run.
+- GitHub Actions run `30692404365` passed the deterministic Ubuntu source
+  contract on Python 3.10 and 3.12 after the branch push. The manual browser job
+  was correctly skipped for the push event; browser evidence was produced
+  locally and from the freshly extracted RC.
+- The additional clean dependency install was exercised locally on Python
+  3.14/macOS arm64.
 - Real Windows launcher/path behavior, Raspberry Pi 3 memory/performance,
   screen-reader use, phone lock/background behavior, listening comfort, and an
   overnight session remain field-test pending.

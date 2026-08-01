@@ -101,6 +101,20 @@ This proves one known-good macOS arm64/Python 3.14 resolution. Platform markers
 remain responsible for Windows and Python-version-specific selections; no claim
 is made that Windows, Linux, or Raspberry Pi wheels were installed here.
 
+### Hosted CI
+
+[GitHub Actions run 30692404365](https://github.com/CharlesMish/nocturne/actions/runs/30692404365)
+completed successfully after pushing `release/alpha13-hardening`:
+
+- Ubuntu / Python 3.10 source contract: PASS;
+- Ubuntu / Python 3.12 source contract: PASS;
+- known-good constrained dependency installation: PASS in both matrix jobs;
+- deterministic source suite: PASS in both matrix jobs;
+- manual browser matrix: SKIPPED as designed for a push event.
+
+The browser profiles separately passed on the Mac working tree and freshly
+extracted RC; the skipped manual job is not reported as a browser PASS.
+
 ## Real procedural generation and installed checks
 
 The root generated WAVs already existed as ignored local install output before

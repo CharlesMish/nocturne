@@ -34,7 +34,6 @@
 - Raspberry Pi 3 installation, local-display performance, and memory margin.
 - Real screen-reader use, phone lock/background return, listening comfort,
   loop audition, and overnight behavior.
-- The first hosted Python 3.10/3.12 CI matrix run after an authorized push.
 
 ## Deferred
 
