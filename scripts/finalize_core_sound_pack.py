@@ -26,6 +26,8 @@ from datetime import date
 from pathlib import Path
 from typing import Any
 
+from path_safety import ensure_within, require_basename
+
 ROOT = Path(__file__).resolve().parents[1]
 INBOX = ROOT / "sounds" / "inbox"
 LIBRARY = ROOT / "sounds" / "library"
@@ -68,6 +70,8 @@ def read_rows(csv_path: Path) -> list[dict[str, str]]:
 
 def candidate_inputs(row: dict[str, str], inbox: Path) -> list[Path]:
     filename = row.get("filename", "")
+    if filename:
+        filename = require_basename(filename, "CSV filename")
     base = Path(filename).stem
     wanted = []
     if filename:
@@ -76,17 +80,19 @@ def candidate_inputs(row: dict[str, str], inbox: Path) -> list[Path]:
     # If the Freesound original has a name in the CSV, try that too.
     original = row.get("original_filename", "")
     if original:
+        original = require_basename(original, "CSV original_filename")
         wanted.append(inbox / original)
         wanted.extend(sorted(inbox.glob(Path(original).stem + ".*")))
     seen = []
     for p in wanted:
+        ensure_within(inbox, p, "candidate audio path")
         if p not in seen and p.exists() and p.is_file() and p.suffix.lower() in AUDIO_EXTS:
             seen.append(p)
     return seen
 
 
 def destination_for(row: dict[str, str], mode: str, src: Path) -> Path:
-    sound_id = row["id"]
+    sound_id = require_basename(row["id"], "sound id")
     if mode == "copy":
         suffix = src.suffix.lower()
     elif mode == "mp3":
@@ -97,7 +103,7 @@ def destination_for(row: dict[str, str], mode: str, src: Path) -> Path:
         suffix = ".opus"
     else:
         raise ValueError(mode)
-    return LIBRARY / f"{sound_id}{suffix}"
+    return ensure_within(LIBRARY, LIBRARY / f"{sound_id}{suffix}", "library destination")
 
 
 def ffmpeg_cmd(src: Path, dest: Path, mode: str, bitrate: str) -> list[str]:

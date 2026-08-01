@@ -3,10 +3,22 @@
 Nocturne can generate 17 local WAV texture beds with:
 
 ```bash
-python scripts/generate_noise.py
+.venv/bin/python scripts/generate_noise.py
 ```
 
-They are deterministic synthesis outputs, not field recordings. The source archive intentionally omits the WAV payloads; the eight Tonight defaults are bundled recordings and remain usable before generation succeeds.
+The ordinary default is 60 seconds per file to leave more installation margin
+on constrained hardware. Longer beds remain available explicitly:
+
+```bash
+.venv/bin/python scripts/generate_noise.py --seconds 180
+python3 install.py --noise-seconds 180
+```
+
+They are deterministic synthesis outputs, not field recordings. The source
+archive intentionally omits the WAV payloads; the eight Tonight defaults are
+bundled recordings and remain usable when generation is skipped or fails. The
+installer treats only this optional generation step as nonfatal and prints the
+matching retry command; dependency installation still fails normally.
 
 ## Ordinary generated beds
 

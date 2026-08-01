@@ -1,7 +1,31 @@
 # Changelog
 
-## 0.1.0-alpha.13-dev — curated room appearance
+## 0.1.0-alpha.13 — release hardening and curated room appearance (2026-08-01)
 
+- Restored the intended Nocturne Pi static rain hero by resolving its
+  background-image cascade against the global video-loading fallback, with a
+  browser assertion that the still is visible and the MP4 remains unrequested.
+- Reduced optional procedural-bed generation to a 60-second default, kept
+  explicit longer overrides, and made only this generation step fail-soft with
+  truthful install outcomes and a retry command.
+- Hardened Utility JSON-object handling, metadata size/depth limits, and staged
+  song-pair replacement so malformed requests return client errors and failed
+  updates retain the prior readable sketch.
+- Fixed finite-coordinate validation and location partial updates while keeping
+  load-time repair separate and clearing weather only after a real change.
+- Contained catalog, CSV, quarantine, and release-builder paths and expanded
+  mixed-case/encoded inbox denial regressions.
+- Replaced the sleep timer's interval-driven gain staircase with wall-clock Web
+  Audio automation plus foreground and page-return reconciliation.
+- Made release audit output non-mutating by default, added deterministic CI and
+  smoke coverage, and codified launcher line endings in source and ZIP checks.
+- Hardened the intake boundary against mixed-case and normalized traversal
+  aliases, and migrated FastAPI startup output to the lifespan API.
+- Made installer dependency resolution repeatable through documented,
+  Python-aware direct constraints while retaining cross-platform selection.
+- Removed stale numbered release labels, added an active-release drift audit,
+  normalized Windows launchers to CRLF, and demoted the legacy Pixabay wrapper
+  to `scripts/legacy/` without removing the underlying tool.
 - Added four coordinated atmosphere moods, three typography treatments, and
   three lighting densities to the full Nocturne profile.
 - Kept appearance browser-local and separate from saved audio scenes, server
@@ -29,6 +53,11 @@
 - Replaced the external font request with locally packaged OFL typefaces.
 - Added a compact README showcase of Onsen, Sky, Radio, and the browser-local
   Room appearance controls using deterministic full-profile captures.
+- Raised quiet secondary-copy and compact-action legibility without changing
+  the room composition, profile split, or disabled-by-default optional modes.
+- Extended deterministic browser QA through 340 px, optional Utility/Dashboard
+  states, and explicit Nocturne Pi motion/blur guards; recorded the remaining
+  field-evidence and stylesheet follow-ups in `docs/ALPHA_FOLLOWUPS.md`.
 
 ## 0.1.0-alpha.12 — first public field-test alpha
 

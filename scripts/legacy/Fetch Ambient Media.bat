@@ -1,10 +1,11 @@
 @echo off
 setlocal
-cd /d "%~dp0"
+cd /d "%~dp0..\.."
 
 echo.
-echo Nocturne ambient media fetcher
-echo ===============================
+echo Nocturne legacy ambient media fetcher
+echo =======================================
+echo This optional Pixabay workflow is not required for normal installation.
 echo.
 
 where py >nul 2>nul

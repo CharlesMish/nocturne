@@ -27,7 +27,7 @@ Quarantine is not a license judgment and not a listening diagnosis. It is a rele
 
 ## Legacy optional Pixabay workflow
 
-The old fixed ambience filenames and `scripts/fetch_media.py` remain for compatibility, but the scraper is not part of the alpha.10 first-run contract. Do not rely on it for a release.
+The old fixed ambience filenames and `scripts/fetch_media.py` remain for compatibility, but the scraper is not part of the normal first-run contract. Its optional Windows wrapper is kept under `scripts/legacy/Fetch Ambient Media.bat`, away from the primary root launchers. Do not rely on it for a release.
 
 ## Bundled visual media
 

@@ -4,10 +4,16 @@ Nocturne is a local-first bedside sound instrument: an eight-channel ambient
 mixer, a moon-and-weather Sky, and a personal Radio that plays files from your
 own machine. There is no account, cloud library, analytics service, or feed.
 
-This repository contains a **field-test alpha**. It is not a medical product,
+This repository contains a **field-test alpha**. The full profile passed its
+owner acceptance run on macOS on August 1, 2026. It is not a medical product,
 an alarm clock, or a promise that a phone browser will remain alive overnight.
-Windows and target Raspberry Pi testing remain pending for Alpha 12; reports
-from those systems are especially welcome.
+
+[Download the current packages from GitHub Releases](https://github.com/CharlesMish/nocturne/releases).
+Choose the standard Nocturne package for the animated presentation or Nocturne
+Pi for the reduced-motion, static-media profile. Real Windows launch testing,
+physical Raspberry Pi behavior and Pi 3 resource margin, screen-reader use,
+phone lock/background return, extended overnight operation, listening comfort,
+and manual loop audition across the full catalog remain pending field tests.
 
 ## A look inside Nocturne
 
@@ -22,7 +28,7 @@ Onsen keeps the cinematic rain scene close to the shared master and timer rail.
 | Moon phase and a compact local observing card. | A warm local deck that waits for you to press play. |
 
 <p align="center">
-  <a href="docs/screenshots/appearance-room.png"><img src="docs/screenshots/appearance-room.png" alt="Nocturne Room settings with four atmosphere moods, three typography treatments, and three lighting densities" width="624"></a>
+  <a href="docs/screenshots/appearance-room.png"><img src="docs/screenshots/appearance-room.png" alt="Nocturne Room settings with four atmosphere moods, three typography treatments, and three lighting densities" width="609"></a>
 </p>
 <p align="center"><em>Room settings coordinate atmosphere, typography, and lighting in this browser without recoloring the rain footage.</em></p>
 
@@ -83,6 +89,16 @@ Linux / Raspberry Pi:
 ./.venv/bin/python run_nocturne.py
 ```
 
+After installation, the direct launch command on macOS or Linux is:
+
+```bash
+.venv/bin/python run_nocturne.py
+```
+
+The installer attempts 17 optional procedural beds at 60 seconds each. The
+bundled curated Core Sound Pack works immediately if generation is skipped or
+fails; use `python3 install.py --noise-seconds 180` to request longer beds.
+
 Run the Pi profile explicitly:
 
 ```bash
@@ -136,7 +152,7 @@ be technical. A useful hardware report includes:
 Use the GitHub issue templates or run:
 
 ```bash
-python scripts/support_report.py
+python3 scripts/support_report.py
 ```
 
 The report is created locally for review and is never uploaded automatically.
@@ -165,12 +181,23 @@ evidence bundle. See [Repository surfaces](docs/REPOSITORY_SURFACES.md).
 Useful source checks:
 
 ```bash
-python scripts/sync_release_data.py --check
-python check_audio_contract.py --source
+.venv/bin/python scripts/sync_release_data.py --check
+.venv/bin/python check_audio_contract.py --source
 node scripts/release-audit.mjs --source
-python scripts/runtime_smoke.py
-python scripts/profile_smoke.py
+.venv/bin/python scripts/runtime_smoke.py
+.venv/bin/python scripts/profile_smoke.py
+.venv/bin/python scripts/installer_smoke.py
+.venv/bin/python scripts/path_safety_smoke.py
+.venv/bin/python scripts/release_builder_smoke.py
+.venv/bin/python -m compileall -q .
 ```
+
+The audit prints to stdout without creating a root report. Use
+`--report verification-artifacts/release-audit.json` only when retaining an
+artifact deliberately. GitHub Actions runs the deterministic source suite on
+Python 3.10 and 3.12; browser smoke is isolated as QA-only because Playwright
+and Chromium are not runtime dependencies. Run both profiles before a UI
+release claim when Chromium is available, or record `NOT RUN` honestly.
 
 These checks do not establish listening comfort, Pi 3 performance, real
 screen-reader quality, phone lock-screen survival, battery/heat behavior, or an

@@ -1,7 +1,7 @@
 {
   "schema": "nocturne.release-manifest.v2",
   "profile": "product-source",
-  "package": "nocturne-v0.1.0-alpha.13-dev",
+  "package": "NOCTURNE_ALPHA13_HARDENING_RC",
   "build": {
     "schema": "nocturne.build.v2",
     "version": "0.1.0-alpha.13-dev",
@@ -13,8 +13,8 @@
     "feedback_label": "v0.1.0-alpha.13-dev · 2026-07-13 · visual-appearance-dev"
   },
   "generated_at_utc": "2026-07-13T06:01:00Z",
-  "file_count": 112,
-  "total_payload_bytes_excluding_manifest": 12772008,
+  "file_count": 120,
+  "total_payload_bytes_excluding_manifest": 12833879,
   "manifest_self_excluded": true,
   "evidence_detached": true,
   "detached_evidence_file_count": 3,
@@ -38,6 +38,11 @@
   ],
   "files": [
     {
+      "path": ".gitattributes",
+      "size_bytes": 111,
+      "sha256": "310dff7a8893ac643c020c47cf89f9cfb47a777978a99bf9bfc4f488809a8255"
+    },
+    {
       "path": ".github/ISSUE_TEMPLATE/bug.yml",
       "size_bytes": 880,
       "sha256": "85c3ac6f917f6e957f1359732d874d7ed11017b98a3d20bb3686e214855f62d1"
@@ -58,14 +63,19 @@
       "sha256": "330ca5fb70f32b7fa92d185e42f37d9a69cb1c0cc50a329c60c969ce5929356f"
     },
     {
+      "path": ".github/workflows/deterministic.yml",
+      "size_bytes": 1876,
+      "sha256": "857551790e8a5fb384ffcf89268fdd5c76ad0195df8a2baefb72bc2273e3d9ab"
+    },
+    {
       "path": ".gitignore",
-      "size_bytes": 952,
-      "sha256": "891369c4aa3e5e6ab7a95a391c0628b4860d73bf5b1f0299cd195dbece020728"
+      "size_bytes": 995,
+      "sha256": "6a976095880a20e143c320504c79ee12d61459bb1f510127f7054359ff36ae23"
     },
     {
       "path": "AGENTS.md",
-      "size_bytes": 1084,
-      "sha256": "4d7ba30664e22386d2590800cf7ad8cf2f2f1a272f7a779a95d4ee5cb4f5af42"
+      "size_bytes": 1749,
+      "sha256": "53e093a44650da68b3f20fe3da3c7c104c9dfb27b08dd7f43d4c1a87c671f511"
     },
     {
       "path": "ALPHA_FEEDBACK.md",
@@ -84,18 +94,13 @@
     },
     {
       "path": "CHANGELOG.md",
-      "size_bytes": 4518,
-      "sha256": "a99fb9f7a0021416a7ab8d489e9cfce71f1d13865b3e18024ab0ff6a738808eb"
-    },
-    {
-      "path": "Fetch Ambient Media.bat",
-      "size_bytes": 1225,
-      "sha256": "385a15d856d21005d82473434a38509790f433f74afd364bdb5910b90a5e6822"
+      "size_bytes": 6656,
+      "sha256": "ce3a329eb4c9645c69fb2ea070347d16d32db18ff46dd08c422e19a3acecb789"
     },
     {
       "path": "Install Nocturne.bat",
-      "size_bytes": 703,
-      "sha256": "d1857b73c9006287cbda4528c57ed9e97267b0870c6be74d7846a637621a7163"
+      "size_bytes": 744,
+      "sha256": "e7b9db3e40ddfd57a2bd73cf881e6a74435820a30d11adc8930bdae3243e13ff"
     },
     {
       "path": "Install Nocturne.command",
@@ -114,13 +119,13 @@
     },
     {
       "path": "MEDIA_LICENSES.md",
-      "size_bytes": 3124,
-      "sha256": "bb3451fc6a0de0398e7696f19bcd3b3deec2346e1bbe6922b7b254b331131c36"
+      "size_bytes": 3245,
+      "sha256": "4e204f1a1571197a90d0165b0e77f5c6e290a0baf4dd01e01524bde9af52ca26"
     },
     {
       "path": "README.md",
-      "size_bytes": 7449,
-      "sha256": "34f6231e16fd9d4095ab8235752b50c265d9652a667185d5229d20e47566f5d9"
+      "size_bytes": 8902,
+      "sha256": "7732333fc14f90a358a2c4a71c5838737e1d1aa489d830cbc3307ee1043790b5"
     },
     {
       "path": "Start Nocturne LAN.bat",
@@ -129,8 +134,8 @@
     },
     {
       "path": "Start Nocturne.bat",
-      "size_bytes": 807,
-      "sha256": "120f1e5a49595ab616982445b218fab881b8c12ffe842b25beb2f8a7e2b08190"
+      "size_bytes": 840,
+      "sha256": "5b062b0790457e2ae8a6a419b581e918d970578f23934866ffcfab728655bec8"
     },
     {
       "path": "audio_sources.mainstream_cc0.csv",
@@ -156,6 +161,16 @@
       "path": "config/nocturne.example.json",
       "size_bytes": 290,
       "sha256": "5f9dd5ec6fcf6c215245620354287bd3fd36d08577da377a65d7b09290252ce9"
+    },
+    {
+      "path": "constraints.txt",
+      "size_bytes": 944,
+      "sha256": "31afbb27c0761f6add1fc402ce4d9fae5d348a1270f684cf217adc978da5b705"
+    },
+    {
+      "path": "docs/ALPHA_FOLLOWUPS.md",
+      "size_bytes": 1781,
+      "sha256": "5dd5b6a563778050d7b40520ed896cc46c950faac12e6da02c8cb7ced5e5982c"
     },
     {
       "path": "docs/CC0_DOWNLOAD_CHECKLIST.md",
@@ -189,8 +204,8 @@
     },
     {
       "path": "docs/PROCEDURAL_STARTER_SOUNDS.md",
-      "size_bytes": 1671,
-      "sha256": "72dbc196a2b2bcb2d9f6d65e4f4c713a7fceba7a112b5970a5bbb9f6ae0d818a"
+      "size_bytes": 2097,
+      "sha256": "6fb068e9625567b84516bf773a5367d49cf907aac6f37588b4faea290a8ff94d"
     },
     {
       "path": "docs/PROFILES.md",
@@ -214,8 +229,8 @@
     },
     {
       "path": "docs/SOUND_LIBRARY.md",
-      "size_bytes": 2581,
-      "sha256": "a8ab12e4624c0d6780409e8b48f835dc9c955323470b3b33b317c57dbd97a3d3"
+      "size_bytes": 2639,
+      "sha256": "31775da2e0ea277a1b4c9e26d3f5a23a79773b8b83805fb0df56cee390f841f0"
     },
     {
       "path": "docs/screenshots/README.md",
@@ -224,28 +239,28 @@
     },
     {
       "path": "docs/screenshots/appearance-room.png",
-      "size_bytes": 223685,
-      "sha256": "19d0aa2fcb36293975af296a41189710efa36b9f992aa5d3e4ee6a64c49cb3b3"
+      "size_bytes": 217192,
+      "sha256": "77284e3f7a989c73c43df517ad2c50311747d5ab96e4fbdaf0abb95aab6a48eb"
     },
     {
       "path": "docs/screenshots/onsen-rain-lantern.webp",
-      "size_bytes": 92432,
-      "sha256": "927d7b88f75a2b697058976c9e86e243a2a4da10fbec48a88b869fd58ad80f3b"
+      "size_bytes": 92504,
+      "sha256": "ca57ad854faf5b83aa5f27f553de782f87c0c5b5c11f3a5867f4f5f9fd18d23d"
     },
     {
       "path": "docs/screenshots/radio-bedside-deck.webp",
-      "size_bytes": 30620,
-      "sha256": "0f2c4c65db6ca3a50a00fcf52e4a9907014851f000a40fb9e300b4152f9bb7f0"
+      "size_bytes": 29638,
+      "sha256": "b82e1a1930f0381176d14b8193df167cac372a720a11ed9d7b0d1e74f16324cd"
     },
     {
       "path": "docs/screenshots/sky-observing.webp",
-      "size_bytes": 24712,
-      "sha256": "8b6d65ca6def824fb7ddd24dee88dd29387f8d0490faa8ed986ca0e373ca6452"
+      "size_bytes": 23356,
+      "sha256": "5222640b6a62fc777b01eee383df2ee82b752341e2488834144213559ad71b39"
     },
     {
       "path": "install.py",
-      "size_bytes": 10414,
-      "sha256": "1ee0da8d7760fd10d84d8414da665e340cf04fde13e23cdda78d0dfb95a93041"
+      "size_bytes": 12064,
+      "sha256": "cb8376105fadee87362d02a1b2ba0e7a90182b6edfff4d406a13bed0845a3bc3"
     },
     {
       "path": "install.sh",
@@ -254,8 +269,8 @@
     },
     {
       "path": "main.py",
-      "size_bytes": 27475,
-      "sha256": "bf923b19a8bbbd5d370cbc0a0aa64632aaa629401d4bebeba4ed67d230b88cb6"
+      "size_bytes": 32926,
+      "sha256": "02412e67f6d828721c2bc466e19973972682e9866ef09281843052dac8ebb285"
     },
     {
       "path": "media_sources.default.json",
@@ -304,8 +319,8 @@
     },
     {
       "path": "scripts/README.md",
-      "size_bytes": 3334,
-      "sha256": "f892db8cade885583ddc0c1a3578a5a6e523fd3bb00c95faaad2945e8d11e3eb"
+      "size_bytes": 5695,
+      "sha256": "43fb01be242009cbb371580ca81af6d9fa260403ba5fbf7663e7ade018de4ec9"
     },
     {
       "path": "scripts/bake_seamless_loop.py",
@@ -314,8 +329,8 @@
     },
     {
       "path": "scripts/browser_smoke.py",
-      "size_bytes": 38361,
-      "sha256": "f0144e55b703a84898b3c1406213393a51e0972cac4d24927495fb7abed60a38"
+      "size_bytes": 55437,
+      "sha256": "331e1d01b0f5f5d11b33f66d0b066086c24774e31e397ab9a2e3433d46438ca5"
     },
     {
       "path": "scripts/fetch_media.py",
@@ -324,13 +339,13 @@
     },
     {
       "path": "scripts/finalize_core_sound_pack.py",
-      "size_bytes": 10724,
-      "sha256": "d68f20d005dd1b6a82f38625cc468d1d13eb7cac520b3e70d2f54ac09792676d"
+      "size_bytes": 11064,
+      "sha256": "604cc3f9b5aaff70ab06e1751108141ed9a92465c2673e96d9c31991f9acd838"
     },
     {
       "path": "scripts/generate_noise.py",
-      "size_bytes": 22462,
-      "sha256": "09cdd4ed0cdc779858da7f2059cd6a0bdf048f6b88bba8619a42c5279807bbc8"
+      "size_bytes": 22788,
+      "sha256": "420dd2cfa001a4fa42ad2337aff3ebbfd5b40ce64c69b3aafb5068ad276aa4bd"
     },
     {
       "path": "scripts/import_sound_pack.py",
@@ -338,14 +353,39 @@
       "sha256": "7eb9094affcc4c942d49fda7e84eacd43571f2594c33d35ff13d9606a0a7feaf"
     },
     {
+      "path": "scripts/installer_smoke.py",
+      "size_bytes": 6165,
+      "sha256": "dee101bd230ffd8f13f35cdf0f8ccb840c75dee1a6d0fd8b31dfd1eff0ae44ce"
+    },
+    {
+      "path": "scripts/legacy/Fetch Ambient Media.bat",
+      "size_bytes": 1377,
+      "sha256": "bddb8540b57c611d92090db01d44df607a323144638a88f6eabf58db8671d23e"
+    },
+    {
       "path": "scripts/make_dual_release.py",
-      "size_bytes": 7933,
-      "sha256": "4fa37345b78bfab54361c4bb2269afa6dd75fe83b73e35e5f6c24325997850f5"
+      "size_bytes": 7932,
+      "sha256": "ddd2d07b63d504114d2185c15fe6af7c19de7260edaf4ce03780022e0ac0fca0"
     },
     {
       "path": "scripts/make_release.py",
-      "size_bytes": 13230,
-      "sha256": "7714da4c66f35f7430cb41d23a23e0d1e105037effd04afe4489e809b56b19a3"
+      "size_bytes": 13778,
+      "sha256": "6380d0a1e8e182ca2b711deb538f38e6d2cf99c592f9d239c8836a49310af681"
+    },
+    {
+      "path": "scripts/path_safety.mjs",
+      "size_bytes": 1436,
+      "sha256": "13c81a289ff2ebaca04415cf54cdeffcc86968a8ed65aa26b90d81b5884bf6f9"
+    },
+    {
+      "path": "scripts/path_safety.py",
+      "size_bytes": 1882,
+      "sha256": "e9128a2ed2429040aa55e4307de8ca1f1b08e5ac33d7e98854bd3adfb999e9ae"
+    },
+    {
+      "path": "scripts/path_safety_smoke.py",
+      "size_bytes": 5927,
+      "sha256": "b77f6bfb135d9255d05432957f11753450f0b5d6383ca4531ccc9bcaded6c874"
     },
     {
       "path": "scripts/profile_smoke.py",
@@ -354,23 +394,23 @@
     },
     {
       "path": "scripts/release-audit.mjs",
-      "size_bytes": 25532,
-      "sha256": "29d3b1685cc402efc0f55267f6d0a48d12c1a9b07bb1a9a73c4a599764717ab0"
+      "size_bytes": 28069,
+      "sha256": "121585f23617b01258b8b920c1c9827696f4b81f00d7db2bcc0acbc38a2d14d3"
     },
     {
       "path": "scripts/release_builder_smoke.py",
-      "size_bytes": 5316,
-      "sha256": "c35258fdf99d10c952192daa828571cc8265dca886bdf9c234e23843d1c07b05"
+      "size_bytes": 8254,
+      "sha256": "03ab7a702a234751c25d573fece85e263d6cd98318728eda0b0c384f72f0cbf3"
     },
     {
       "path": "scripts/rename_freesound_downloads.py",
-      "size_bytes": 11740,
-      "sha256": "34c7b0a2cf40d921c3bc80c6596fd704f4d24d5bc9aa58e9597b725bd8628628"
+      "size_bytes": 12288,
+      "sha256": "7a56834fa71ef06c372f628d369151d2032a1c3179443c8239202f70ac9320cf"
     },
     {
       "path": "scripts/runtime_smoke.py",
-      "size_bytes": 8587,
-      "sha256": "d655486c41eaa47840203f754836ffe7ec45c52b8a951dd096acdfecb89906af"
+      "size_bytes": 18022,
+      "sha256": "c3a58a17209ab8a362e6077147846adea8c8a8e1ce806df6b5c3d1ca62bf018b"
     },
     {
       "path": "scripts/stamp_build.py",
@@ -499,8 +539,8 @@
     },
     {
       "path": "sounds/sound_library.json",
-      "size_bytes": 30568,
-      "sha256": "837852a77be927a13f1b71a4a39cbd8554dc76c56e920a07a4a29c4de3b03f26"
+      "size_bytes": 30577,
+      "sha256": "1163fcd61298e00fba1c2f3c4451c37104caf12ebca527fbd3ce276b6ee0ddf2"
     },
     {
       "path": "static/.gitkeep",
@@ -574,8 +614,8 @@
     },
     {
       "path": "static/index.html",
-      "size_bytes": 312340,
-      "sha256": "1058e0144f5205421aa7a5924c0d4419ebfab5bd7ec60eb2d2f58d83297a9eb2"
+      "size_bytes": 313833,
+      "sha256": "09dffd3e87c511951d3936c59956799c7398dd5b74c7b0328cc27fb067632a29"
     },
     {
       "path": "static/manifest.webmanifest",
@@ -584,8 +624,8 @@
     },
     {
       "path": "static/nocturne-polish.css",
-      "size_bytes": 32149,
-      "sha256": "b2ddb74d2394470f11a4a017e8525aa7385b05d9071b00a2f8dfec52b24db27d"
+      "size_bytes": 32816,
+      "sha256": "b2f293b1e1bb00f67b957d23827855705a1435cd46262e0c4612b3c15e0ca7e3"
     },
     {
       "path": "static/rain-still.webp",

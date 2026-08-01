@@ -30,6 +30,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable
 
+from path_safety import ensure_within, require_basename
+
 AUDIO_EXTS = {".wav", ".mp3", ".flac", ".aiff", ".aif", ".ogg", ".m4a"}
 DEFAULT_CSV = "audio_sources.mainstream_cc0.csv"
 
@@ -87,6 +89,7 @@ def load_rows(csv_path: Path) -> list[Row]:
                 title = raw.get("title", "").strip() or raw.get("original_title", "").strip()
                 creator = raw.get("creator", "").strip()
                 if sound_id and filename:
+                    filename = require_basename(filename, "CSV filename")
                     rows.append(Row(sound_id=sound_id, filename=filename, title=title, creator=creator, raw=raw))
         if rows:
             return rows
@@ -100,7 +103,7 @@ def iter_audio_files(root: Path, recursive: bool = True) -> Iterable[Path]:
     globber = root.rglob if recursive else root.glob
     for path in globber("*"):
         if path.is_file() and path.suffix.lower() in AUDIO_EXTS:
-            yield path
+            yield ensure_within(root, path, "downloaded audio path")
 
 
 def score_candidate(path: Path, row: Row) -> int:
@@ -130,6 +133,7 @@ def choose_match(files: list[Path], row: Row) -> Path | None:
 
 
 def unique_destination(dest_dir: Path, filename: str, overwrite: bool) -> Path:
+    filename = require_basename(filename, "destination filename")
     dest = dest_dir / filename
     if overwrite or not dest.exists():
         return dest
@@ -194,9 +198,17 @@ def main(argv: list[str] | None = None) -> int:
     dest_dir = Path(args.dest).expanduser()
     if not dest_dir.is_absolute():
         dest_dir = project / dest_dir
+    try:
+        dest_dir = ensure_within(project / "sounds" / "inbox", dest_dir, "destination folder")
+    except ValueError as exc:
+        parser.error(str(exc))
     output_csv = Path(args.output_csv).expanduser()
     if not output_csv.is_absolute():
         output_csv = project / output_csv
+    try:
+        output_csv = ensure_within(project, output_csv, "output CSV")
+    except ValueError as exc:
+        parser.error(str(exc))
 
     if not downloads.exists():
         print(f"Downloads folder not found: {downloads}", file=sys.stderr)
