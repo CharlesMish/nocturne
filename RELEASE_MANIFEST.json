@@ -16,7 +16,7 @@
   },
   "generated_at_utc": "2026-08-01T16:34:39Z",
   "file_count": 120,
-  "total_payload_bytes_excluding_manifest": 12833875,
+  "total_payload_bytes_excluding_manifest": 12835774,
   "manifest_self_excluded": true,
   "evidence_detached": true,
   "detached_evidence_file_count": 3,
@@ -616,8 +616,8 @@
     },
     {
       "path": "static/index.html",
-      "size_bytes": 313867,
-      "sha256": "61c55bf9538847144d2bc916633412fdf003a6d760af612b1f29050d68f61f81"
+      "size_bytes": 314082,
+      "sha256": "3aa9ef81d8570b9e5fa04cf757583e83cc1d2cdfa4b1ba1977c3756dc4627dd8"
     },
     {
       "path": "static/manifest.webmanifest",
@@ -626,8 +626,8 @@
     },
     {
       "path": "static/nocturne-polish.css",
-      "size_bytes": 32816,
-      "sha256": "b2f293b1e1bb00f67b957d23827855705a1435cd46262e0c4612b3c15e0ca7e3"
+      "size_bytes": 34500,
+      "sha256": "e5f4ed6c9ec2fe7062f443ce8b85efaf0931e5038f14b2fee956f5c33e20c535"
     },
     {
       "path": "static/rain-still.webp",
