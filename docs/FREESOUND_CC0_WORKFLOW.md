@@ -47,15 +47,10 @@ python scripts/import_sound_pack.py sounds/inbox --metadata-csv audio_sources.cs
 
 ## Starter files generated locally
 
-`python scripts/generate_noise.py` creates eight procedural starter beds:
+`python scripts/generate_noise.py` creates 17 procedural starter beds. The
+canonical inventory lives in `sounds/sound_library.json`; it currently includes
+the original noise set, seven expanded ambient beds, and two explicitly
+Experimental thunder candidates.
 
-- soft rain noise
-- window rain noise
-- heavy rain noise
-- distant storm noise
-- soft wind noise
-- pink noise
-- brown noise
-- white noise
-
-These keep the app testable while you curate real CC0 field recordings.
+These keep the app testable while you curate real CC0 field recordings. They
+are synthetic and still require human listening review.

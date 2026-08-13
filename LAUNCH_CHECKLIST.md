@@ -1,7 +1,9 @@
 # Launch checklist
 
 1. Run the installer for this platform, or prepare `.venv` manually.
-2. Start with `python run_nocturne.py` and open the printed localhost URL.
+2. Start with `.venv/bin/python run_nocturne.py` (or
+   `.venv\Scripts\python.exe run_nocturne.py` on Windows) and open the printed
+   localhost URL.
 3. Raise one channel and confirm audio begins after the gesture.
 4. Try **silence all**, then **resume mix**.
 5. Save, alter, and re-apply one local scene.

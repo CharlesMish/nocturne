@@ -67,7 +67,13 @@ scenes, Radio, privacy model, and accessibility intent. See
 A Pi may either serve Nocturne to another device or serve **and** display it
 locally. That is a deployment distinction, not another product edition.
 
-## Quick start from source
+## Quick start
+
+Download the standard or Pi **product** ZIP rather than the optional evidence
+archive, extract the entire ZIP into a writable folder, and run the commands
+from that folder. Nocturne requires Python 3.10 or newer. The first install uses
+the network to download Python packages; normal use does not contact a package
+index.
 
 Windows:
 
@@ -97,7 +103,12 @@ After installation, the direct launch command on macOS or Linux is:
 
 The installer attempts 17 optional procedural beds at 60 seconds each. The
 bundled curated Core Sound Pack works immediately if generation is skipped or
-fails; use `python3 install.py --noise-seconds 180` to request longer beds.
+fails; use `python3 install.py --skip-noise` for the quickest constrained-device
+install, or `python3 install.py --noise-seconds 180` to request longer beds.
+
+Open the local URL printed after launch, then raise one mixer channel; browsers
+wait for that first audio gesture. Press Ctrl+C in the launcher terminal to stop
+Nocturne, and run the same start command to restart it.
 
 Run the Pi profile explicitly:
 
@@ -111,13 +122,24 @@ For trusted-LAN access:
 ./.venv/bin/python run_nocturne.py --host 0.0.0.0 --port 8000
 ```
 
-Then open the printed address from a device on the same trusted network.
+Then open `http://DEVICE-IP:8000/` from a device on the same trusted network,
+replacing `DEVICE-IP` with the Nocturne host's LAN address. The ready message
+prints a safe loopback URL for the host itself; it does not discover your LAN
+address.
 Ordinary LAN HTTP plays audio, but some browser integration requires localhost
 or trusted HTTPS. See [Platform behavior](docs/PLATFORM_BEHAVIOR.md).
 
 Nocturne has no login or per-user permissions. Anyone who can reach it on the
 network can change settings and, when Utility is enabled, create, edit, or
 delete local sketches. Use LAN access only on a network you trust.
+
+Sky weather sends the configured coordinates, timezone, and temperature unit
+to Open-Meteo; place search sends the text you explicitly search. Reachable LAN
+clients can read the configured location/settings and Radio filenames, and can
+request Radio audio bytes. Explicitly opening a Utility sketch in Strudel puts
+that sketch code in a `strudel.cc` URL fragment. Nocturne itself has no account,
+cloud library, analytics, or feed, and support reports remain local until you
+choose to share them.
 
 ## What is here
 

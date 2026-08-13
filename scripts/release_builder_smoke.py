@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import stat
 import subprocess
 import sys
@@ -39,7 +40,7 @@ def fixture_selection(checks: list[str]) -> None:
             "sounds/inbox/quarantine/README.md",
             "songs/evening-loop/code.js",
         }
-        forbidden = {
+        policy_forbidden = {
             "workspace.zip",
             "workspace.zip.sha256",
             "scratch.wav",
@@ -58,11 +59,83 @@ def fixture_selection(checks: list[str]) -> None:
             "CHANGE_SUMMARY.md",
             "NOCTURNE_ALPHA13_HARDENING.patch",
         }
-        for rel in allowed | forbidden:
+        undeclared = {
+            ".env",
+            "owner-note.txt",
+            "nocturne-support-report.txt",
+            "pip-unpack/metadata.txt",
+        }
+        for rel in allowed | policy_forbidden | undeclared:
             write(root / rel)
+        declared = allowed | policy_forbidden | {"sounds/sound_library.json"}
+        write(
+            root / "RELEASE_MANIFEST.json",
+            json.dumps({"files": [{"path": rel} for rel in sorted(declared)]}),
+        )
         selected = {path.relative_to(root).as_posix() for path in release.product_files(root)}
         expect(allowed <= selected, "release policy keeps canonical files in mutable directories", checks)
-        expect(not forbidden & selected, "release policy rejects dirty-workspace fixtures", checks)
+        expect(not policy_forbidden & selected, "release policy rejects workspace-only declared fixtures", checks)
+        expect(not undeclared & selected, "release allowlist excludes arbitrary local and support-report files", checks)
+
+
+def symlink_selection(checks: list[str]) -> None:
+    with tempfile.TemporaryDirectory(prefix="nocturne-release-symlink-") as temp:
+        root = Path(temp)
+        write(root / "sounds/sound_library.json", json.dumps({"sounds": [], "excluded_sounds": []}))
+        write(root / "ordinary.txt")
+        (root / "inside-link.txt").symlink_to(root / "ordinary.txt")
+        write(
+            root / "RELEASE_MANIFEST.json",
+            json.dumps({"files": [
+                {"path": "inside-link.txt"},
+                {"path": "sounds/sound_library.json"},
+            ]}),
+        )
+        try:
+            release.product_files(root)
+        except ValueError as exc:
+            expect("Symlink is not allowed" in str(exc), "release selection rejects an in-root file symlink", checks)
+        else:
+            raise AssertionError("release selection accepted an in-root file symlink")
+
+    with tempfile.TemporaryDirectory(prefix="nocturne-release-symlink-") as temp:
+        root = Path(temp)
+        write(root / "sounds/sound_library.json", json.dumps({"sounds": [], "excluded_sounds": []}))
+        write(root / "ordinary/nested.txt")
+        (root / "inside-directory-link").symlink_to(root / "ordinary", target_is_directory=True)
+        write(
+            root / "RELEASE_MANIFEST.json",
+            json.dumps({"files": [
+                {"path": "inside-directory-link/nested.txt"},
+                {"path": "sounds/sound_library.json"},
+            ]}),
+        )
+        try:
+            release.product_files(root)
+        except ValueError as exc:
+            expect("Symlink is not allowed" in str(exc), "release selection rejects an in-root directory symlink", checks)
+        else:
+            raise AssertionError("release selection accepted an in-root directory symlink")
+
+    with tempfile.TemporaryDirectory(prefix="nocturne-release-symlink-") as temp, tempfile.TemporaryDirectory(prefix="nocturne-release-outside-") as outside:
+        root = Path(temp)
+        write(root / "sounds/sound_library.json", json.dumps({"sounds": [], "excluded_sounds": []}))
+        external = Path(outside) / "outside.txt"
+        write(external)
+        (root / "outside-link.txt").symlink_to(external)
+        write(
+            root / "RELEASE_MANIFEST.json",
+            json.dumps({"files": [
+                {"path": "outside-link.txt"},
+                {"path": "sounds/sound_library.json"},
+            ]}),
+        )
+        try:
+            release.product_files(root)
+        except ValueError as exc:
+            expect("Symlink is not allowed" in str(exc), "release selection rejects an out-of-root file symlink", checks)
+        else:
+            raise AssertionError("release selection accepted an out-of-root file symlink")
 
 
 def actual_tree_selection(checks: list[str]) -> None:
@@ -176,13 +249,130 @@ def non_mutating_audit(checks: list[str]) -> None:
     expect(not root_report.exists(), "two source audits create no repository-root report", checks)
 
 
+def dirty_release_policy(checks: list[str]) -> None:
+    script = ROOT / "scripts" / "make_release.py"
+    with tempfile.TemporaryDirectory(prefix="nocturne-dirty-release-") as temp:
+        root = Path(temp) / "source"
+        output = Path(temp) / "output"
+        write(
+            root / "nocturne_build.json",
+            json.dumps({
+                "version": "0.0.0-fixture",
+                "build_date_utc": "2026-01-01T00:00:00Z",
+                "feedback_label": "fixture",
+            }),
+        )
+        write(root / "sounds/sound_library.json", json.dumps({"sounds": [], "excluded_sounds": []}))
+        write(root / "README.md", "clean fixture\n")
+        write(root / "RELEASE_MANIFEST.json", json.dumps({"files": []}))
+        subprocess.run(["git", "init", "-q", str(root)], check=True)
+        subprocess.run(["git", "-C", str(root), "add", "."], check=True)
+        subprocess.run(
+            [
+                "git", "-C", str(root), "-c", "user.name=Nocturne Smoke",
+                "-c", "user.email=nocturne-smoke@example.invalid", "commit", "-qm", "fixture",
+            ],
+            check=True,
+        )
+        expect(release.release_source_state(root) == "clean", "committed fixture is release-eligible", checks)
+
+        write(root / "README.md", "uncommitted fixture change\n")
+        ordinary = subprocess.run(
+            [
+                sys.executable, str(script), "--root", str(root), "--output-dir", str(output),
+                "--product-name", "dirty-fixture", "--evidence-name", "dirty-fixture-evidence",
+            ],
+            capture_output=True,
+            text=True,
+        )
+        expect(ordinary.returncode != 0, "ordinary release rejects modified tracked source", checks)
+        expect("Tracked source tree is dirty" in ordinary.stderr, "dirty-tree refusal explains the opt-in", checks)
+        expect(not list(output.glob("*.zip")), "dirty-tree refusal emits no archive", checks)
+
+        development = subprocess.run(
+            [
+                sys.executable, str(script), "--root", str(root), "--output-dir", str(output),
+                "--product-name", "dirty-fixture", "--evidence-name", "dirty-fixture-evidence",
+                "--allow-dirty",
+            ],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        report = json.loads(development.stdout)
+        expect(report["source"] == {"state": "dirty", "release_eligible": False}, "dirty opt-in is non-release in command output", checks)
+        with zipfile.ZipFile(output / "dirty-fixture.zip") as archive:
+            manifest = json.loads(archive.read("dirty-fixture/RELEASE_MANIFEST.json"))
+        expect(manifest["source_state"] == "dirty", "dirty opt-in is marked in the product manifest", checks)
+        expect(manifest["release_eligible"] is False, "dirty product manifest is explicitly non-release", checks)
+        with zipfile.ZipFile(output / "dirty-fixture-evidence.zip") as archive:
+            evidence_readme = archive.read("dirty-fixture-evidence/README.md").decode("utf-8")
+        expect("DIRTY DEVELOPMENT BUILD — NOT RELEASE-ELIGIBLE" in evidence_readme, "dirty evidence archive carries the warning", checks)
+
+
+def dual_release_boundaries(checks: list[str]) -> None:
+    script = ROOT / "scripts" / "make_dual_release.py"
+    with tempfile.TemporaryDirectory(prefix=".nocturne-tmpdir-smoke-", dir=ROOT) as local_tmp, tempfile.TemporaryDirectory(prefix="nocturne-dual-output-") as output_parent:
+        parent = Path(output_parent)
+        hashes: list[dict[str, str]] = []
+        for run in ("one", "two"):
+            output = parent / run
+            env = {**os.environ, "TMPDIR": local_tmp}
+            subprocess.run(
+                [
+                    sys.executable, str(script), "--output-dir", str(output),
+                    "--release-id", "boundary-smoke", "--allow-dirty",
+                ],
+                cwd=ROOT,
+                env=env,
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+            run_hashes: dict[str, str] = {}
+            for archive_path in sorted(output.glob("*.zip")):
+                run_hashes[archive_path.name] = release.sha256(archive_path)
+                with zipfile.ZipFile(archive_path) as archive:
+                    names = archive.namelist()
+                    expected_root = archive_path.stem
+                    expect(
+                        {name.split("/", 1)[0] for name in names} == {expected_root},
+                        f"{archive_path.name} has exactly one package root",
+                        checks,
+                    )
+                    expect(
+                        not any("nocturne-dual-release-" in name or ".nocturne-tmpdir-smoke-" in name for name in names),
+                        f"{archive_path.name} contains no temporary staging member",
+                        checks,
+                    )
+                    if archive_path.name.startswith("nocturne-pi-"):
+                        expect(
+                            not any(name.endswith("/static/rain.mp4") for name in names),
+                            "Pi product omits the full rain video with TMPDIR inside the checkout",
+                            checks,
+                        )
+                    if not archive_path.name.startswith("nocturne-evidence-"):
+                        manifest_name = f"{expected_root}/RELEASE_MANIFEST.json"
+                        manifest = json.loads(archive.read(manifest_name))
+                        expect(
+                            manifest.get("release_eligible") == (manifest.get("source_state") != "dirty"),
+                            f"{archive_path.name} records source eligibility consistently",
+                            checks,
+                        )
+            hashes.append(run_hashes)
+        expect(hashes[0] == hashes[1], "dual-profile archives are byte-identical across repeated builds", checks)
+
+
 def main() -> int:
     checks: list[str] = []
     fixture_selection(checks)
+    symlink_selection(checks)
     actual_tree_selection(checks)
     executable_modes(checks)
     launcher_line_endings(checks)
     non_mutating_audit(checks)
+    dirty_release_policy(checks)
+    dual_release_boundaries(checks)
     print(json.dumps({"schema": "nocturne.release-builder-smoke.v1", "overall": "PASS", "checks": checks}, indent=2))
     return 0
 

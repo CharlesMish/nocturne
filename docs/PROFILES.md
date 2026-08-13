@@ -39,9 +39,11 @@ The source tree defaults to `nocturne`, recorded in `nocturne_profile.json`.
 Override it without editing files:
 
 ```bash
-python run_nocturne.py --profile nocturne
-python run_nocturne.py --profile nocturne-pi
+./.venv/bin/python run_nocturne.py --profile nocturne
+./.venv/bin/python run_nocturne.py --profile nocturne-pi
 ```
+
+On Windows, use `.venv\Scripts\python.exe` in place of `./.venv/bin/python`.
 
 The active definition is exposed locally at `/api/profile` and included in
 `/api/version`.

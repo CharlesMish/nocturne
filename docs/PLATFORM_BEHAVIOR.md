@@ -49,7 +49,7 @@ sketches. Bind it to a LAN address only on a network you trust.
 ## Optional HTTPS
 
 ```bash
-python run_nocturne.py --host 0.0.0.0 \
+./.venv/bin/python run_nocturne.py --host 0.0.0.0 \
   --ssl-certfile /path/to/trusted-cert.pem \
   --ssl-keyfile /path/to/private-key.pem
 ```

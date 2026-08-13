@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import shutil
 import sys
@@ -18,9 +19,18 @@ ROOT = SCRIPT_DIR.parent
 PROFILE_IDS = ("nocturne", "nocturne-pi")
 
 
-def stage_profile(root: Path, destination: Path, profile_id: str, package_name: str) -> tuple[list[Path], dict[str, object]]:
+def stage_profile(
+    root: Path,
+    destination: Path,
+    profile_id: str,
+    package_name: str,
+    source_files: tuple[Path, ...],
+    source_state: str,
+    release_eligible: bool,
+) -> tuple[list[Path], dict[str, object]]:
     destination.mkdir(parents=True, exist_ok=True)
-    for source in base.product_files(root):
+    staged_files: list[Path] = []
+    for source in source_files:
         rel = source.relative_to(root)
         if rel.as_posix() == "RELEASE_MANIFEST.json":
             continue
@@ -29,6 +39,7 @@ def stage_profile(root: Path, destination: Path, profile_id: str, package_name: 
         target = destination / rel
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(source, target)
+        staged_files.append(target)
 
     (destination / "nocturne_profile.json").write_text(
         json.dumps({"profile": profile_id}, indent=2) + "\n", encoding="utf-8"
@@ -46,8 +57,15 @@ def stage_profile(root: Path, destination: Path, profile_id: str, package_name: 
     manifest_path.write_text(json.dumps(web_manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
     build = json.loads((destination / "nocturne_build.json").read_text(encoding="utf-8"))
-    initial = base.product_files(destination)
-    release_manifest = base.manifest_for(destination, initial, package_name, build)
+    staged_files = sorted(set(staged_files), key=lambda path: path.relative_to(destination).as_posix())
+    release_manifest = base.manifest_for(
+        destination,
+        staged_files,
+        package_name,
+        build,
+        source_state=source_state,
+        release_eligible=release_eligible,
+    )
     source_manifest_path = root / "RELEASE_MANIFEST.json"
     if source_manifest_path.exists():
         source_manifest = json.loads(source_manifest_path.read_text(encoding="utf-8"))
@@ -57,10 +75,33 @@ def stage_profile(root: Path, destination: Path, profile_id: str, package_name: 
     release_manifest["schema"] = "nocturne.release-manifest.v3"
     release_manifest["profile"] = profile_id
     release_manifest["shared_source_build"] = build.get("feedback_label")
-    (destination / "RELEASE_MANIFEST.json").write_text(
+    release_manifest_path = destination / "RELEASE_MANIFEST.json"
+    release_manifest_path.write_text(
         json.dumps(release_manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
     )
-    return base.product_files(destination), build
+    return sorted(staged_files + [release_manifest_path], key=lambda path: path.relative_to(destination).as_posix()), build
+
+
+def verify_product_zip(output: Path, package_name: str) -> None:
+    """Require archive members and bytes to agree with the staged manifest."""
+    with zipfile.ZipFile(output) as archive:
+        prefix = f"{package_name}/"
+        manifest_name = prefix + "RELEASE_MANIFEST.json"
+        manifest = json.loads(archive.read(manifest_name))
+        records = manifest.get("files", [])
+        expected = {manifest_name}
+        for record in records:
+            name = prefix + str(record["path"])
+            expected.add(name)
+            payload = archive.read(name)
+            if len(payload) != int(record["size_bytes"]):
+                raise RuntimeError(f"Archive size differs from manifest: {name}")
+            if hashlib.sha256(payload).hexdigest() != record["sha256"]:
+                raise RuntimeError(f"Archive hash differs from manifest: {name}")
+        if set(archive.namelist()) != expected:
+            extra = sorted(set(archive.namelist()) - expected)
+            missing = sorted(expected - set(archive.namelist()))
+            raise RuntimeError(f"Archive members differ from manifest; extra={extra}, missing={missing}")
 
 
 def write_product_zip(stage: Path, files: list[Path], output: Path, package_name: str, stamp) -> str:
@@ -70,6 +111,7 @@ def write_product_zip(stage: Path, files: list[Path], output: Path, package_name
             rel = source.relative_to(stage).as_posix()
             base.write_member(archive, source, f"{package_name}/{rel}", stamp)
     base.test_zip(output)
+    verify_product_zip(output, package_name)
     digest = base.sha256(output)
     output.with_suffix(output.suffix + ".sha256").write_text(f"{digest}  {output.name}\n", encoding="utf-8")
     return digest
@@ -81,16 +123,23 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--release-id", required=True, help="archive suffix, e.g. v0.1.0-alpha.N")
     parser.add_argument("--evidence-source", type=Path, help="optional evidence-branch snapshot to include")
+    parser.add_argument(
+        "--allow-dirty",
+        action="store_true",
+        help="build explicitly non-release development artifacts from modified tracked files",
+    )
     return parser.parse_args()
 
 
 def main() -> int:
     args = parse_args()
     root = args.root.resolve()
+    source_state, release_eligible = base.enforce_release_source(root, args.allow_dirty)
     output_dir = args.output_dir.resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
     canonical_build = json.loads((root / "nocturne_build.json").read_text(encoding="utf-8"))
     stamp = base.zip_datetime(canonical_build)
+    source_files = tuple(base.product_files(root))
 
     products: dict[str, dict[str, object]] = {}
     with tempfile.TemporaryDirectory(prefix="nocturne-dual-release-") as temp_dir:
@@ -98,7 +147,15 @@ def main() -> int:
         for profile_id in PROFILE_IDS:
             package_name = f"nocturne{'-pi' if profile_id == 'nocturne-pi' else ''}-{args.release_id}"
             stage = temp_root / package_name
-            files, build = stage_profile(root, stage, profile_id, package_name)
+            files, build = stage_profile(
+                root,
+                stage,
+                profile_id,
+                package_name,
+                source_files,
+                source_state,
+                release_eligible,
+            )
             output = output_dir / f"{package_name}.zip"
             digest = write_product_zip(stage, files, output, package_name, stamp)
             products[profile_id] = {
@@ -117,7 +174,8 @@ def main() -> int:
             f"{record['sha256']}  {Path(str(record['path'])).name}"
             for record in products.values()
         ) + "\n"
-        readme = f"""# Nocturne evidence — {args.release_id}\n\nThis archive accompanies two editions built from one source identity:\n\n- `{Path(str(products['nocturne']['path'])).name}`\n- `{Path(str(products['nocturne-pi']['path'])).name}`\n\nBuild: `{canonical_build.get('feedback_label', 'unknown')}`\n\nThe two products differ only in their presentation profile and packaged visual\nassets. Server-only versus local-display use remains a deployment dimension,\nnot another edition. Hardware, listening, screen-reader, lock-screen, and\novernight behavior require real field evidence.\n"""
+        source_label = "release-eligible" if release_eligible else "DIRTY DEVELOPMENT BUILD — NOT RELEASE-ELIGIBLE"
+        readme = f"""# Nocturne evidence — {args.release_id}\n\nThis archive accompanies two editions built from one source identity:\n\n- `{Path(str(products['nocturne']['path'])).name}`\n- `{Path(str(products['nocturne-pi']['path'])).name}`\n\nBuild: `{canonical_build.get('feedback_label', 'unknown')}`\n\nSource state: `{source_label}`\n\nThe two products differ only in their presentation profile and packaged visual\nassets. Server-only versus local-display use remains a deployment dimension,\nnot another edition. Hardware, listening, screen-reader, lock-screen, and\novernight behavior require real field evidence.\n"""
         with zipfile.ZipFile(evidence_zip, "w") as archive:
             base.write_bytes(archive, readme.encode("utf-8"), f"{evidence_name}/README.md", stamp)
             base.write_bytes(archive, hashes.encode("utf-8"), f"{evidence_name}/PRODUCT_SHA256S.txt", stamp)
@@ -142,6 +200,7 @@ def main() -> int:
     result = {
         "schema": "nocturne.dual-release-build.v1",
         "build": canonical_build.get("feedback_label"),
+        "source": {"state": source_state, "release_eligible": release_eligible},
         "products": products,
         "evidence": {
             "path": str(evidence_zip),
