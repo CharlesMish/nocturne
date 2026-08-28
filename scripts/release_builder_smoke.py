@@ -44,6 +44,9 @@ def fixture_selection(checks: list[str]) -> None:
             "workspace.zip",
             "workspace.zip.sha256",
             "scratch.wav",
+            "web/package.json",
+            "web/src/App.tsx",
+            ".github/workflows/web.yml",
             "config/nocturne.json",
             "config/private.json",
             "media_sources.json",
@@ -75,6 +78,8 @@ def fixture_selection(checks: list[str]) -> None:
         selected = {path.relative_to(root).as_posix() for path in release.product_files(root)}
         expect(allowed <= selected, "release policy keeps canonical files in mutable directories", checks)
         expect(not policy_forbidden & selected, "release policy rejects workspace-only declared fixtures", checks)
+        expect(not any(path.startswith("web/") for path in selected), "hosted web source is excluded from local product selection", checks)
+        expect(".github/workflows/web.yml" not in selected, "hosted web workflow is excluded from local product selection", checks)
         expect(not undeclared & selected, "release allowlist excludes arbitrary local and support-report files", checks)
 
 
@@ -149,6 +154,8 @@ def actual_tree_selection(checks: list[str]) -> None:
         "sounds/radio/aster.wav",
     }
     expect(not forbidden & selected, "live workspace junk is excluded from product selection", checks)
+    expect(not any(path.startswith("web/") for path in selected), "live hosted web tree is excluded from local product selection", checks)
+    expect(".github/workflows/web.yml" not in selected, "live hosted web workflow is excluded from local product selection", checks)
     required = {
         "Install Nocturne.command",
         "install.sh",
@@ -352,6 +359,16 @@ def dual_release_boundaries(checks: list[str]) -> None:
                             checks,
                         )
                     if not archive_path.name.startswith("nocturne-evidence-"):
+                        expect(
+                            not any("/web/" in name for name in names),
+                            f"{archive_path.name} excludes the hosted web source tree",
+                            checks,
+                        )
+                        expect(
+                            not any(name.endswith("/.github/workflows/web.yml") for name in names),
+                            f"{archive_path.name} excludes the hosted web workflow",
+                            checks,
+                        )
                         manifest_name = f"{expected_root}/RELEASE_MANIFEST.json"
                         manifest = json.loads(archive.read(manifest_name))
                         expect(
