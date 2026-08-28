@@ -80,7 +80,9 @@ Use `docs/FREESOUND_CC0_WORKFLOW.md` for the curation workflow. The legacy fetch
 reports, screenshots, logs, and non-public `sounds/inbox/` payloads from the
 product ZIP. Detached evidence is selected from canonical catalog metadata, not
 whatever happens to be in the inbox. The evidence ZIP can also carry current
-verification output and an optional history tree.
+verification output and an optional history tree. Both release builders require
+a clean tracked source tree. Use `--allow-dirty` only for deliberate development
+artifacts; their manifests and command output mark them as non-release.
 
 ## Dual-profile release preparation
 

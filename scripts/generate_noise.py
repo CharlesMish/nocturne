@@ -4,7 +4,8 @@ Generate Nocturne's procedural starter ambience pack.
 
 This script creates deterministic local WAV beds so a fresh install has useful
 sounds before any CC0/Freesound curation work is done. They are intentionally
-simple, sleep-safe placeholders — not replacements for field recordings.
+simple, bedside-oriented placeholders — not replacements for field recordings
+or proof of listening comfort.
 
 Generated files (original set):
   sounds/soft-rain-noise.wav
