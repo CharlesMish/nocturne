@@ -18,7 +18,7 @@
   "release_eligible": true,
   "generated_at_utc": "2026-08-01T16:34:39Z",
   "file_count": 120,
-  "total_payload_bytes_excluding_manifest": 12873913,
+  "total_payload_bytes_excluding_manifest": 12875764,
   "manifest_self_excluded": true,
   "evidence_detached": true,
   "detached_evidence_file_count": 3,
@@ -78,8 +78,8 @@
     },
     {
       "path": "AGENTS.md",
-      "size_bytes": 2792,
-      "sha256": "d36ab67bf83709d6fe84840ca3ae95512f073e27eba8111342d8d48a98ac2bd8"
+      "size_bytes": 2945,
+      "sha256": "1ea3d2035f2581e425885300526d66ea1fd2265b32180a0c649f79f36114be15"
     },
     {
       "path": "ALPHA_FEEDBACK.md",
@@ -128,8 +128,8 @@
     },
     {
       "path": "README.md",
-      "size_bytes": 10928,
-      "sha256": "c1d01a7c5602584a5daad072c758c9c0f739cea6efcb31fa10bdac39454a4edd"
+      "size_bytes": 11625,
+      "sha256": "4f121399b2a960650a4c883b0f65d3480ef036d029a086ce06c1ec4cfe7826bb"
     },
     {
       "path": "Start Nocturne LAN.bat",
@@ -618,8 +618,8 @@
     },
     {
       "path": "static/index.html",
-      "size_bytes": 327043,
-      "sha256": "4f6211428a3d6514b9555e558886ce3103d7083d1a9a10f8ee00e974f9cf52b7"
+      "size_bytes": 328044,
+      "sha256": "69544e41fb656acf10ba64d4770de7ac2a6b2e186457b429cfdb391cf097cf39"
     },
     {
       "path": "static/manifest.webmanifest",

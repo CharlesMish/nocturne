@@ -68,4 +68,6 @@ uploaded version as live production traffic.
 
 Keep personal Radio files browser-local, preserve the no-account/no-analytics
 boundary, and keep media credits and provenance synchronized with the canonical
-repository records. Do not edit generated `web/dist/` output as source.
+repository records. Worker and GitHub CI commit metadata is staged as
+`web_source_revision`; do not present the older packaged-alpha revision as the
+hosted source revision. Do not edit generated `web/dist/` output as source.

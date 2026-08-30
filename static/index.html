@@ -5957,8 +5957,14 @@ body[data-mode="dashboard"] .topbar {
         .map(sound => sound.category)
         .filter(Boolean)
     ));
-    return [CATEGORY_TONIGHT, CATEGORY_ALL, CATEGORY_RECORDED, CATEGORY_GENERATED, CATEGORY_EXPERIMENTAL]
-      .concat(cats.sort((a, b) => a.localeCompare(b)));
+    const primary = [CATEGORY_TONIGHT, CATEGORY_ALL, CATEGORY_RECORDED];
+    if (soundLibrary.sounds.some(sound => sound.source_type === 'generated' && sound.status !== 'experimental')) {
+      primary.push(CATEGORY_GENERATED);
+    }
+    if (soundLibrary.sounds.some(sound => sound.status === 'experimental')) {
+      primary.push(CATEGORY_EXPERIMENTAL);
+    }
+    return primary.concat(cats.sort((a, b) => a.localeCompare(b)));
   }
 
   function renderSoundPickerCategories() {
@@ -6583,6 +6589,11 @@ body[data-mode="dashboard"] .topbar {
   }
 
   function buildFeedbackLabel(info = buildInfo) {
+    if (WEB_PROFILE) {
+      const version = (info && info.version) || 'unknown';
+      const webRevision = String(info && info.web_source_revision || '').slice(0, 7);
+      return `v${version} · web${webRevision ? ` · ${webRevision}` : ''}`;
+    }
     if (info && info.feedback_label) return info.feedback_label;
     const version = (info && info.version) || 'unknown';
     const revision = (info && (info.revision || info.commit)) || 'unknown';
@@ -6597,14 +6608,25 @@ body[data-mode="dashboard"] .topbar {
     const settingsLabel = document.getElementById('settings-build-label');
     const settingsDetails = document.getElementById('settings-build-details');
     if (footerLabel) footerLabel.textContent = `Nocturne · ${label}`;
-    if (footerDate) footerDate.textContent = `Build ${((info && info.build_date_utc) || '').slice(0, 10) || '2026-06-09'}`;
+    if (footerDate) {
+      const webRevision = String(info && info.web_source_revision || '').slice(0, 7);
+      footerDate.textContent = WEB_PROFILE
+        ? (webRevision ? `Hosted source ${webRevision}` : 'Hosted web edition')
+        : `Build ${((info && info.build_date_utc) || '').slice(0, 10) || '2026-06-09'}`;
+    }
     if (settingsLabel) settingsLabel.textContent = label;
     if (settingsDetails) {
       const edition = (info && info.profile) === 'nocturne-pi'
         ? 'Nocturne Pi'
         : (info && info.profile) === 'nocturne-web' ? 'Nocturne Web' : 'Nocturne';
+      const revision = WEB_PROFILE
+        ? String(info && info.web_source_revision || '').slice(0, 7) || 'unavailable'
+        : (info && (info.revision || info.commit)) || 'unknown';
+      const branch = WEB_PROFILE && info && info.web_source_branch
+        ? ` · Branch: ${info.web_source_branch}`
+        : '';
       const source = WEB_PROFILE ? ' · Source: github.com/CharlesMish/nocturne' : ' · API: /api/version';
-      settingsDetails.textContent = `Edition: ${edition} · Channel: ${(info && info.channel) || 'alpha'} · Revision: ${(info && (info.revision || info.commit)) || 'unknown'}${source}`;
+      settingsDetails.textContent = `Edition: ${edition} · Channel: ${(info && info.channel) || 'alpha'} · Revision: ${revision}${branch}${source}`;
     }
   }
 

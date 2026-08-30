@@ -108,6 +108,11 @@ function readJson(relativePath) {
   }
 }
 
+function normalizedGitRevision(value) {
+  const revision = String(value ?? "").trim().toLowerCase();
+  return /^[0-9a-f]{7,64}$/.test(revision) ? revision : "";
+}
+
 function walk(directory) {
   const files = [];
   for (const entry of readdirSync(directory, { withFileTypes: true })) {
@@ -393,6 +398,19 @@ function main() {
   const build = readJson("nocturne_build.json");
   if (build) {
     check(build.deployment === "web", 'nocturne_build.json must contain deployment: "web"');
+    check(build.profile === "nocturne-web", 'nocturne_build.json must identify the nocturne-web profile');
+    check(build.channel === "web", 'nocturne_build.json must identify the web channel');
+    const expectedRevision = normalizedGitRevision(
+      process.env.WORKERS_CI_COMMIT_SHA
+        || process.env.GITHUB_SHA
+        || process.env.NOCTURNE_WEB_COMMIT_SHA,
+    );
+    if (expectedRevision) {
+      check(
+        build.web_source_revision === expectedRevision,
+        `nocturne_build.json web_source_revision must match the CI source commit ${expectedRevision}`,
+      );
+    }
   }
 
   verifyCatalog(readJson("sounds/sound_library.json"));

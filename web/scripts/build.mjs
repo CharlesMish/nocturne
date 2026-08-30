@@ -263,10 +263,37 @@ async function stageNoticesAndMetadata() {
   ]);
 }
 
+function normalizedGitRevision(value) {
+  const revision = String(value ?? '').trim().toLowerCase();
+  return /^[0-9a-f]{7,64}$/.test(revision) ? revision : '';
+}
+
+function normalizedBranch(value) {
+  const branch = String(value ?? '').trim();
+  return branch && branch.length <= 200 ? branch : '';
+}
+
 async function stageBuildInfo() {
   await requireFile(sourceBuildInfoPath);
   const buildInfo = JSON.parse(await readFile(sourceBuildInfoPath, 'utf8'));
-  const webBuildInfo = { ...buildInfo, deployment: 'web' };
+  const webSourceRevision = normalizedGitRevision(
+    process.env.WORKERS_CI_COMMIT_SHA
+      || process.env.GITHUB_SHA
+      || process.env.NOCTURNE_WEB_COMMIT_SHA,
+  );
+  const webSourceBranch = normalizedBranch(
+    process.env.WORKERS_CI_BRANCH
+      || process.env.GITHUB_REF_NAME
+      || process.env.NOCTURNE_WEB_BRANCH,
+  );
+  const webBuildInfo = {
+    ...buildInfo,
+    deployment: 'web',
+    profile: 'nocturne-web',
+    channel: 'web',
+    ...(webSourceRevision ? { web_source_revision: webSourceRevision } : {}),
+    ...(webSourceBranch ? { web_source_branch: webSourceBranch } : {}),
+  };
   await Promise.all([
     writeFile(
       path.join(distDirectory, 'nocturne_build.json'),

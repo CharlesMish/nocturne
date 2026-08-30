@@ -94,6 +94,18 @@ npm run check
 That command runs the production build, built-asset verification, and a
 Wrangler dry run. It does not place a version on production traffic.
 
+The hosted edition preserves Nocturne's core rooms and interaction model:
+Onsen, Sky, personal Radio, the eight-channel mixer and sleep timer, local
+scenes, curated appearance, and all 11 bundled recorded CC0 sounds. Browser
+adaptations keep personal Radio files in the current tab, store room and Sky
+choices in that browser, and call Open-Meteo directly only after a location is
+chosen.
+
+The static Worker intentionally omits the 17 optional install-generated WAVs
+and the server-only Utility and Dashboard. Those remain available in the local
+Python-backed edition; quarantined audio remains absent everywhere public.
+This is a documented deployment boundary, not a second hand-maintained UI.
+
 ## Quick start
 
 Download the standard or Pi **product** ZIP rather than the optional evidence
