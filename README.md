@@ -94,6 +94,12 @@ npm run check
 That command runs the production build, built-asset verification, and a
 Wrangler dry run. It does not place a version on production traffic.
 
+For Cloudflare Workers Builds, use `web` as the root directory, `npm run build`
+as the build command, `npm run deploy` for the production `main` branch, and
+`npx wrangler versions upload` for non-production branches. Retrying a
+historical build can retain that build's earlier command; a new `main` push uses
+the current Build configuration.
+
 The hosted edition preserves Nocturne's core rooms and interaction model:
 Onsen, Sky, personal Radio, the eight-channel mixer and sleep timer, local
 scenes, curated appearance, and all 11 bundled recorded CC0 sounds. Browser
