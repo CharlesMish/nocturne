@@ -225,6 +225,10 @@ html[data-deployment="web"] p.web-only {
   display: block !important;
 }
 
+html[data-deployment="web"] span.web-only {
+  display: inline !important;
+}
+
 html[data-deployment="web"] .local-only {
   display: none !important;
 }
@@ -272,6 +276,24 @@ html[data-deployment="web"] .local-only {
   font-size: 0.7rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
+}
+
+.radio-file-actions {
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-block-start: 0.7rem;
+  padding-block-start: 0.7rem;
+  border-block-start: 1px solid var(--hairline-warm);
+}
+
+.radio-file-actions .radio-file-button {
+  flex: 0 0 auto;
+  margin-block-start: 0;
+}
+
+.radio-file-actions .playlist-empty-hint {
+  text-align: end;
 }
 
 .radio-file-button:has(input:focus-visible) {
@@ -479,12 +501,12 @@ body.sound-picker-open {
 .settings-open {
   background: linear-gradient(180deg, var(--surface-2), var(--surface-1));
 }
-.mode-btn[aria-selected="true"] {
+.mode-btn[aria-pressed="true"] {
   background:
     radial-gradient(120% 80% at 50% 0%, var(--surface-hover), transparent 72%),
     linear-gradient(180deg, var(--surface-2), var(--surface-1));
 }
-.mode-btn[aria-selected="true"] .mode-glyph,
+.mode-btn[aria-pressed="true"] .mode-glyph,
 .channel.active .value,
 .master-slider .value,
 .timer-status {
@@ -619,11 +641,11 @@ body[data-profile="nocturne"] .mode-btn,
 body[data-profile="nocturne"] .settings-open {
   min-height: 42px;
 }
-body[data-profile="nocturne"] .mode-btn[aria-selected="true"] {
+body[data-profile="nocturne"] .mode-btn[aria-pressed="true"] {
   border-color: rgb(var(--accent-soft-rgb) / 0.42);
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.07), 0 7px 22px -16px var(--appearance-glow);
 }
-body[data-profile="nocturne"] .mode-btn[aria-selected="true"] .mode-label {
+body[data-profile="nocturne"] .mode-btn[aria-pressed="true"] .mode-label {
   color: rgb(var(--accent-soft-rgb));
 }
 body[data-profile="nocturne"][data-mode="sky"] :where(.ambient-rain, .ambient-petals),
@@ -1071,7 +1093,7 @@ body[data-profile="nocturne-pi"] .scene {
   opacity: 0.34;
 }
 body[data-profile="nocturne-pi"] .settings-dialog,
-body[data-profile="nocturne-pi"] .sound-picker-dialog,
+body[data-profile="nocturne-pi"] .sound-picker-panel,
 body[data-profile="nocturne-pi"] .channel,
 body[data-profile="nocturne-pi"] .local-scenes {
   -webkit-backdrop-filter: none !important;
@@ -1124,7 +1146,7 @@ body[data-profile="nocturne-pi"] .master { margin-top: 0.75rem !important; paddi
     block-size: 44px !important;
   }
 
-  :where(.settings-dialog, .sound-picker-dialog) :where(input, select, textarea) {
+  :where(.settings-dialog, .sound-picker-panel) :where(input, select, textarea) {
     font-size: 16px !important;
   }
 

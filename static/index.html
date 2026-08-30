@@ -4010,8 +4010,10 @@ body[data-mode="dashboard"] .topbar {
             <span class="playlist-empty-glyph" aria-hidden="true">◉</span>
             <span class="playlist-empty-line">the deck is waiting for your tapes</span>
             <span class="playlist-empty-hint local-only"><code>sounds/radio/</code></span>
+          </div>
+          <div class="radio-file-actions web-only">
             <label class="radio-file-button web-only">
-              <span>choose audio files</span>
+              <span>add audio files</span>
               <input id="radio-file-input" type="file" accept="audio/*" multiple aria-describedby="radio-file-privacy">
             </label>
             <span class="playlist-empty-hint web-only" id="radio-file-privacy">files stay in this tab and are never uploaded</span>
@@ -4170,7 +4172,8 @@ body[data-mode="dashboard"] .topbar {
           <h2 id="mixer-heading">Choose eight sounds for tonight.</h2>
         </div>
         <div class="help">
-          Tonight begins with eight bundled recordings. Use <em>Change</em> to explore the recorded, generated, and experimental shelves.
+          <span class="local-only">Tonight begins with eight bundled recordings. Use <em>Change</em> to explore the recorded, generated, and experimental shelves.</span>
+          <span class="web-only">Tonight begins with eight bundled recordings. Use <em>Change</em> to explore the bundled recorded shelf.</span>
           <button class="btn mixer-reset" id="reset-mixer-slots" type="button">restore Tonight</button>
         </div>
       </div>
@@ -7140,7 +7143,7 @@ body[data-mode="dashboard"] .topbar {
     if (WEB_PROFILE) {
       const location = appSettings.location;
       if (!Number.isFinite(location.latitude) || !Number.isFinite(location.longitude)) {
-        return { ok: false, location_name: 'choose a location in Settings' };
+        return { ok: false, reason: 'unconfigured', location_name: 'open Settings to choose your sky' };
       }
       const key = [
         location.latitude.toFixed(2), location.longitude.toFixed(2),
@@ -7189,7 +7192,7 @@ body[data-mode="dashboard"] .topbar {
         if (webWeatherCache.key === key && webWeatherCache.data) {
           return { ...webWeatherCache.data, cached: true, stale: true };
         }
-        return { ok: false, location_name: location.label };
+        return { ok: false, reason: 'offline', location_name: location.label };
       } finally {
         clearTimeout(timeout);
       }
@@ -7235,6 +7238,13 @@ body[data-mode="dashboard"] .topbar {
     const data = await fetchWeather();
 
     WEATHER_CLASSES.forEach(c => stage.classList.remove(c));
+
+    if (data && data.ok === false && data.reason === 'unconfigured') {
+      stage.classList.add('w-clear', 'w-night');
+      if (condEl) condEl.textContent = 'choose a location';
+      if (locEl) locEl.textContent = data.location_name;
+      return;
+    }
 
     if (!data || data.ok === false) {
       /* Total failure: render a calm "clear night" and label as offline */

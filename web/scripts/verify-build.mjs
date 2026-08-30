@@ -319,6 +319,8 @@ function verifyHostedPage(indexHtml) {
   check(indexHtml.includes('<link rel="canonical" href="https://nocturne.cmish.dev/">'), "hosted HTML is missing the canonical URL");
   check(indexHtml.includes('id="radio-file-privacy"'), "hosted HTML is missing persistent local-Radio privacy copy");
   check(indexHtml.includes('files stay in this tab and are never uploaded'), "hosted HTML does not state the local-Radio boundary");
+  check(indexHtml.includes('class="radio-file-actions web-only"'), "hosted Radio has no persistent add-files control");
+  check(indexHtml.includes('Use <em>Change</em> to explore the bundled recorded shelf.'), "hosted mixer does not state its recorded-only catalog boundary");
   check(indexHtml.includes('class="mode-btn local-only" data-mode="utility"'), "Utility mode lacks a no-JavaScript web boundary");
   check(indexHtml.includes('class="mode-btn local-only" data-mode="dashboard"'), "Dashboard mode lacks a no-JavaScript web boundary");
 
@@ -332,9 +334,11 @@ function verifyHostedPage(indexHtml) {
   const css = readText("nocturne-polish.css");
   check(/\.video-stage\.profile-static[\s\S]{0,300}rain-still\.webp/.test(css), "reduced-motion/static Onsen has no visible rain still");
   check(/@media\s*\(pointer:\s*coarse\)[\s\S]*min-block-size:\s*44px\s*!important/.test(css), "coarse pointers lack a final 44px target safeguard");
+  check(!css.includes('.mode-btn[aria-selected="true"]'), "mode styling still targets obsolete aria-selected state");
+  check(!css.includes(".sound-picker-dialog"), "sound-picker styling targets a nonexistent dialog class");
 
   const app = readText("app.js");
-  for (const token of ["scenes:v1", "MediaSession", "radio:shuffle", "WEB_SETTINGS_KEY", "credentials: 'omit'", "referrerPolicy: 'no-referrer'"]) {
+  for (const token of ["scenes:v1", "MediaSession", "radio:shuffle", "WEB_SETTINGS_KEY", "credentials: 'omit'", "referrerPolicy: 'no-referrer'", "reason: 'unconfigured'"]) {
     check(app.includes(token), `hosted app is missing web-profile contract token: ${token}`);
   }
 }
