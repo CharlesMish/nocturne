@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-mood="rain-lantern" data-type="poetic" data-light="balanced" data-appearance-enabled="true">
+<html lang="en" data-deployment="local" data-mood="rain-lantern" data-type="poetic" data-light="balanced" data-appearance-enabled="true">
 <head>
     <meta name="color-scheme" content="dark">
 <meta charset="UTF-8">
@@ -2199,7 +2199,7 @@ footer          { animation-delay: 480ms; }
 }
 .mode-btn:hover .mode-glyph { opacity: 0.85; }
 
-.mode-btn[aria-selected="true"] {
+.mode-btn[aria-pressed="true"] {
   color: var(--text);
   background:
     radial-gradient(120% 80% at 50% 0%,
@@ -2212,7 +2212,7 @@ footer          { animation-delay: 480ms; }
     inset 0 -1px 0 rgba(0,0,0,0.4),
     0 2px 6px rgba(0,0,0,0.35);
 }
-.mode-btn[aria-selected="true"] .mode-glyph {
+.mode-btn[aria-pressed="true"] .mode-glyph {
   opacity: 1;
   color: var(--lantern);
   text-shadow: 0 0 8px rgba(232, 169, 111, 0.55);
@@ -3714,7 +3714,7 @@ body[data-mode="dashboard"] .topbar {
 </style>
 <link rel="stylesheet" href="/nocturne-polish.css">
 </head>
-<body>
+<body data-mode="onsen">
 
 <div class="grain" aria-hidden="true"></div>
 <div class="vignette" aria-hidden="true"></div>
@@ -3732,42 +3732,45 @@ body[data-mode="dashboard"] .topbar {
   <div class="petal"></div>
 </div>
 
-<main>
+<a class="skip-link" href="#main-content">Skip to Nocturne</a>
+
+<main id="main-content" tabindex="-1">
+  <h1 class="visually-hidden">Nocturne — a quiet sleep ritual</h1>
   <div class="shell">
 
     <!-- ─────────────────────  TOPBAR  ───────────────────── -->
     <header class="topbar">
-      <div class="brand">
+      <a class="brand" href="/" aria-label="Nocturne home">
         <div class="brand-mark" aria-hidden="true"></div>
         <div class="brand-text">
           <span class="brand-name">Nocturne</span>
           <span class="brand-sub">a quiet place</span>
         </div>
-      </div>
+      </a>
       <div class="topbar-tools">
-        <div class="mode-switcher" role="tablist" aria-label="Mode">
+        <div class="mode-switcher" role="group" aria-label="Room">
           <button class="mode-btn" data-mode="onsen" type="button"
-                  role="tab" aria-selected="true">
+                  aria-pressed="true">
             <span class="mode-glyph" aria-hidden="true">◐</span>
             <span class="mode-label">Onsen</span>
           </button>
           <button class="mode-btn" data-mode="sky" type="button"
-                  role="tab" aria-selected="false">
+                  aria-pressed="false">
             <span class="mode-glyph" aria-hidden="true">☾</span>
             <span class="mode-label">Sky</span>
           </button>
           <button class="mode-btn" data-mode="radio" type="button"
-                  role="tab" aria-selected="false">
+                  aria-pressed="false">
             <span class="mode-glyph" aria-hidden="true">◉</span>
             <span class="mode-label">Radio</span>
           </button>
-          <button class="mode-btn" data-mode="utility" type="button"
-                  role="tab" aria-selected="false">
+          <button class="mode-btn local-only" data-mode="utility" type="button"
+                  aria-pressed="false">
             <span class="mode-glyph" aria-hidden="true">⌁</span>
             <span class="mode-label">Utility</span>
           </button>
-          <button class="mode-btn" data-mode="dashboard" type="button"
-                  role="tab" aria-selected="false">
+          <button class="mode-btn local-only" data-mode="dashboard" type="button"
+                  aria-pressed="false">
             <span class="mode-glyph" aria-hidden="true">▣</span>
             <span class="mode-label">Dashboard</span>
           </button>
@@ -3776,11 +3779,16 @@ body[data-mode="dashboard"] .topbar {
           <span aria-hidden="true">⚙</span>
           <span>Settings</span>
         </button>
+        <nav class="web-links web-only" aria-label="Project links">
+          <a href="https://cmish.dev">cmish.dev</a>
+          <a href="https://github.com/CharlesMish/nocturne" rel="noreferrer">repository</a>
+        </nav>
       </div>
     </header>
 
     <!-- ─────────────────────  HERO  ───────────────────── -->
-    <section class="hero" aria-label="Main composition">
+    <section class="hero" aria-labelledby="onsen-heading">
+      <h2 class="visually-hidden" id="onsen-heading">Onsen</h2>
 
       <!--
         ╭─────────────────────────────────────────────────────────────╮
@@ -3855,7 +3863,8 @@ body[data-mode="dashboard"] .topbar {
          Moon-phase and local weather, in the existing visual
          language. Only rendered when body[data-mode="sky"].
     -->
-    <section class="hero sky-hero" id="sky-hero" aria-label="Sky composition">
+    <section class="hero sky-hero" id="sky-hero" aria-labelledby="sky-heading">
+      <h2 class="visually-hidden" id="sky-heading">Sky</h2>
       <div class="sky-stage" id="sky-stage" data-tilt
            aria-label="Moon and local weather">
         <!-- Atmospheric layers, parallax via the same .layer/data-depth
@@ -3916,7 +3925,8 @@ body[data-mode="dashboard"] .topbar {
          A late-night personal broadcast: tape deck on the left,
          playlist on the right. Only rendered when body[data-mode="radio"].
     -->
-    <section class="hero radio-hero" id="radio-hero" aria-label="Radio">
+    <section class="hero radio-hero" id="radio-hero" aria-labelledby="radio-heading">
+      <h2 class="visually-hidden" id="radio-heading">Radio</h2>
       <div class="radio-stage" id="radio-stage" data-tilt data-state="loading"
            aria-label="Late-night broadcast">
         <div class="radio-scene" aria-hidden="true">
@@ -3957,7 +3967,7 @@ body[data-mode="dashboard"] .topbar {
           </div>
 
           <div class="deck-slider">
-            <span class="deck-slider-label">broadcast</span>
+            <label class="deck-slider-label" for="deck-volume">broadcast</label>
             <input type="range" id="deck-volume"
                    min="0" max="100" step="1" value="60"
                    aria-label="Radio volume">
@@ -3965,7 +3975,7 @@ body[data-mode="dashboard"] .topbar {
           </div>
 
           <div class="deck-slider">
-            <span class="deck-slider-label">warmth</span>
+            <label class="deck-slider-label" for="deck-warmth">warmth</label>
             <input type="range" id="deck-warmth"
                    min="0" max="100" step="1" value="0"
                    aria-label="Lo-fi warmth (lowpass)">
@@ -3973,7 +3983,7 @@ body[data-mode="dashboard"] .topbar {
           </div>
 
           <div class="deck-slider">
-            <span class="deck-slider-label">drift</span>
+            <label class="deck-slider-label" for="deck-drift">drift</label>
             <input type="range" id="deck-drift"
                    min="0" max="100" step="1" value="0"
                    aria-label="Slowed playback drift">
@@ -3981,7 +3991,7 @@ body[data-mode="dashboard"] .topbar {
           </div>
 
           <div class="deck-slider">
-            <span class="deck-slider-label">space</span>
+            <label class="deck-slider-label" for="deck-reverb">space</label>
             <input type="range" id="deck-reverb"
                    min="0" max="100" step="1" value="0"
                    aria-label="Radio reverb space">
@@ -3999,8 +4009,16 @@ body[data-mode="dashboard"] .topbar {
           <div class="playlist-empty" id="playlist-empty" hidden>
             <span class="playlist-empty-glyph" aria-hidden="true">◉</span>
             <span class="playlist-empty-line">the deck is waiting for your tapes</span>
-            <span class="playlist-empty-hint"><code>sounds/radio/</code></span>
+            <span class="playlist-empty-hint local-only"><code>sounds/radio/</code></span>
           </div>
+          <div class="radio-file-actions web-only">
+            <label class="radio-file-button web-only">
+              <span>add audio files</span>
+              <input id="radio-file-input" type="file" accept="audio/*" multiple aria-describedby="radio-file-privacy">
+            </label>
+            <span class="playlist-empty-hint web-only" id="radio-file-privacy">files stay in this tab and are never uploaded</span>
+          </div>
+          <p class="radio-status" id="radio-status" aria-live="polite"></p>
         </div>
       </div>
     </section>
@@ -4010,7 +4028,7 @@ body[data-mode="dashboard"] .topbar {
          sketches. Playback opens externally on strudel.cc. This mode is intentionally more workbench
          than bedroom scene, while still sharing the Nocturne palette.
     -->
-    <section class="hero utility-hero" id="utility-hero" aria-label="Utility sketchbook">
+    <section class="hero utility-hero local-only" id="utility-hero" aria-label="Utility sketchbook">
       <div class="utility-stage" id="utility-stage" data-tilt>
         <aside class="utility-panel utility-library" aria-label="Sketch library">
           <div class="utility-library-head">
@@ -4098,7 +4116,7 @@ body[data-mode="dashboard"] .topbar {
          Loaded only when Dashboard mode is opened, then unloaded when
          leaving the mode so the Pi is not rendering an extra canvas.
     -->
-    <section class="hero dashboard-hero" id="dashboard-hero" aria-label="Raspberry Pi dashboard">
+    <section class="hero dashboard-hero local-only" id="dashboard-hero" aria-label="Raspberry Pi dashboard">
       <div class="dashboard-stage" id="dashboard-stage" data-tilt>
         <iframe class="dashboard-frame" id="dashboard-frame"
                 title="Raspberry Pi terminal dashboard"
@@ -4113,7 +4131,8 @@ body[data-mode="dashboard"] .topbar {
     </section>
 
     <!-- One shared control rail follows whichever room hero is active. -->
-    <section class="master" aria-label="Master controls" data-global-controls>
+    <section class="master" aria-labelledby="master-heading" data-global-controls>
+      <h2 class="visually-hidden" id="master-heading">Master controls</h2>
       <div class="master-slider">
         <div class="label">
           <span class="name">Master</span>
@@ -4127,9 +4146,9 @@ body[data-mode="dashboard"] .topbar {
         <button class="btn" id="silence" type="button">silence all</button>
       </div>
       <p class="session-notice" id="session-notice" aria-live="polite" hidden></p>
-      <div class="sleep-timer" aria-label="Sleep timer">
+      <div class="sleep-timer" role="group" aria-labelledby="sleep-timer-label">
         <div class="label">
-          <span class="name">Sleep timer</span>
+          <span class="name" id="sleep-timer-label">Sleep timer</span>
           <span class="meta">fade then silence</span>
         </div>
         <div class="timer-controls">
@@ -4139,23 +4158,26 @@ body[data-mode="dashboard"] .topbar {
           <button class="btn timer-btn" data-timer-minutes="90" type="button">90 min</button>
           <button class="btn" id="cancel-timer" type="button">cancel</button>
         </div>
-        <div class="timer-status" id="timer-status" aria-live="polite"></div>
+        <div class="timer-status" id="timer-status" role="timer" aria-live="off"></div>
+        <p class="visually-hidden" id="timer-announcement" role="status" aria-live="polite"></p>
       </div>
     </section>
 
     <!-- ─────────────────────  MIXER  ───────────────────── -->
-    <section class="mixer-section" aria-label="Sound mixer">
+    <section class="mixer-section" aria-labelledby="mixer-heading">
+      <p class="visually-hidden" id="mixer-status" role="status" aria-live="polite"></p>
       <div class="mixer-head">
         <div>
           <span class="eyebrow">ambient library</span>
-          <h2>Choose eight sounds for tonight.</h2>
+          <h2 id="mixer-heading">Choose eight sounds for tonight.</h2>
         </div>
         <div class="help">
-          Tonight begins with eight bundled recordings. Use <em>Change</em> to explore the recorded, generated, and experimental shelves.
+          <span class="local-only">Tonight begins with eight bundled recordings. Use <em>Change</em> to explore the recorded, generated, and experimental shelves.</span>
+          <span class="web-only">Tonight begins with eight bundled recordings. Use <em>Change</em> to explore the bundled recorded shelf.</span>
           <button class="btn mixer-reset" id="reset-mixer-slots" type="button">restore Tonight</button>
         </div>
       </div>
-      <div class="scene-shelf" aria-labelledby="scene-shelf-title">
+      <div class="scene-shelf" role="group" aria-labelledby="scene-shelf-title">
         <div class="scene-copy">
           <span class="eyebrow" id="scene-shelf-title">local scenes</span>
           <p>Save or recall this mix in this browser. Nothing is uploaded or synced.</p>
@@ -4415,7 +4437,7 @@ body[data-mode="dashboard"] .topbar {
       </div>
       <button class="settings-close" id="settings-close" type="button" aria-label="Close settings">×</button>
     </div>
-    <p class="settings-copy">Room choices stay in this browser. Setup choices are saved on this Nocturne server in <code>config/nocturne.json</code>.</p>
+    <p class="settings-copy" id="settings-storage-copy">Room choices stay in this browser. Setup choices are saved on this Nocturne server in <code>config/nocturne.json</code>.</p>
     <div class="settings-tabs" role="tablist" aria-label="Settings sections">
       <button class="settings-tab" id="settings-tab-room" type="button" role="tab" aria-selected="true" aria-controls="settings-panel-room" data-settings-tab="room">Room</button>
       <button class="settings-tab" id="settings-tab-setup" type="button" role="tab" aria-selected="false" aria-controls="settings-panel-setup" data-settings-tab="setup">Setup</button>
@@ -4505,13 +4527,13 @@ body[data-mode="dashboard"] .topbar {
       </label>
       <label class="settings-check">
         <input type="checkbox" data-setting-mode="radio">
-        <span><strong>Radio</strong><small>tracks from <code>sounds/radio/</code></small></span>
+        <span><strong>Radio</strong><small id="settings-radio-copy">tracks from <code>sounds/radio/</code></small></span>
       </label>
-      <label class="settings-check">
+      <label class="settings-check local-only">
         <input type="checkbox" data-setting-mode="dashboard">
         <span><strong>Dashboard</strong><small>embedded terminal/weather screen</small></span>
       </label>
-      <label class="settings-check utility-toggle">
+      <label class="settings-check utility-toggle local-only">
         <input type="checkbox" data-setting-mode="utility">
         <span><strong>Utility</strong><small>local Strudel sketchbook; writes files under <code>songs/</code></small></span>
       </label>
@@ -4557,6 +4579,7 @@ body[data-mode="dashboard"] .topbar {
       </div>
       <p class="settings-note">Search by city, use browser location, or enter coordinates manually. Used for Sky weather. Moon phase does not require location.</p>
       <p class="settings-note">Manual latitude/longitude always works; browser location usually requires localhost or HTTPS.</p>
+      <p class="settings-note web-only">Place search sends the words you type to <a href="https://open-meteo.com/" rel="noreferrer">Open-Meteo</a>. Weather refresh sends saved coordinates rounded to 2 decimal places. Choices remain in this browser; Nocturne does not receive or store them.</p>
     </section>
     <section class="settings-section" aria-labelledby="settings-platform-title">
       <h3 id="settings-platform-title">Device integration</h3>
@@ -4570,7 +4593,7 @@ body[data-mode="dashboard"] .topbar {
       <p class="settings-note">Nocturne notices a likely interruption and offers a visible resume path. It is not an alarm clock and cannot promise that a phone OS will keep any browser tab alive overnight.</p>
       <p class="settings-note"><strong>Field status:</strong> device matrix pending. Record real results in <code>docs/DEVICE_TEST_MATRIX.md</code> before describing support for a specific phone or browser.</p>
     </section>
-    <div class="settings-warning">
+    <div class="settings-warning local-only">
       Utility exposes local sketch save/edit routes on this Nocturne server. Enable it only on a trusted local network.
     </div>
     </div>
@@ -4609,7 +4632,9 @@ body[data-mode="dashboard"] .topbar {
     'cedar-steam': '#0a0f0c',
     'ember-room': '#130b09'
   });
-  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const WEB_PROFILE = document.documentElement.dataset.deployment === 'web';
+  const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let prefersReduced = reducedMotionQuery.matches;
   const observedMedia = new WeakSet();
   let activeSceneName = '';
   let applyingScene = false;
@@ -4727,11 +4752,17 @@ body[data-mode="dashboard"] .topbar {
     document.documentElement.dataset.profile = id;
     document.body.dataset.profile = id;
     const brandSub = document.querySelector('.brand-sub');
-    if (brandSub) brandSub.textContent = id === 'nocturne-pi' ? 'Pi · a quiet place' : 'a quiet place';
+    if (brandSub) brandSub.textContent = id === 'nocturne-pi'
+      ? 'Pi · a quiet place'
+      : WEB_PROFILE ? 'Web · a quiet place' : 'a quiet place';
     applyAppearance(currentAppearance, { persist: false });
   }
 
   async function loadActiveProfile() {
+    if (WEB_PROFILE) {
+      applyActiveProfile(activeProfile);
+      return activeProfile;
+    }
     try {
       const res = await fetch('/api/profile', { cache: 'no-store' });
       if (!res.ok) throw new Error('profile unavailable');
@@ -5440,7 +5471,12 @@ body[data-mode="dashboard"] .topbar {
 }
   /* NOCTURNE:END GENERATED SOUND LIBRARY */;
 
-  let soundLibrary = DEFAULT_SOUND_LIBRARY;
+  let soundLibrary = WEB_PROFILE ? {
+    ...DEFAULT_SOUND_LIBRARY,
+    sounds: DEFAULT_SOUND_LIBRARY.sounds.filter(sound =>
+      sound.source_type === 'recorded_cc0' && sound.availability === 'bundled'
+    )
+  } : DEFAULT_SOUND_LIBRARY;
   let soundById = new Map();
   const SLOT_COUNT = 8;
   const CATEGORY_TONIGHT = '__tonight';
@@ -5557,6 +5593,9 @@ body[data-mode="dashboard"] .topbar {
   }
 
   function normaliseSoundLibrary(data) {
+    const webEligible = entry => !WEB_PROFILE || (
+      entry && entry.source_type === 'recorded_cc0' && entry.availability === 'bundled'
+    );
     const merged = {
       version: data && data.version ? data.version : 1,
       default_slots: Array.isArray(data && data.default_slots) ? data.default_slots.slice(0, SLOT_COUNT) : DEFAULT_SOUND_LIBRARY.default_slots.slice(),
@@ -5565,6 +5604,7 @@ body[data-mode="dashboard"] .topbar {
     };
     const seen = new Set();
     const addEntry = (entry) => {
+      if (!webEligible(entry)) return;
       const sound = normaliseSoundEntry(entry);
       if (!sound.id || seen.has(sound.id)) return;
       seen.add(sound.id);
@@ -5572,8 +5612,11 @@ body[data-mode="dashboard"] .topbar {
     };
     (Array.isArray(data && data.sounds) ? data.sounds : []).forEach(addEntry);
     DEFAULT_SOUND_LIBRARY.sounds.forEach(addEntry);
+    merged.default_slots = merged.default_slots.filter(id =>
+      merged.sounds.some(sound => sound.id === id)
+    );
     while (merged.default_slots.length < SLOT_COUNT) {
-      const fallback = DEFAULT_SOUND_LIBRARY.default_slots[merged.default_slots.length] || 'pink-noise';
+      const fallback = DEFAULT_SOUND_LIBRARY.default_slots[merged.default_slots.length] || merged.sounds[0]?.id || 'pink-noise';
       merged.default_slots.push(fallback);
     }
     merged.sounds.sort((a, b) => (a.sort_order - b.sort_order) || a.name.localeCompare(b.name));
@@ -5661,6 +5704,8 @@ body[data-mode="dashboard"] .topbar {
       channel.audio.load();
     }
     setChannelVolume(channel, 0, { persist: false });
+    const status = document.getElementById('mixer-status');
+    if (status) status.textContent = `${channel.config.name} could not be loaded and was muted.`;
   }
 
   function checkChannelAvailability(channel) {
@@ -5669,7 +5714,7 @@ body[data-mode="dashboard"] .topbar {
       markChannelUnavailable(channel, 'audio file missing or unreadable');
     }, { once: true });
 
-    if (!window.fetch) return;
+    if (WEB_PROFILE || !window.fetch) return;
     fetch(channel.config.src, { method: 'HEAD', cache: 'no-store' })
       .then((response) => {
         if (!response.ok) {
@@ -5915,8 +5960,14 @@ body[data-mode="dashboard"] .topbar {
         .map(sound => sound.category)
         .filter(Boolean)
     ));
-    return [CATEGORY_TONIGHT, CATEGORY_ALL, CATEGORY_RECORDED, CATEGORY_GENERATED, CATEGORY_EXPERIMENTAL]
-      .concat(cats.sort((a, b) => a.localeCompare(b)));
+    const primary = [CATEGORY_TONIGHT, CATEGORY_ALL, CATEGORY_RECORDED];
+    if (soundLibrary.sounds.some(sound => sound.source_type === 'generated' && sound.status !== 'experimental')) {
+      primary.push(CATEGORY_GENERATED);
+    }
+    if (soundLibrary.sounds.some(sound => sound.status === 'experimental')) {
+      primary.push(CATEGORY_EXPERIMENTAL);
+    }
+    return primary.concat(cats.sort((a, b) => a.localeCompare(b)));
   }
 
   function renderSoundPickerCategories() {
@@ -6110,9 +6161,16 @@ body[data-mode="dashboard"] .topbar {
   const timerButtons = document.querySelectorAll('[data-timer-minutes]');
   const cancelTimerBtn = document.getElementById('cancel-timer');
   const timerStatusEl = document.getElementById('timer-status');
+  const timerAnnouncementEl = document.getElementById('timer-announcement');
 
   function setTimerStatus(message = '') {
     if (timerStatusEl) timerStatusEl.textContent = message;
+  }
+
+  function announceTimer(message = '') {
+    if (!timerAnnouncementEl) return;
+    timerAnnouncementEl.textContent = '';
+    requestAnimationFrame(() => { timerAnnouncementEl.textContent = message; });
   }
 
   function formatRemaining(ms) {
@@ -6166,6 +6224,7 @@ body[data-mode="dashboard"] .topbar {
     }
     setActiveTimerButton(null);
     setTimerStatus(message);
+    if (message) announceTimer(message);
   }
 
   function pauseAmbientWithoutChangingSavedMix() {
@@ -6236,6 +6295,7 @@ body[data-mode="dashboard"] .topbar {
     sleepTimer.intervalId = setInterval(tickSleepTimer, 500);
     sleepTimer.deadlineId = setTimeout(reconcileSleepTimer, durationMs);
     tickSleepTimer();
+    announceTimer(`Sleep timer set for ${minutes} minutes.`);
   }
 
   timerButtons.forEach(button => {
@@ -6268,11 +6328,13 @@ body[data-mode="dashboard"] .topbar {
       }
     }
     setTimerStatus(started ? `playing ${started} saved sound${started === 1 ? '' : 's'}` : 'raise a channel, then resume mix');
-    /* Tiny visual breath on the master button so it doesn't feel inert */
-    const btn = document.getElementById('resume-mix');
-    btn.style.transition = 'transform 280ms cubic-bezier(0.22, 0.61, 0.36, 1)';
-    btn.style.transform = 'scale(0.97)';
-    setTimeout(() => { btn.style.transform = ''; }, 200);
+    if (!prefersReduced) {
+      /* Tiny visual breath on the master button so it doesn't feel inert. */
+      const btn = document.getElementById('resume-mix');
+      btn.style.transition = 'transform 280ms cubic-bezier(0.22, 0.61, 0.36, 1)';
+      btn.style.transform = 'scale(0.97)';
+      setTimeout(() => { btn.style.transform = ''; }, 200);
+    }
   });
 
   document.getElementById('silence').addEventListener('click', () => {
@@ -6343,28 +6405,36 @@ body[data-mode="dashboard"] .topbar {
      VIDEO STAGE — show painted scene as fallback,
      fade it out gracefully when the video starts.
      ───────────────────────────────────────────── */
-  function setupVideo() {
+  function detachOnsenVideo(stage, video) {
+    video.pause();
+    video.removeAttribute('src');
+    video.querySelectorAll('source').forEach(source => source.remove());
+    video.load();
+    stage.classList.add('profile-static');
+    stage.classList.remove('video-loading', 'has-video');
+  }
+
+  function syncOnsenVideo() {
     const stage = document.getElementById('video-stage');
     const video = document.getElementById('bg-video');
     if (!stage || !video) return;
 
-    if (!profileFeature('rain_video', true)) {
-      stage.classList.add('profile-static');
-      stage.classList.remove('video-loading', 'has-video');
-      video.removeAttribute('src');
-      video.querySelectorAll('source').forEach(source => source.remove());
-      video.load();
+    if (!profileFeature('rain_video', true) || prefersReduced) {
+      detachOnsenVideo(stage, video);
       return;
     }
 
+    stage.classList.remove('profile-static');
     const src = video.dataset.fullSrc;
     if (src && !video.querySelector('source')) {
       const source = document.createElement('source');
       source.src = src;
       source.type = 'video/mp4';
       video.appendChild(source);
+      stage.classList.add('video-loading');
+      video.load();
     }
-    video.preload = 'auto';
+    video.preload = 'metadata';
     video.muted = true;
     video.defaultMuted = true;
     video.volume = 0;
@@ -6372,30 +6442,55 @@ body[data-mode="dashboard"] .topbar {
     video.autoplay = true;
     video.playsInline = true;
 
+    const shouldPlay = document.body.dataset.mode === 'onsen' && !document.hidden;
+    if (!shouldPlay) {
+      video.pause();
+      return;
+    }
+
+    try {
+      const p = video.play();
+      if (p && typeof p.catch === 'function') p.catch(() => {});
+    } catch (e) {}
+  }
+
+  function setupVideo() {
+    const stage = document.getElementById('video-stage');
+    const video = document.getElementById('bg-video');
+    if (!stage || !video) return;
+
     const reveal = () => {
       stage.classList.add('has-video');
       stage.classList.remove('video-loading');
     };
 
     const fail = () => {
-      stage.classList.add('video-failed');
+      stage.classList.add('video-failed', 'profile-static');
       stage.classList.remove('video-loading');
       console.warn('Nocturne: rain.mp4 did not load or could not be decoded.');
     };
 
-    stage.classList.add('video-loading');
-    video.addEventListener('loadeddata', reveal, { once: true });
-    video.addEventListener('canplay', reveal, { once: true });
-    video.addEventListener('playing', reveal, { once: true });
-    video.addEventListener('error', fail, { once: true });
+    video.addEventListener('loadeddata', reveal);
+    video.addEventListener('canplay', reveal);
+    video.addEventListener('playing', reveal);
+    video.addEventListener('error', fail);
 
-    try {
-      video.load();
-      const p = video.play();
-      if (p && typeof p.catch === 'function') p.catch(() => {});
-    } catch (e) {
-      fail();
+    const onReducedMotionChange = event => {
+      prefersReduced = event.matches;
+      if (prefersReduced && radioState.meterRaf) {
+        cancelAnimationFrame(radioState.meterRaf);
+        radioState.meterRaf = null;
+      } else if (!prefersReduced && radioState.audio && !radioState.audio.paused) {
+        startMeter();
+      }
+      syncOnsenVideo();
+    };
+    if (typeof reducedMotionQuery.addEventListener === 'function') {
+      reducedMotionQuery.addEventListener('change', onReducedMotionChange);
+    } else if (typeof reducedMotionQuery.addListener === 'function') {
+      reducedMotionQuery.addListener(onReducedMotionChange);
     }
+    syncOnsenVideo();
   }
 
   /* ============================================================
@@ -6406,13 +6501,14 @@ body[data-mode="dashboard"] .topbar {
 
   const VALID_MODES = ['onsen', 'sky', 'radio', 'utility', 'dashboard'];
   const MODE_KEY = 'mode';
+  const WEB_SETTINGS_KEY = STORAGE_PREFIX + 'web:settings:v1';
   const DEFAULT_APP_SETTINGS = {
     modes: { onsen: true, sky: true, radio: true, utility: false, dashboard: false },
     location: {
-      label: 'Chicago',
-      latitude: 41.8781,
-      longitude: -87.6298,
-      timezone: 'America/Chicago',
+      label: WEB_PROFILE ? 'your sky' : 'Chicago',
+      latitude: WEB_PROFILE ? null : 41.8781,
+      longitude: WEB_PROFILE ? null : -87.6298,
+      timezone: WEB_PROFILE ? 'auto' : 'America/Chicago',
       temperature_unit: 'fahrenheit'
     }
   };
@@ -6447,11 +6543,15 @@ body[data-mode="dashboard"] .topbar {
       const loc = raw.location;
       if (typeof loc.label === 'string' && loc.label.trim()) next.location.label = loc.label.trim();
       if (typeof loc.timezone === 'string' && loc.timezone.trim()) next.location.timezone = loc.timezone.trim();
-      if (typeof loc.latitude === 'number') next.location.latitude = loc.latitude;
-      if (typeof loc.longitude === 'number') next.location.longitude = loc.longitude;
+      if (typeof loc.latitude === 'number' || (WEB_PROFILE && loc.latitude === null)) next.location.latitude = loc.latitude;
+      if (typeof loc.longitude === 'number' || (WEB_PROFILE && loc.longitude === null)) next.location.longitude = loc.longitude;
       if (loc.temperature_unit === 'fahrenheit' || loc.temperature_unit === 'celsius') {
         next.location.temperature_unit = loc.temperature_unit;
       }
+    }
+    if (WEB_PROFILE) {
+      next.modes.utility = false;
+      next.modes.dashboard = false;
     }
     if (!VALID_MODES.some(mode => next.modes[mode])) next.modes.onsen = true;
     return next;
@@ -6492,6 +6592,11 @@ body[data-mode="dashboard"] .topbar {
   }
 
   function buildFeedbackLabel(info = buildInfo) {
+    if (WEB_PROFILE) {
+      const version = (info && info.version) || 'unknown';
+      const webRevision = String(info && info.web_source_revision || '').slice(0, 7);
+      return `v${version} · web${webRevision ? ` · ${webRevision}` : ''}`;
+    }
     if (info && info.feedback_label) return info.feedback_label;
     const version = (info && info.version) || 'unknown';
     const revision = (info && (info.revision || info.commit)) || 'unknown';
@@ -6506,12 +6611,40 @@ body[data-mode="dashboard"] .topbar {
     const settingsLabel = document.getElementById('settings-build-label');
     const settingsDetails = document.getElementById('settings-build-details');
     if (footerLabel) footerLabel.textContent = `Nocturne · ${label}`;
-    if (footerDate) footerDate.textContent = `Build ${((info && info.build_date_utc) || '').slice(0, 10) || '2026-06-09'}`;
+    if (footerDate) {
+      const webRevision = String(info && info.web_source_revision || '').slice(0, 7);
+      footerDate.textContent = WEB_PROFILE
+        ? (webRevision ? `Hosted source ${webRevision}` : 'Hosted web edition')
+        : `Build ${((info && info.build_date_utc) || '').slice(0, 10) || '2026-06-09'}`;
+    }
     if (settingsLabel) settingsLabel.textContent = label;
-    if (settingsDetails) settingsDetails.textContent = `Edition: ${(info && info.profile) === 'nocturne-pi' ? 'Nocturne Pi' : 'Nocturne'} · Channel: ${(info && info.channel) || 'alpha'} · Revision: ${(info && (info.revision || info.commit)) || 'unknown'} · API: /api/version`;
+    if (settingsDetails) {
+      const edition = (info && info.profile) === 'nocturne-pi'
+        ? 'Nocturne Pi'
+        : (info && info.profile) === 'nocturne-web' ? 'Nocturne Web' : 'Nocturne';
+      const revision = WEB_PROFILE
+        ? String(info && info.web_source_revision || '').slice(0, 7) || 'unavailable'
+        : (info && (info.revision || info.commit)) || 'unknown';
+      const branch = WEB_PROFILE && info && info.web_source_branch
+        ? ` · Branch: ${info.web_source_branch}`
+        : '';
+      const source = WEB_PROFILE ? ' · Source: github.com/CharlesMish/nocturne' : ' · API: /api/version';
+      settingsDetails.textContent = `Edition: ${edition} · Channel: ${(info && info.channel) || 'alpha'} · Revision: ${revision}${branch}${source}`;
+    }
   }
 
   async function loadBuildInfo() {
+    if (WEB_PROFILE) {
+      const webBuild = window.NOCTURNE_WEB_BUILD;
+      buildInfo = {
+        ...buildInfo,
+        ...(webBuild && typeof webBuild === 'object' ? webBuild : {}),
+        profile: 'nocturne-web',
+        channel: 'web'
+      };
+      applyBuildInfo(buildInfo);
+      return buildInfo;
+    }
     try {
       const res = await fetch('/api/version', { cache: 'no-store' });
       if (!res.ok) throw new Error('version unavailable');
@@ -6541,15 +6674,32 @@ body[data-mode="dashboard"] .topbar {
     const timezone = document.getElementById('setting-location-timezone');
     const unit = document.getElementById('setting-location-unit');
     if (label) label.value = loc.label;
-    if (latitude) latitude.value = String(loc.latitude);
-    if (longitude) longitude.value = String(loc.longitude);
+    if (latitude) latitude.value = typeof loc.latitude === 'number' ? String(loc.latitude) : '';
+    if (longitude) longitude.value = typeof loc.longitude === 'number' ? String(loc.longitude) : '';
     if (timezone) timezone.value = loc.timezone;
     if (unit) unit.value = loc.temperature_unit;
+    const storageCopy = document.getElementById('settings-storage-copy');
+    const radioCopy = document.getElementById('settings-radio-copy');
+    if (WEB_PROFILE && storageCopy) {
+      storageCopy.textContent = 'Room, scene, Radio, appearance, and Sky choices stay only in this browser.';
+    }
+    if (WEB_PROFILE && radioCopy) {
+      radioCopy.textContent = 'personal audio files stay in this tab';
+    }
     const active = currentMode();
     if (active && !modeEnabled(active)) setMode(firstEnabledMode());
   }
 
   async function loadSettings() {
+    if (WEB_PROFILE) {
+      try {
+        appSettings = mergeSettings(JSON.parse(localStorage.getItem(WEB_SETTINGS_KEY) || 'null'));
+      } catch (e) {
+        appSettings = mergeSettings(DEFAULT_APP_SETTINGS);
+      }
+      applySettingsToUI();
+      return appSettings;
+    }
     try {
       const res = await fetch('/api/settings', { cache: 'no-store' });
       if (!res.ok) throw new Error('settings unavailable');
@@ -6565,6 +6715,16 @@ body[data-mode="dashboard"] .topbar {
   }
 
   async function saveSettings(nextSettings) {
+    if (WEB_PROFILE) {
+      appSettings = mergeSettings(nextSettings);
+      try {
+        localStorage.setItem(WEB_SETTINGS_KEY, JSON.stringify(appSettings));
+      } catch (e) {
+        throw new Error('Browser storage is unavailable; this location could not be saved.');
+      }
+      applySettingsToUI();
+      return appSettings;
+    }
     const res = await fetch('/api/settings', {
       method: 'PUT',
       headers: { 'content-type': 'application/json' },
@@ -6597,6 +6757,10 @@ body[data-mode="dashboard"] .topbar {
     if (!Number.isFinite(next.longitude) || next.longitude < -180 || next.longitude > 180) throw new Error('Longitude must be between -180 and 180.');
     if (!next.timezone || next.timezone.length > 80) throw new Error('Timezone must be 1-80 characters.');
     if (next.temperature_unit !== 'fahrenheit' && next.temperature_unit !== 'celsius') throw new Error('Choose Fahrenheit or Celsius.');
+    if (WEB_PROFILE) {
+      next.latitude = Number(next.latitude.toFixed(2));
+      next.longitude = Number(next.longitude.toFixed(2));
+    }
     return next;
   }
 
@@ -6646,10 +6810,28 @@ body[data-mode="dashboard"] .topbar {
     renderLocationResults([], 'Searching…');
     settingsStatus('Searching places…');
     try {
-      const res = await fetch('/api/geocode?q=' + encodeURIComponent(query), { cache: 'no-store' });
+      const url = WEB_PROFILE
+        ? 'https://geocoding-api.open-meteo.com/v1/search?name=' + encodeURIComponent(query) + '&count=5&language=en&format=json'
+        : '/api/geocode?q=' + encodeURIComponent(query);
+      const res = await fetch(url, {
+        cache: 'no-store',
+        credentials: WEB_PROFILE ? 'omit' : 'same-origin',
+        referrerPolicy: WEB_PROFILE ? 'no-referrer' : 'strict-origin-when-cross-origin'
+      });
       const payload = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(payload.detail || 'Place search failed.');
-      const results = Array.isArray(payload.results) ? payload.results : [];
+      const results = Array.isArray(payload.results) ? payload.results.map(item => {
+        if (!WEB_PROFILE) return item;
+        const name = typeof item.name === 'string' ? item.name : '';
+        const admin1 = typeof item.admin1 === 'string' ? item.admin1 : '';
+        const country = typeof item.country === 'string' ? item.country : '';
+        return {
+          label: [name, admin1, country].filter(Boolean).join(', ') || name,
+          latitude: Number(item.latitude),
+          longitude: Number(item.longitude),
+          timezone: typeof item.timezone === 'string' ? item.timezone : 'auto'
+        };
+      }).filter(item => item.label && Number.isFinite(item.latitude) && Number.isFinite(item.longitude)) : [];
       if (!results.length) {
         renderLocationResults([], 'No places found.');
         settingsStatus('No places found.', 'error');
@@ -6846,19 +7028,11 @@ body[data-mode="dashboard"] .topbar {
     try { localStorage.setItem(STORAGE_PREFIX + MODE_KEY, mode); } catch (e) {}
     document.body.dataset.mode = mode;
     document.querySelectorAll('.mode-btn').forEach(btn => {
-      btn.setAttribute('aria-selected', btn.dataset.mode === mode ? 'true' : 'false');
+      btn.setAttribute('aria-pressed', btn.dataset.mode === mode ? 'true' : 'false');
     });
     /* Onsen video: paused when not visible to save CPU on the Pi.
        The video itself is muted so this only affects rendering cost. */
-    const video = document.getElementById('bg-video');
-    if (video) {
-      if (mode === 'onsen') {
-        const p = video.play();
-        if (p && typeof p.catch === 'function') p.catch(() => {});
-      } else {
-        video.pause();
-      }
-    }
+    syncOnsenVideo();
     /* Sky: fire a refresh on entry so it's never blank */
     if (mode === 'sky') {
       refreshSky();
@@ -6963,7 +7137,66 @@ body[data-mode="dashboard"] .topbar {
      WEATHER
      Backend caches Open-Meteo and degrades gracefully. We just render.
      ───────────────────────────────────────────── */
+  const webWeatherCache = { key: '', fetchedAt: 0, data: null };
+
   async function fetchWeather() {
+    if (WEB_PROFILE) {
+      const location = appSettings.location;
+      if (!Number.isFinite(location.latitude) || !Number.isFinite(location.longitude)) {
+        return { ok: false, reason: 'unconfigured', location_name: 'open Settings to choose your sky' };
+      }
+      const key = [
+        location.latitude.toFixed(2), location.longitude.toFixed(2),
+        location.timezone, location.temperature_unit
+      ].join('|');
+      const now = Date.now();
+      if (webWeatherCache.key === key && webWeatherCache.data && now - webWeatherCache.fetchedAt < 10 * 60 * 1000) {
+        return { ...webWeatherCache.data, cached: true };
+      }
+      const params = new URLSearchParams({
+        latitude: location.latitude.toFixed(2),
+        longitude: location.longitude.toFixed(2),
+        current: 'temperature_2m,weather_code,cloud_cover,is_day,wind_speed_10m',
+        timezone: location.timezone || 'auto',
+        temperature_unit: location.temperature_unit
+      });
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 8000);
+      try {
+        const res = await fetch('https://api.open-meteo.com/v1/forecast?' + params, {
+          cache: 'no-store',
+          credentials: 'omit',
+          referrerPolicy: 'no-referrer',
+          signal: controller.signal
+        });
+        if (!res.ok) throw new Error('weather unavailable');
+        const payload = await res.json();
+        const current = payload && payload.current || {};
+        const data = {
+          ok: true,
+          weather_code: current.weather_code,
+          cloud_cover: current.cloud_cover,
+          temperature: current.temperature_2m,
+          wind_speed: current.wind_speed_10m,
+          is_day: current.is_day,
+          time: current.time,
+          timezone: payload.timezone,
+          location_name: location.label,
+          temperature_unit: location.temperature_unit
+        };
+        webWeatherCache.key = key;
+        webWeatherCache.fetchedAt = now;
+        webWeatherCache.data = data;
+        return data;
+      } catch (e) {
+        if (webWeatherCache.key === key && webWeatherCache.data) {
+          return { ...webWeatherCache.data, cached: true, stale: true };
+        }
+        return { ok: false, reason: 'offline', location_name: location.label };
+      } finally {
+        clearTimeout(timeout);
+      }
+    }
     try {
       const res = await fetch('/api/weather', { cache: 'no-store' });
       if (!res.ok) return null;
@@ -7005,6 +7238,13 @@ body[data-mode="dashboard"] .topbar {
     const data = await fetchWeather();
 
     WEATHER_CLASSES.forEach(c => stage.classList.remove(c));
+
+    if (data && data.ok === false && data.reason === 'unconfigured') {
+      stage.classList.add('w-clear', 'w-night');
+      if (condEl) condEl.textContent = 'choose a location';
+      if (locEl) locEl.textContent = data.location_name;
+      return;
+    }
 
     if (!data || data.ok === false) {
       /* Total failure: render a calm "clear night" and label as offline */
@@ -7073,11 +7313,27 @@ body[data-mode="dashboard"] .topbar {
     meterRaf: null,
     meterCtx: null
   };
+  const radioObjectUrls = new Set();
+
+  function setRadioStatus(message = '', kind = '') {
+    const status = document.getElementById('radio-status');
+    if (!status) return;
+    status.textContent = message;
+    status.className = 'radio-status' + (kind ? ` ${kind}` : '');
+  }
 
   async function ensureRadioLoaded() {
     if (radioState.loaded || radioState.loading) return;
     radioState.loading = true;
     try {
+      if (WEB_PROFILE) {
+        radioState.tracks = [];
+        radioState.loaded = true;
+        renderPlaylist();
+        updateDeckDisplay();
+        setRadioStatus('Choose audio files from this device. They are not uploaded.', 'quiet');
+        return;
+      }
       const res = await fetch('/api/radio', { cache: 'no-store' });
       const payload = await res.json();
       radioState.tracks = Array.isArray(payload) ? payload : [];
@@ -7095,6 +7351,33 @@ body[data-mode="dashboard"] .topbar {
     } finally {
       radioState.loading = false;
     }
+  }
+
+  function addLocalRadioFiles(fileList) {
+    if (!WEB_PROFILE) return;
+    const files = Array.from(fileList || []).filter(file =>
+      (file.type && file.type.startsWith('audio/')) || /\.(aac|flac|m4a|mp3|ogg|opus|wav|webm)$/i.test(file.name)
+    );
+    if (!files.length) {
+      setRadioStatus('No supported audio files were selected.', 'error');
+      return;
+    }
+    const tracks = files.map(file => {
+      const url = URL.createObjectURL(file);
+      radioObjectUrls.add(url);
+      return {
+        name: file.name.replace(/\.[^.]+$/, ''),
+        artist: 'local file',
+        url
+      };
+    });
+    radioState.tracks.push(...tracks);
+    radioState.loaded = true;
+    if (radioState.current < 0) radioState.current = 0;
+    renderPlaylist();
+    updateDeckDisplay();
+    highlightPlaylistRow(radioState.current);
+    setRadioStatus(`${tracks.length} local ${tracks.length === 1 ? 'track' : 'tracks'} ready. Nothing was uploaded.`, 'success');
   }
 
   function escapeHtml(s) {
@@ -7138,7 +7421,10 @@ body[data-mode="dashboard"] .topbar {
   }
 
   function ensureRadioGraph() {
-    if (!ensureContext()) return false;
+    if (!ensureContext()) {
+      if (WEB_PROFILE) setRadioStatus('Web Audio is unavailable in this browser.', 'error');
+      return false;
+    }
     if (radioState.gain) return true;
     try {
       radioState.audio = new Audio();
@@ -7149,6 +7435,10 @@ body[data-mode="dashboard"] .topbar {
       radioState.audio.addEventListener('error', onRadioError);
       radioState.audio.addEventListener('play',  updatePlayButton);
       radioState.audio.addEventListener('pause', updatePlayButton);
+      radioState.audio.addEventListener('playing', () => {
+        if (WEB_PROFILE) setRadioStatus('Playing a local file. Nothing was uploaded.', 'success');
+      });
+      radioState.audio.addEventListener('loadedmetadata', applyRadioPlaybackRate);
 
       radioState.source   = ctx.createMediaElementSource(radioState.audio);
       radioState.filter   = ctx.createBiquadFilter();
@@ -7181,6 +7471,7 @@ body[data-mode="dashboard"] .topbar {
       return true;
     } catch (e) {
       console.warn('Nocturne radio: could not build audio graph', e);
+      if (WEB_PROFILE) setRadioStatus('The Radio audio engine could not start in this browser.', 'error');
       return false;
     }
   }
@@ -7235,7 +7526,10 @@ body[data-mode="dashboard"] .topbar {
     if (!radioState.audio) return;
     const rate = radioPlaybackRateFromDrift();
     setRadioPreservesPitch(radioState.audio, false);
-    try { radioState.audio.playbackRate = rate; }
+    try {
+      radioState.audio.defaultPlaybackRate = rate;
+      radioState.audio.playbackRate = rate;
+    }
     catch (e) { console.warn('Nocturne radio: could not set playback rate', e); }
   }
 
@@ -7284,6 +7578,7 @@ body[data-mode="dashboard"] .topbar {
     if (slider) {
       slider.value = percent;
       slider.style.setProperty('--pct', percent + '%');
+      slider.setAttribute('aria-valuetext', radioPlaybackRateFromDrift().toFixed(2) + ' times');
     }
     if (valEl) valEl.textContent = radioPlaybackRateFromDrift().toFixed(2) + '×';
     if (persist !== false) saveVol('radio:drift', percent);
@@ -7367,7 +7662,10 @@ body[data-mode="dashboard"] .topbar {
     applyRadioPlaybackRate();
     const p = radioState.audio.play();
     if (p && typeof p.catch === 'function') {
-      p.catch(e => console.warn('Nocturne radio: play() failed', e));
+      p.catch(e => {
+        console.warn('Nocturne radio: play() failed', e);
+        setRadioStatus('Playback could not start. Try choosing the file again or pressing Play.', 'error');
+      });
     }
     updateDeckDisplay();
     highlightPlaylistRow(index);
@@ -7410,7 +7708,9 @@ body[data-mode="dashboard"] .topbar {
       ensureContext();
       applyRadioPlaybackRate();
       const p = radioState.audio.play();
-      if (p && typeof p.catch === 'function') p.catch(() => {});
+      if (p && typeof p.catch === 'function') {
+        p.catch(() => setRadioStatus('Playback needs another press or this file may not be supported.', 'error'));
+      }
       startMeter();
     } else {
       radioState.audio.pause();
@@ -7435,6 +7735,11 @@ body[data-mode="dashboard"] .topbar {
   function onRadioEnded() { nextTrack(); }
   function onRadioError(e) {
     console.warn('Nocturne radio: track error', e);
+    if (WEB_PROFILE) {
+      setRadioStatus('This browser could not decode that audio file. Choose another track.', 'error');
+      updatePlayButton();
+      return;
+    }
     setTimeout(nextTrack, 1500);
   }
 
@@ -7451,6 +7756,12 @@ body[data-mode="dashboard"] .topbar {
     const H   = canvas.height;
     const SEG = 24;
     const segW = W / SEG;
+
+    if (prefersReduced) {
+      c2d.clearRect(0, 0, W, H);
+      radioState.meterRaf = null;
+      return;
+    }
 
     /* Smooth the level a bit so the bar isn't twitchy */
     let smoothed = 0;
@@ -7495,13 +7806,23 @@ body[data-mode="dashboard"] .topbar {
   const _warmEl   = document.getElementById('deck-warmth');
   const _driftEl  = document.getElementById('deck-drift');
   const _reverbEl = document.getElementById('deck-reverb');
+  const _radioFileEl = document.getElementById('radio-file-input');
   if (_playBtn) _playBtn.addEventListener('click', togglePlayPause);
   if (_nextBtn) _nextBtn.addEventListener('click', nextTrack);
   if (_prevBtn) _prevBtn.addEventListener('click', prevTrack);
   if (_shufBtn) _shufBtn.addEventListener('click', () => {
     radioState.shuffle = !radioState.shuffle;
     _shufBtn.setAttribute('aria-pressed', String(radioState.shuffle));
+    saveText('radio:shuffle', String(radioState.shuffle));
     updateDeckDisplay();
+  });
+  if (_radioFileEl) _radioFileEl.addEventListener('change', e => {
+    addLocalRadioFiles(e.target.files);
+    e.target.value = '';
+  });
+  window.addEventListener('beforeunload', () => {
+    radioObjectUrls.forEach(url => URL.revokeObjectURL(url));
+    radioObjectUrls.clear();
   });
   if (_volEl)    _volEl.addEventListener('input', e => setRadioVolume(parseInt(e.target.value, 10)));
   if (_warmEl)   _warmEl.addEventListener('input', e => setRadioWarmth(parseInt(e.target.value, 10)));
@@ -8289,6 +8610,7 @@ arrange(
         reconcileSleepTimer(true);
         setTimeout(inspectPlaybackAfterReturn, 250);
       }
+      syncOnsenVideo();
     });
     window.addEventListener('pagehide', () => {
       hiddenPlaybackSnapshot = currentPlaybackSnapshot();
@@ -8327,6 +8649,8 @@ arrange(
     setRadioWarmth(loadVol('radio:warmth', 0),  false);
     setRadioDrift(loadVol('radio:drift', 0),    false);
     setRadioReverb(loadVol('radio:reverb', 0),  false);
+    radioState.shuffle = loadText('radio:shuffle', 'true') !== 'false';
+    if (_shufBtn) _shufBtn.setAttribute('aria-pressed', String(radioState.shuffle));
 
     /* Restore mode (drives initial layout & calls refreshSky/ensureRadioLoaded).
        Settings are server-persisted, so we also refresh after they arrive. */

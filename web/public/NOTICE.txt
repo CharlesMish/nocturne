@@ -1,0 +1,20 @@
+Nocturne web edition
+Copyright 2026 Charles Mish
+
+Application code is provided under the Apache License 2.0 included in
+LICENSE. Modified web-edition files are identified in the public source
+history.
+
+Bundled recorded ambience is CC0 1.0. Creators, source pages, processing
+notes, and hashes are documented in AUDIO_CREDITS.md and
+AUDIO_PROVENANCE.md. Attribution is preserved even though CC0 does not
+require it.
+
+The rain scene video and its derived still image are project-specific visual
+media created by Charles Mish using Grok Imagine. They are not part of the
+CC0 audio pack. Reuse follows the project owner's permission and the
+applicable tool and platform terms.
+
+Bundled Fraunces, Manrope, and JetBrains Mono web-font subsets remain under
+the SIL Open Font License 1.1. Their complete license texts are included in
+fonts/licenses/.

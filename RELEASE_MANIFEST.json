@@ -18,7 +18,7 @@
   "release_eligible": true,
   "generated_at_utc": "2026-08-01T16:34:39Z",
   "file_count": 120,
-  "total_payload_bytes_excluding_manifest": 12854564,
+  "total_payload_bytes_excluding_manifest": 12876747,
   "manifest_self_excluded": true,
   "evidence_detached": true,
   "detached_evidence_file_count": 3,
@@ -78,8 +78,8 @@
     },
     {
       "path": "AGENTS.md",
-      "size_bytes": 1749,
-      "sha256": "53e093a44650da68b3f20fe3da3c7c104c9dfb27b08dd7f43d4c1a87c671f511"
+      "size_bytes": 2945,
+      "sha256": "1ea3d2035f2581e425885300526d66ea1fd2265b32180a0c649f79f36114be15"
     },
     {
       "path": "ALPHA_FEEDBACK.md",
@@ -128,8 +128,8 @@
     },
     {
       "path": "README.md",
-      "size_bytes": 10144,
-      "sha256": "d664564ce0605fac98fc9ec9e3b353a81d5fd549204e6068038883aca07cceb0"
+      "size_bytes": 11625,
+      "sha256": "4f121399b2a960650a4c883b0f65d3480ef036d029a086ce06c1ec4cfe7826bb"
     },
     {
       "path": "Start Nocturne LAN.bat",
@@ -373,8 +373,8 @@
     },
     {
       "path": "scripts/make_release.py",
-      "size_bytes": 18940,
-      "sha256": "91e6b9e4ce3f1484b20b9630f5a71f5b5fd39609d4e382c27a88fa2fb090cfdf"
+      "size_bytes": 19258,
+      "sha256": "697857ffe52c433c610af95a9aa8d19f0caeab885050212a9ddc10db3d7ced14"
     },
     {
       "path": "scripts/path_safety.mjs",
@@ -403,8 +403,8 @@
     },
     {
       "path": "scripts/release_builder_smoke.py",
-      "size_bytes": 17659,
-      "sha256": "3b1662ee0b673723453a7873b4f099ac62190deb2eac21703fcf0f112fd99f9a"
+      "size_bytes": 18840,
+      "sha256": "7cfca5dca9fb6854e369df367812fcf53f0a47672796cc773ae32256f7cc9593"
     },
     {
       "path": "scripts/rename_freesound_downloads.py",
@@ -618,8 +618,8 @@
     },
     {
       "path": "static/index.html",
-      "size_bytes": 314082,
-      "sha256": "3aa9ef81d8570b9e5fa04cf757583e83cc1d2cdfa4b1ba1977c3756dc4627dd8"
+      "size_bytes": 328591,
+      "sha256": "b5c6a473aa9df7e1978afb32647a3b809ec7bb873313be130a8d8e2cd1e96dd7"
     },
     {
       "path": "static/manifest.webmanifest",
@@ -628,8 +628,8 @@
     },
     {
       "path": "static/nocturne-polish.css",
-      "size_bytes": 34500,
-      "sha256": "e5f4ed6c9ec2fe7062f443ce8b85efaf0931e5038f14b2fee956f5c33e20c535"
+      "size_bytes": 37998,
+      "sha256": "a5b2bb0dac83f0b6742614c0bc33d5b3bdbc2b624f495df40bc5cca777e1e1fc"
     },
     {
       "path": "static/rain-still.webp",
