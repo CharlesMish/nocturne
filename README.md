@@ -67,6 +67,33 @@ scenes, Radio, privacy model, and accessibility intent. See
 A Pi may either serve Nocturne to another device or serve **and** display it
 locally. That is a deployment distinction, not another product edition.
 
+## Hosted web edition
+
+Hosted build and deployment tooling lives in [`web/`](web/). It stages the
+shared UI in `static/`, the curated recorded catalog, and the repository's
+credits and provenance into a Cloudflare Workers Static Assets bundle intended
+for `nocturne.cmish.dev`. Local product ZIPs exclude the Node/Cloudflare tooling
+and generated Worker output; the editable UI and public media remain shared
+with the local and Pi profiles.
+
+Use Node 22. To run the web edition locally:
+
+```bash
+cd web
+npm ci
+npm run build
+npm run dev
+```
+
+Before proposing a hosted release, run the complete non-deploying check:
+
+```bash
+npm run check
+```
+
+That command runs the production build, built-asset verification, and a
+Wrangler dry run. It does not place a version on production traffic.
+
 ## Quick start
 
 Download the standard or Pi **product** ZIP rather than the optional evidence

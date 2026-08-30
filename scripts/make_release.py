@@ -51,6 +51,8 @@ EVIDENCE_ONLY_DIRS = {
     Path("provenance/originals"),
     Path("provenance/screenshots"),
 }
+HOSTED_WEB_DIR = Path("web")
+HOSTED_WEB_FILES = {Path(".github/workflows/web.yml")}
 
 
 def sha256(path: Path) -> str:
@@ -83,8 +85,12 @@ def is_within(rel: Path, directory: Path) -> bool:
 
 
 def is_workspace_only(rel: Path) -> bool:
-    """Local state and review material that must never enter a product ZIP."""
+    """Repository material that must never enter a local product ZIP."""
     lower_name = rel.name.lower()
+    # The hosted target has its own build and deployment surface. Its tooling
+    # does not belong in the standard or Pi Python-backed product archives.
+    if is_within(rel, HOSTED_WEB_DIR) or rel in HOSTED_WEB_FILES:
+        return True
     if rel in LOCAL_ONLY_PATHS:
         return True
     if lower_name.endswith(".zip") or lower_name.endswith(".zip.sha256"):
