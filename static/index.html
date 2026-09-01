@@ -4954,6 +4954,7 @@ body[data-mode="dashboard"] .topbar {
       "category": "night",
       "theme": "distant-storm",
       "src": "/sounds/library/crickets-at-night-clean.mp3",
+      "mix_gain": 0.5,
       "description": "Priority default. Strong wide-audience night ambience.",
       "source": "Freesound",
       "source_title": "Crickets At Night - Clean sound",
@@ -5574,6 +5575,8 @@ body[data-mode="dashboard"] .topbar {
     const rawStatus = String(entry.status || 'optional');
     const status = ['core', 'optional', 'experimental'].includes(rawStatus) ? rawStatus : 'optional';
     const sortOrder = Number.isFinite(Number(entry.sort_order)) ? Number(entry.sort_order) : 9999;
+    const rawMixGain = Number(entry.mix_gain);
+    const mixGain = Number.isFinite(rawMixGain) ? Math.max(0, Math.min(1, rawMixGain)) : 1;
     return {
       id,
       name: String(entry.name || entry.title || id || 'Untitled Sound'),
@@ -5586,6 +5589,7 @@ body[data-mode="dashboard"] .topbar {
       availability: String(entry.availability || (sourceType === 'generated' ? 'install_generated' : 'bundled')),
       theme: VISUAL_THEMES[entry.theme] ? entry.theme : 'mist-rain',
       src,
+      mix_gain: mixGain,
       description: String(entry.description || ''),
       prompt: String(entry.prompt || ''),
       license_note: String(entry.license_note || '')
@@ -5730,6 +5734,7 @@ body[data-mode="dashboard"] .topbar {
     const { persist = true } = options;
     percent = clamp(percent);
     const value = percent / 100;
+    const playbackValue = value * channel.config.mix_gain;
 
     if (channel.unavailable) {
       channel.el.style.setProperty('--vol', '0.000');
@@ -5752,7 +5757,7 @@ body[data-mode="dashboard"] .topbar {
       ensureContext();
       wireChannel(channel);
       if (channel.gain && ctx) {
-        channel.gain.gain.setTargetAtTime(value, ctx.currentTime, 0.05);
+        channel.gain.gain.setTargetAtTime(playbackValue, ctx.currentTime, 0.05);
       }
       if (percent > 0 && channel.audio && channel.audio.paused) {
         channel.audio.play().catch(() => { /* awaiting gesture */ });
@@ -6340,17 +6345,14 @@ body[data-mode="dashboard"] .topbar {
   document.getElementById('silence').addEventListener('click', () => {
     if (sleepTimer) {
       const baseMaster = sleepTimer.baseMaster;
-      clearSleepTimer('silenced', { restoreGain: true, baseMaster });
+      clearSleepTimer('silenced — mix preserved', { restoreGain: true, baseMaster });
       setMaster(baseMaster, { persist: false, fromTimer: true });
     } else {
-      clearSleepTimer('silenced');
+      clearSleepTimer('silenced — mix preserved');
     }
-    for (const channel of channelMap.values()) {
-      channel.slider.value = 0;
-      setChannelVolume(channel, 0);
-      if (channel.audio) channel.audio.pause();
-    }
-    /* Also stop the radio — silence-all is a single panic button */
+    /* Pause in place so Resume Mix can continue the same saved ambient mix. */
+    pauseAmbientWithoutChangingSavedMix();
+    /* Radio keeps its own play control and also retains its current position. */
     pauseRadioWithoutChangingSavedLevels();
   });
 
