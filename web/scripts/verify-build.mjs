@@ -265,6 +265,11 @@ function verifyCatalog(catalog) {
   for (const id of CANONICAL_DEFAULT_SLOTS) {
     check(ids.has(id), `canonical default sound is absent from web catalog: ${id}`);
   }
+  const crickets = sounds.find((sound) => sound.id === "crickets-at-night-clean");
+  check(
+    crickets?.mix_gain === 0.5,
+    "Night Crickets must retain its 0.5 mix-gain trim",
+  );
 
   const libraryRoot = path.join(DIST_ROOT, "sounds", "library");
   if (!check(existsSync(libraryRoot), "missing sounds/library directory")) return;
@@ -341,6 +346,18 @@ function verifyHostedPage(indexHtml) {
   for (const token of ["scenes:v1", "MediaSession", "radio:shuffle", "WEB_SETTINGS_KEY", "credentials: 'omit'", "referrerPolicy: 'no-referrer'", "reason: 'unconfigured'"]) {
     check(app.includes(token), `hosted app is missing web-profile contract token: ${token}`);
   }
+  check(
+    app.includes("const playbackValue = value * channel.config.mix_gain;"),
+    "hosted mixer does not apply per-sound mix-gain trims",
+  );
+  check(
+    /document\.getElementById\('silence'\)\.addEventListener\('click',[\s\S]{0,1000}pauseAmbientWithoutChangingSavedMix\(\);[\s\S]{0,300}pauseRadioWithoutChangingSavedLevels\(\);/.test(app),
+    "Silence All does not pause playback while preserving the current mix",
+  );
+  check(
+    !/document\.getElementById\('silence'\)\.addEventListener\('click',[\s\S]{0,1000}setChannelVolume\(channel,\s*0\)/.test(app),
+    "Silence All still destroys the current channel levels",
+  );
 }
 
 function verifyRadioBuild(allFiles) {
