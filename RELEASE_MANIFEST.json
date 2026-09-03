@@ -18,7 +18,7 @@
   "release_eligible": true,
   "generated_at_utc": "2026-08-01T16:34:39Z",
   "file_count": 120,
-  "total_payload_bytes_excluding_manifest": 12876747,
+  "total_payload_bytes_excluding_manifest": 12879417,
   "manifest_self_excluded": true,
   "evidence_detached": true,
   "detached_evidence_file_count": 3,
@@ -128,8 +128,8 @@
     },
     {
       "path": "README.md",
-      "size_bytes": 11625,
-      "sha256": "4f121399b2a960650a4c883b0f65d3480ef036d029a086ce06c1ec4cfe7826bb"
+      "size_bytes": 11968,
+      "sha256": "4f8c077ceae8da15c44b4623d28b1da96006636af41ebbcd9fc107ec57f6be26"
     },
     {
       "path": "Start Nocturne LAN.bat",
@@ -333,8 +333,8 @@
     },
     {
       "path": "scripts/browser_smoke.py",
-      "size_bytes": 55437,
-      "sha256": "331e1d01b0f5f5d11b33f66d0b066086c24774e31e397ab9a2e3433d46438ca5"
+      "size_bytes": 57488,
+      "sha256": "67fd43188ef43b0715eb892c02f04e059f2f186acd364c56f365d7e3ed8f6019"
     },
     {
       "path": "scripts/fetch_media.py",
@@ -543,8 +543,8 @@
     },
     {
       "path": "sounds/sound_library.json",
-      "size_bytes": 30577,
-      "sha256": "1163fcd61298e00fba1c2f3c4451c37104caf12ebca527fbd3ce276b6ee0ddf2"
+      "size_bytes": 30600,
+      "sha256": "22a2362187040b1ca7e64a3e62e926fd32836f3da2be96c81fd47aba576c0aa1"
     },
     {
       "path": "static/.gitkeep",
@@ -618,8 +618,8 @@
     },
     {
       "path": "static/index.html",
-      "size_bytes": 328591,
-      "sha256": "b5c6a473aa9df7e1978afb32647a3b809ec7bb873313be130a8d8e2cd1e96dd7"
+      "size_bytes": 328844,
+      "sha256": "353f063b5752e90ae1c7dc78ac0ecbac1897edc9d079cbb11022f27c4af441ab"
     },
     {
       "path": "static/manifest.webmanifest",

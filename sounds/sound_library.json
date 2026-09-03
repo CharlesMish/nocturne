@@ -138,6 +138,7 @@
       "category": "night",
       "theme": "distant-storm",
       "src": "/sounds/library/crickets-at-night-clean.mp3",
+      "mix_gain": 0.5,
       "description": "Priority default. Strong wide-audience night ambience.",
       "source": "Freesound",
       "source_title": "Crickets At Night - Clean sound",

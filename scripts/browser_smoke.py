@@ -615,6 +615,37 @@ def main() -> int:
             assert int(first_slider.input_value()) == 23
             checks.append("applying a local scene restores its saved channel level")
 
+            cricket_slider = page.locator('#mixer-grid .channel input[type="range"]').nth(4)
+            cricket_slider.evaluate("e => { e.value = '40'; e.dispatchEvent(new Event('input', {bubbles:true})); }")
+            cricket_target = page.evaluate(
+                "window.__nocturneAudioParamEvents.filter(event => event.type === 'target').at(-1).value"
+            )
+            assert abs(cricket_target - 0.2) < 1e-9, cricket_target
+            checks.append("Night Crickets applies its half-gain comfort trim behind the visible mixer level")
+
+            saved_mix_before_silence = page.evaluate("""() => ({
+              first: localStorage.getItem('nocturne:onsen:slot:1:volume'),
+              crickets: localStorage.getItem('nocturne:onsen:slot:5:volume'),
+              pauses: window.__nocturneAudioPauseCalls,
+              plays: window.__nocturneAudioPlayCalls
+            })""")
+            page.locator("#silence").click()
+            saved_mix_after_silence = page.evaluate("""() => ({
+              first: localStorage.getItem('nocturne:onsen:slot:1:volume'),
+              crickets: localStorage.getItem('nocturne:onsen:slot:5:volume'),
+              pauses: window.__nocturneAudioPauseCalls,
+              status: document.querySelector('#timer-status').textContent
+            })""")
+            assert int(first_slider.input_value()) == 23
+            assert int(cricket_slider.input_value()) == 40
+            assert saved_mix_after_silence["first"] == saved_mix_before_silence["first"] == "23"
+            assert saved_mix_after_silence["crickets"] == saved_mix_before_silence["crickets"] == "40"
+            assert saved_mix_after_silence["pauses"] > saved_mix_before_silence["pauses"]
+            assert "mix preserved" in saved_mix_after_silence["status"]
+            page.locator("#resume-mix").click()
+            assert page.evaluate("window.__nocturneAudioPlayCalls") > saved_mix_before_silence["plays"]
+            checks.append("Silence All pauses in place and Resume Mix restarts the preserved channel levels")
+
             page.once("dialog", lambda dialog: dialog.accept())
             page.locator("#scene-delete").click()
             page.wait_for_function("() => document.querySelectorAll('#scene-select option').length === 1")
