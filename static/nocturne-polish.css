@@ -77,11 +77,11 @@ html[data-appearance-enabled="true"][data-mood="cedar-steam"] {
   --ambient-rgb: 77 102 85;
   --mood-deep: #0a0f0c;
 }
-html[data-appearance-enabled="true"][data-mood="ember-room"] {
-  --accent-rgb: 228 138 98;
-  --accent-soft-rgb: 216 160 168;
-  --ambient-rgb: 125 72 81;
-  --mood-deep: #130b09;
+html[data-appearance-enabled="true"][data-mood="night-sky"] {
+  --accent-rgb: 155 188 224;
+  --accent-soft-rgb: 198 185 235;
+  --ambient-rgb: 102 100 163;
+  --mood-deep: #080c17;
 }
 html[data-appearance-enabled="false"] {
   --accent-rgb: 232 169 111;
@@ -611,7 +611,7 @@ body.sound-picker-open {
 .appearance-swatch[data-swatch="rain-lantern"] { background: linear-gradient(135deg, #e8a96f 12%, #f0bccb 55%, #5a3140); }
 .appearance-swatch[data-swatch="moonwater"] { background: linear-gradient(135deg, #8ccfe0 12%, #c8c6f2 55%, #28445f); }
 .appearance-swatch[data-swatch="cedar-steam"] { background: linear-gradient(135deg, #9db58f 12%, #e0d1aa 55%, #304a39); }
-.appearance-swatch[data-swatch="ember-room"] { background: linear-gradient(135deg, #e48a62 12%, #d8a0a8 55%, #63343a); }
+.appearance-swatch[data-swatch="night-sky"] { background: radial-gradient(circle at 26% 28%, #e2e5ef 0 1px, transparent 2px), radial-gradient(circle at 71% 65%, #b2c9e5 0 1px, transparent 2px), linear-gradient(135deg, #111b32, #3e3455 65%, #0c1120); }
 .appearance-type-sample[data-type-sample="poetic"] { font-family: 'Fraunces', Georgia, serif; font-style: italic; }
 .appearance-type-sample[data-type-sample="quiet"] { font-family: 'Manrope', system-ui, sans-serif; }
 .appearance-type-sample[data-type-sample="clear"] { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
@@ -1293,3 +1293,85 @@ body[data-layout="listening-table"][data-profile="nocturne"] input[type="range"]
 body[data-layout="listening-table"][data-profile="nocturne"] input[type="range"]::-moz-range-track { height: 4px; border-radius: 2px; }
 /* Keep deployment visibility rules from expanding the listening toolbar. */
 html[data-deployment="web"] body[data-layout="listening-table"][data-profile="nocturne"] .mixer-head .help > span.web-only { display: none !important; }
+
+/* Night Sky is a room atmosphere, leaving the chosen scene and audio intact.
+   Sparse, fixed stars: no canvas, image request, twinkling, or render loop. */
+html[data-appearance-enabled="true"][data-mood="night-sky"] body[data-profile="nocturne"][data-layout="listening-table"] {
+  background:
+    radial-gradient(ellipse 38% 50% at 12% 26%, rgb(71 105 151 / .18), transparent 85%),
+    radial-gradient(ellipse 46% 32% at 70% 12%, rgb(115 83 146 / .15), transparent 85%),
+    radial-gradient(ellipse 38% 50% at 86% 88%, rgb(52 83 118 / .11), transparent 85%),
+    #080c17;
+}
+html[data-appearance-enabled="true"][data-mood="night-sky"] body[data-profile="nocturne"]::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: .48;
+  background-image:
+    radial-gradient(circle at 3% 12%, #d6e0f3 0 .6px, transparent 1.4px),
+    radial-gradient(circle at 8% 47%, #a4bddc 0 .7px, transparent 1.5px),
+    radial-gradient(circle at 4% 81%, #e2d5ed 0 .8px, transparent 1.6px),
+    radial-gradient(circle at 15% 6%, #adbfdb 0 .5px, transparent 1.3px),
+    radial-gradient(circle at 23% 10%, #d6e0f3 0 .6px, transparent 1.4px),
+    radial-gradient(circle at 38% 4%, #d6e0f3 0 .7px, transparent 1.5px),
+    radial-gradient(circle at 47% 16%, #a4bddc 0 .5px, transparent 1.3px),
+    radial-gradient(circle at 59% 8%, #e2d5ed 0 .9px, transparent 1.7px),
+    radial-gradient(circle at 68% 3%, #a4bddc 0 .6px, transparent 1.4px),
+    radial-gradient(circle at 79% 12%, #d6e0f3 0 .6px, transparent 1.4px),
+    radial-gradient(circle at 94% 6%, #e2d5ed 0 .8px, transparent 1.6px),
+    radial-gradient(circle at 96% 29%, #d6e0f3 0 .6px, transparent 1.4px),
+    radial-gradient(circle at 91% 58%, #a4bddc 0 .7px, transparent 1.5px),
+    radial-gradient(circle at 98% 86%, #d6e0f3 0 .8px, transparent 1.6px),
+    radial-gradient(circle at 92% 95%, #d6e0f3 0 .5px, transparent 1.3px),
+    radial-gradient(circle at 73% 91%, #e2d5ed 0 .6px, transparent 1.4px),
+    radial-gradient(circle at 54% 97%, #a4bddc 0 .6px, transparent 1.4px),
+    radial-gradient(circle at 37% 92%, #d6e0f3 0 .8px, transparent 1.6px),
+    radial-gradient(circle at 19% 97%, #d6e0f3 0 .5px, transparent 1.3px),
+    radial-gradient(circle at 11% 89%, #e2d5ed 0 .7px, transparent 1.5px);
+}
+html[data-light="soft"][data-mood="night-sky"] body[data-profile="nocturne"]::before { opacity: .30; }
+html[data-light="clear"][data-mood="night-sky"] body[data-profile="nocturne"]::before { opacity: .62; }
+
+/* Light spills from the aperture into the room; it never sits over footage.
+   Bounded gradients remain inside the layout at narrow widths. */
+body[data-layout="listening-table"][data-profile="nocturne"] .hero { position: relative; isolation: isolate; }
+body[data-layout="listening-table"][data-profile="nocturne"] .hero:has(#video-stage)::before {
+  content: "";
+  position: absolute;
+  inset: -22px -16px;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 24% 68% at 9% 46%, rgb(97 182 196 / .15), transparent 100%),
+    radial-gradient(ellipse 24% 68% at 91% 46%, rgb(var(--accent-soft-rgb) / .16), transparent 100%);
+  filter: blur(18px);
+}
+html[data-light="soft"] body[data-layout="listening-table"][data-profile="nocturne"] .hero::before { opacity: .55; }
+html[data-mood="night-sky"] body[data-layout="listening-table"][data-profile="nocturne"] .hero:has(#video-stage)::before {
+  background:
+    radial-gradient(ellipse 28% 68% at 8% 48%, rgb(118 161 213 / .23), transparent 100%),
+    radial-gradient(ellipse 28% 68% at 92% 48%, rgb(170 133 207 / .19), transparent 100%);
+}
+
+/* The old per-sound palette returns as level feedback, without animated cards. */
+body[data-layout="listening-table"][data-profile="nocturne"] .channel:not(.unavailable)::before {
+  content: "";
+  position: absolute;
+  inset: 6px 0;
+  pointer-events: none;
+  border-left: 2px solid var(--glow-color);
+  background: linear-gradient(90deg, var(--glow-color), transparent 68%);
+  opacity: calc(var(--vol) * .24);
+  transition: opacity 180ms ease;
+}
+body[data-layout="listening-table"][data-profile="nocturne"] .channel.active .name { color: var(--text); }
+body[data-layout="listening-table"][data-profile="nocturne"] .channel:hover,
+body[data-layout="listening-table"][data-profile="nocturne"] .channel:focus-within { background-color: rgb(var(--accent-rgb) / .025); }
+@media (prefers-reduced-motion: reduce) {
+  body[data-layout="listening-table"] .channel::before { transition: none !important; }
+}
+@media (max-width: 560px) {
+  body[data-layout="listening-table"][data-profile="nocturne"] .hero:has(#video-stage)::before { inset: -12px -8px; filter: blur(12px); }
+}

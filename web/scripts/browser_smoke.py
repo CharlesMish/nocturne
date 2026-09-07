@@ -64,9 +64,18 @@ with sync_playwright() as p:
             return connect.call(this, destination, ...args);
           };
         ''')
+        if fallback:
+            page.add_init_script("localStorage.setItem('nocturne:appearance:v1', JSON.stringify({schema:1,mood:'ember-room',type:'poetic',light:'balanced'}))")
         page.goto('https://nocturne.test/')
         wait("document.querySelectorAll('.slot-change').length === 8 && !document.querySelector('#build-label-footer').textContent.includes('loading')")
         assert not errors, errors
+        if fallback:
+            assert page.evaluate('document.documentElement.dataset.mood') == 'night-sky'
+        page.locator('#settings-open').click()
+        page.locator('input[data-appearance-field="mood"][value="night-sky"]').check()
+        page.locator('#settings-close').click()
+        assert page.evaluate('document.documentElement.dataset.mood') == 'night-sky'
+        assert page.locator('body').evaluate("e => getComputedStyle(e, '::before').pointerEvents") == 'none'
         slider = page.locator('#mixer-grid input[type=range]').first
         slider.fill('40')
         page.locator('#resume-mix').click()

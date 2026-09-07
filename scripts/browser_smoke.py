@@ -824,7 +824,7 @@ def main() -> int:
             if profile_id == "nocturne":
                 page.evaluate("scrollTo(0, 0)")
                 page.wait_for_function("scrollY === 0")
-                for mood in ("rain-lantern", "moonwater", "cedar-steam", "ember-room"):
+                for mood in ("rain-lantern", "moonwater", "cedar-steam", "night-sky"):
                     page.locator("#settings-open").click()
                     page.wait_for_selector("#settings-overlay:not([hidden])")
                     page.locator(f'input[data-appearance-field="mood"][value="{mood}"]').check()
