@@ -325,7 +325,7 @@ function verifyHostedPage(indexHtml) {
   check(indexHtml.includes('id="radio-file-privacy"'), "hosted HTML is missing persistent local-Radio privacy copy");
   check(indexHtml.includes('files stay in this tab and are never uploaded'), "hosted HTML does not state the local-Radio boundary");
   check(indexHtml.includes('class="radio-file-actions web-only"'), "hosted Radio has no persistent add-files control");
-  check(indexHtml.includes('Use <em>Change</em> to explore the bundled recorded shelf.'), "hosted mixer does not state its recorded-only catalog boundary");
+  check(indexHtml.includes('Use <em>Edit sounds</em>, then <em>Change</em> to explore the bundled recorded shelf.'), "hosted mixer does not state its recorded-only catalog boundary");
   check(indexHtml.includes('class="mode-btn local-only" data-mode="utility"'), "Utility mode lacks a no-JavaScript web boundary");
   check(indexHtml.includes('class="mode-btn local-only" data-mode="dashboard"'), "Dashboard mode lacks a no-JavaScript web boundary");
 

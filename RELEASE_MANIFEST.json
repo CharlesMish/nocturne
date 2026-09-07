@@ -18,7 +18,7 @@
   "release_eligible": true,
   "generated_at_utc": "2026-08-01T16:34:39Z",
   "file_count": 120,
-  "total_payload_bytes_excluding_manifest": 12879417,
+  "total_payload_bytes_excluding_manifest": 12895212,
   "manifest_self_excluded": true,
   "evidence_detached": true,
   "detached_evidence_file_count": 3,
@@ -333,8 +333,8 @@
     },
     {
       "path": "scripts/browser_smoke.py",
-      "size_bytes": 57488,
-      "sha256": "67fd43188ef43b0715eb892c02f04e059f2f186acd364c56f365d7e3ed8f6019"
+      "size_bytes": 59196,
+      "sha256": "89eee6db1e719238d4e96112a04ae8881cd49360b015fb63bcc9f7b12b2718ba"
     },
     {
       "path": "scripts/fetch_media.py",
@@ -618,8 +618,8 @@
     },
     {
       "path": "static/index.html",
-      "size_bytes": 328844,
-      "sha256": "353f063b5752e90ae1c7dc78ac0ecbac1897edc9d079cbb11022f27c4af441ab"
+      "size_bytes": 329747,
+      "sha256": "816ce44f3b90d86929f5f65c444a60258abd76ae4ead08301e64348ee71cccfc"
     },
     {
       "path": "static/manifest.webmanifest",
@@ -628,8 +628,8 @@
     },
     {
       "path": "static/nocturne-polish.css",
-      "size_bytes": 37998,
-      "sha256": "a5b2bb0dac83f0b6742614c0bc33d5b3bdbc2b624f495df40bc5cca777e1e1fc"
+      "size_bytes": 51182,
+      "sha256": "955cde7167e3ab229b528894c0b7b5feff86f4f6cf84098e1d69ac2af219e5fd"
     },
     {
       "path": "static/rain-still.webp",

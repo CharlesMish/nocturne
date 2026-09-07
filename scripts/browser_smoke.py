@@ -402,6 +402,12 @@ def main() -> int:
             checks.append("main page includes one served polish stylesheet")
 
             first_change = page.locator(".slot-change").first
+            assert not first_change.is_visible(), 'Change controls stay tucked away during listening'
+            page.locator('#edit-sounds').click()
+            assert page.locator('#edit-sounds').get_attribute('aria-pressed') == 'true'
+            assert first_change.is_visible()
+            checks.append('Edit sounds reveals eight replacement controls without changing the mix')
+            page.keyboard.press("Tab")
             first_change.focus()
             focus_style = first_change.evaluate(
                 "e => ({style:getComputedStyle(e).outlineStyle,width:getComputedStyle(e).outlineWidth})"
@@ -653,6 +659,9 @@ def main() -> int:
 
             page.evaluate("scrollTo(0, 0)")
             page.wait_for_function("scrollY === 0")
+            page.locator('#edit-sounds').click()
+            assert page.locator('#edit-sounds').get_attribute('aria-pressed') == 'false'
+            assert not first_change.is_visible()
             page.screenshot(path=str(artifacts / "desktop-onsen.png"), full_page=False)
 
             if profile_id == "nocturne":
@@ -691,16 +700,16 @@ def main() -> int:
                 page.screenshot(path=str(artifacts / "desktop-radio.png"), full_page=False)
                 checks.append("Radio displays the first available track without autoplay or creating audio")
 
-                # The shared rail sits between each active hero and the mixer.
+                # The shared rail follows the active room and mixer in reading order.
                 rail_order = page.evaluate("""() => {
                   const hero = document.querySelector('#radio-hero').getBoundingClientRect();
                   const railElement = document.querySelector('[data-global-controls]');
                   const rail = railElement.getBoundingClientRect();
                   const mixer = document.querySelector('.mixer-section');
-                  return {heroBottom: hero.bottom, railTop: rail.top, railBeforeMixer: Boolean(railElement.compareDocumentPosition(mixer) & Node.DOCUMENT_POSITION_FOLLOWING)};
+                  return {heroBottom: hero.bottom, railTop: rail.top, railAfterMixer: Boolean(mixer.compareDocumentPosition(railElement) & Node.DOCUMENT_POSITION_FOLLOWING)};
                 }""")
                 assert rail_order["railTop"] >= rail_order["heroBottom"] - 2, rail_order
-                assert rail_order["railBeforeMixer"], rail_order
+                assert rail_order["railAfterMixer"], rail_order
                 checks.append("one shared master/silence/timer rail follows the active hero")
 
                 # Weather failure remains calm and explicit on a later refresh.
@@ -722,6 +731,7 @@ def main() -> int:
             page.evaluate("localStorage.setItem = window.__nocturneOriginalSetItem")
             checks.append("scene save explains a browser storage quota failure")
 
+            page.locator("#edit-sounds").click()
             first_change.click()
             page.wait_for_selector("#sound-picker:not([hidden])")
             checks.append("sound picker opens from a mixer slot")
@@ -785,6 +795,18 @@ def main() -> int:
             )
             assert returned_style == {"style": "solid", "width": "2px"}, returned_style
             checks.append("Escape closes the picker and visibly returns focus to its Change trigger")
+            levels_before_swap = page.locator('#mixer-grid input[type="range"]').evaluate_all('els => els.map(e => e.value)')
+            first_change.click()
+            page.get_by_role('button', name='all', exact=True).click()
+            page.get_by_role('button', name=f'Use {waves_name} in slot 1', exact=True).click()
+            assert page.locator('#sound-picker').is_hidden()
+            assert page.locator('#mixer-grid .name').first.inner_text() == waves_name
+            assert page.locator('#mixer-grid input[type="range"]').evaluate_all('els => els.map(e => e.value)') == levels_before_swap
+            assert page.locator('#mixer-grid input[type="range"]').first.get_attribute('aria-label') == f'{waves_name} volume'
+            first_change.click()
+            page.get_by_role('button', name=f'Use {default_names[0]} in slot 1', exact=True).click()
+            checks.append('replacing a slot from the larger bank preserves all eight levels and updates its accessible label')
+            page.locator('#edit-sounds').click()
 
             no_horizontal_overflow = page.evaluate(
                 "document.documentElement.scrollWidth <= window.innerWidth + 1"
@@ -795,7 +817,7 @@ def main() -> int:
             desktop_columns = page.locator("#mixer-grid").evaluate(
                 "e => getComputedStyle(e).gridTemplateColumns.split(' ').filter(Boolean).length"
             )
-            expected_columns = 4 if profile_id == "nocturne" else 8
+            expected_columns = 1 if profile_id == "nocturne" else 8
             assert desktop_columns == expected_columns, {"profile": profile_id, "columns": desktop_columns}
             checks.append(f"{profile_id} desktop mixer uses its intended {expected_columns}-column deck")
 
