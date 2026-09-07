@@ -17,7 +17,7 @@
 (() => {
   const defaults = { schema: 1, mood: 'rain-lantern', type: 'poetic', light: 'balanced' };
   const allowed = {
-    mood: ['rain-lantern', 'moonwater', 'cedar-steam', 'ember-room'],
+    mood: ['rain-lantern', 'moonwater', 'cedar-steam', 'night-sky'],
     type: ['poetic', 'quiet', 'clear'],
     light: ['soft', 'balanced', 'clear']
   };
@@ -25,6 +25,7 @@
   try {
     const stored = JSON.parse(localStorage.getItem('nocturne:appearance:v1') || 'null');
     if (stored && Number(stored.schema) === 1) {
+      if (stored.mood === 'ember-room') stored.mood = 'night-sky';
       appearance = {
         schema: 1,
         mood: allowed.mood.includes(stored.mood) ? stored.mood : defaults.mood,
@@ -4466,9 +4467,9 @@ body[data-mode="dashboard"] .topbar {
             <span><strong>Cedar Steam</strong><small>moss + warm cream</small></span>
           </label>
           <label class="appearance-option">
-            <input type="radio" name="appearance-mood" value="ember-room" data-appearance-field="mood">
-            <span class="appearance-swatch" data-swatch="ember-room" aria-hidden="true"></span>
-            <span><strong>Ember Room</strong><small>copper + muted plum</small></span>
+            <input type="radio" name="appearance-mood" value="night-sky" data-appearance-field="mood">
+            <span class="appearance-swatch" data-swatch="night-sky" aria-hidden="true"></span>
+            <span><strong>Night Sky</strong><small>starlight + distant violet</small></span>
           </label>
         </div>
       </fieldset>
@@ -4623,7 +4624,7 @@ body[data-mode="dashboard"] .topbar {
     schema: 1, mood: 'rain-lantern', type: 'poetic', light: 'balanced'
   });
   const APPEARANCE_OPTIONS = Object.freeze({
-    mood: ['rain-lantern', 'moonwater', 'cedar-steam', 'ember-room'],
+    mood: ['rain-lantern', 'moonwater', 'cedar-steam', 'night-sky'],
     type: ['poetic', 'quiet', 'clear'],
     light: ['soft', 'balanced', 'clear']
   });
@@ -4631,7 +4632,7 @@ body[data-mode="dashboard"] .topbar {
     'rain-lantern': '#100b0d',
     moonwater: '#080d14',
     'cedar-steam': '#0a0f0c',
-    'ember-room': '#130b09'
+    'night-sky': '#080c17'
   });
   const WEB_PROFILE = document.documentElement.dataset.deployment === 'web';
   const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -4648,9 +4649,10 @@ body[data-mode="dashboard"] .topbar {
     if (!raw || typeof raw !== 'object' || Number(raw.schema) !== 1) {
       return { ...DEFAULT_APPEARANCE };
     }
+    const mood = raw.mood === 'ember-room' ? 'night-sky' : raw.mood;
     return {
       schema: 1,
-      mood: APPEARANCE_OPTIONS.mood.includes(raw.mood) ? raw.mood : DEFAULT_APPEARANCE.mood,
+      mood: APPEARANCE_OPTIONS.mood.includes(mood) ? mood : DEFAULT_APPEARANCE.mood,
       type: APPEARANCE_OPTIONS.type.includes(raw.type) ? raw.type : DEFAULT_APPEARANCE.type,
       light: APPEARANCE_OPTIONS.light.includes(raw.light) ? raw.light : DEFAULT_APPEARANCE.light
     };
