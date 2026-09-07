@@ -3714,7 +3714,7 @@ body[data-mode="dashboard"] .topbar {
 </style>
 <link rel="stylesheet" href="/nocturne-polish.css">
 </head>
-<body data-mode="onsen">
+<body data-mode="onsen" data-layout="listening-table">
 
 <div class="grain" aria-hidden="true"></div>
 <div class="vignette" aria-hidden="true"></div>
@@ -4130,50 +4130,18 @@ body[data-mode="dashboard"] .topbar {
       </div>
     </section>
 
-    <!-- One shared control rail follows whichever room hero is active. -->
-    <section class="master" aria-labelledby="master-heading" data-global-controls>
-      <h2 class="visually-hidden" id="master-heading">Master controls</h2>
-      <div class="master-slider">
-        <div class="label">
-          <span class="name">Master</span>
-          <span class="meta">overall mix</span>
-        </div>
-        <input type="range" id="master" min="0" max="100" step="1" value="70" aria-label="Master volume">
-        <span class="value" id="master-value">70%</span>
-      </div>
-      <div class="master-actions">
-        <button class="btn btn-primary" id="resume-mix" type="button">resume mix</button>
-        <button class="btn" id="silence" type="button">silence all</button>
-      </div>
-      <p class="session-notice" id="session-notice" aria-live="polite" hidden></p>
-      <div class="sleep-timer" role="group" aria-labelledby="sleep-timer-label">
-        <div class="label">
-          <span class="name" id="sleep-timer-label">Sleep timer</span>
-          <span class="meta">fade then silence</span>
-        </div>
-        <div class="timer-controls">
-          <button class="btn timer-btn" data-timer-minutes="15" type="button">15 min</button>
-          <button class="btn timer-btn" data-timer-minutes="30" type="button">30 min</button>
-          <button class="btn timer-btn" data-timer-minutes="60" type="button">60 min</button>
-          <button class="btn timer-btn" data-timer-minutes="90" type="button">90 min</button>
-          <button class="btn" id="cancel-timer" type="button">cancel</button>
-        </div>
-        <div class="timer-status" id="timer-status" role="timer" aria-live="off"></div>
-        <p class="visually-hidden" id="timer-announcement" role="status" aria-live="polite"></p>
-      </div>
-    </section>
-
     <!-- ─────────────────────  MIXER  ───────────────────── -->
     <section class="mixer-section" aria-labelledby="mixer-heading">
       <p class="visually-hidden" id="mixer-status" role="status" aria-live="polite"></p>
       <div class="mixer-head">
         <div>
-          <span class="eyebrow">ambient library</span>
-          <h2 id="mixer-heading">Choose eight sounds for tonight.</h2>
+          <span class="eyebrow">eight sounds / one evening</span>
+          <h2 id="mixer-heading">Tonight</h2>
         </div>
         <div class="help">
-          <span class="local-only">Tonight begins with eight bundled recordings. Use <em>Change</em> to explore the recorded, generated, and experimental shelves.</span>
-          <span class="web-only">Tonight begins with eight bundled recordings. Use <em>Change</em> to explore the bundled recorded shelf.</span>
+          <span class="local-only">Tonight begins with eight bundled recordings. Use <em>Edit sounds</em>, then <em>Change</em> to explore the recorded, generated, and experimental shelves.</span>
+          <span class="web-only">Tonight begins with eight bundled recordings. Use <em>Edit sounds</em>, then <em>Change</em> to explore the bundled recorded shelf.</span>
+          <button class="btn" id="edit-sounds" type="button" aria-pressed="false" aria-controls="mixer-grid">Edit sounds</button>
           <button class="btn mixer-reset" id="reset-mixer-slots" type="button">restore Tonight</button>
         </div>
       </div>
@@ -4416,6 +4384,39 @@ body[data-mode="dashboard"] .topbar {
         </section>
       </div>
 
+    </section>
+
+    <!-- One shared control rail remains beneath the active room and its listening table. -->
+    <section class="master" aria-labelledby="master-heading" data-global-controls>
+      <h2 class="visually-hidden" id="master-heading">Master controls</h2>
+      <div class="master-slider">
+        <div class="label">
+          <span class="name">Master</span>
+          <span class="meta">overall mix</span>
+        </div>
+        <input type="range" id="master" min="0" max="100" step="1" value="70" aria-label="Master volume">
+        <span class="value" id="master-value">70%</span>
+      </div>
+      <div class="master-actions">
+        <button class="btn btn-primary" id="resume-mix" type="button">resume mix</button>
+        <button class="btn" id="silence" type="button">silence all</button>
+      </div>
+      <p class="session-notice" id="session-notice" aria-live="polite" hidden></p>
+      <div class="sleep-timer" role="group" aria-labelledby="sleep-timer-label">
+        <div class="label">
+          <span class="name" id="sleep-timer-label">Sleep timer</span>
+          <span class="meta">fade then silence</span>
+        </div>
+        <div class="timer-controls">
+          <button class="btn timer-btn" data-timer-minutes="15" type="button">15 min</button>
+          <button class="btn timer-btn" data-timer-minutes="30" type="button">30 min</button>
+          <button class="btn timer-btn" data-timer-minutes="60" type="button">60 min</button>
+          <button class="btn timer-btn" data-timer-minutes="90" type="button">90 min</button>
+          <button class="btn" id="cancel-timer" type="button">cancel</button>
+        </div>
+        <div class="timer-status" id="timer-status" role="timer" aria-live="off"></div>
+        <p class="visually-hidden" id="timer-announcement" role="status" aria-live="polite"></p>
+      </div>
     </section>
 
     <!-- ─────────────────────  FOOTER  ───────────────────── -->
@@ -5771,6 +5772,18 @@ body[data-mode="dashboard"] .topbar {
     }
     scheduleMediaSessionUpdate();
   }
+
+  // Editing is transient UI state; mixes continue playing at their current levels.
+  const editSounds = document.getElementById('edit-sounds');
+  editSounds.addEventListener('click', () => {
+    const editing = editSounds.getAttribute('aria-pressed') !== 'true';
+    editSounds.setAttribute('aria-pressed', String(editing));
+    editSounds.textContent = editing ? 'Done' : 'Edit sounds';
+    document.querySelector('.mixer-section').classList.toggle('editing-sounds', editing);
+    document.getElementById('mixer-status').textContent = editing
+      ? 'Choose Change beside a sound to replace it. Its volume stays in place.'
+      : 'Sound editing closed. Your mix is ready.';
+  });
 
   function ensureSlotControls(channel) {
     if (channel.actionRow) return;
