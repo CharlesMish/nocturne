@@ -26,3 +26,12 @@ jobs:
         run: npm ci
       - name: Test, build, verify, and dry-run the Worker bundle
         run: npm run check
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install hosted browser test dependencies
+        run: |
+          python -m pip install playwright==1.61.0
+          python -m playwright install --with-deps chromium
+      - name: Exercise hosted startup and real media playback
+        run: python scripts/browser_smoke.py

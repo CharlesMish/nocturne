@@ -8701,6 +8701,9 @@ arrange(
     const savedMaster = clamp(loadVol('master', 70));
     setMaster(savedMaster, false);
 
+    /* Normalize the built-in fallback before any AudioParam receives a gain.
+       The remote manifest may arrive later or be unavailable. */
+    soundLibrary = normaliseSoundLibrary(soundLibrary);
     /* Build assignable mixer slots */
     rebuildSoundIndex();
     buildMixerSlots();

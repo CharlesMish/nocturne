@@ -1291,3 +1291,5 @@ body[data-layout="listening-table"][data-profile="nocturne"] input[type="range"]
 body[data-layout="listening-table"][data-profile="nocturne"] input[type="range"]::-webkit-slider-runnable-track { height: 4px; border-radius: 2px; }
 body[data-layout="listening-table"][data-profile="nocturne"] input[type="range"]::-webkit-slider-thumb { margin-top: -8px; }
 body[data-layout="listening-table"][data-profile="nocturne"] input[type="range"]::-moz-range-track { height: 4px; border-radius: 2px; }
+/* Keep deployment visibility rules from expanding the listening toolbar. */
+html[data-deployment="web"] body[data-layout="listening-table"][data-profile="nocturne"] .mixer-head .help > span.web-only { display: none !important; }
